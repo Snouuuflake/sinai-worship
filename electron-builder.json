@@ -1,0 +1,8 @@
+{
+  "appId": "mss-worship",
+  "files": ["dist-electron", "dist-react"],
+  "extraResources": ["dist-electron/preload.cjs"],
+  "win": {
+    "target":[ "portable", "msi" ]
+  }
+}
