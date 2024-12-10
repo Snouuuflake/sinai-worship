@@ -1,0 +1,61 @@
+.dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  /*background-color: red;*/
+}
+
+.s {
+  font-size: 18px;
+}
+
+.text-icon {
+  width: 100%;
+  text-align: center;
+  display: inline-block;
+}
+
+.icon-container {
+  --icon-container-bg: var(--gray-3);
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background-color: var(--icon-container-bg);
+}
+
+
+.icons-container {
+  width: 16px;
+  background: var(--gray-3);
+}
+
+
+.lights-container {
+  width: 8px;
+  background: var(--gray-3);
+}
+
+.verse-button-container {
+  display: flex;
+  margin: 10px 0;
+  overflow: clip;
+}
+
+.verse-button {
+  background: var(--gray-1);
+  border: none;
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  padding: 3px;
+}
+
+.verse-button:hover {
+  background: var(--gray-6)
+}
+
+.line {
+  /*background: green*/
+}

@@ -1,16 +1,25 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  color-scheme: dark;
   color: rgba(255, 255, 255, 1);
-  background-color: #242424;
+  background-color: var(--gray-0);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* variables */
+  --gray-0: #101010ff;
+  --gray-1: #282828ff;
+  --gray-2: #303030ff;
+  --gray-3: #383838ff;
+  --gray-4: #404040ff;
+  --gray-5: #484848ff;
+  --gray-6: #505050ff;
 }
 
 /*a {*/
@@ -42,9 +51,9 @@
 /*  font-size: 1em;*/
 /*  font-weight: 500;*/
 /*  font-family: inherit;*/
-/*  background-color: #1a1a1a;*/
+/*  background-color: var(--element-bg);*/
 /*  cursor: pointer;*/
-/*  transition: border-color 0.25s;*/
+/*  /*transition: border-color 0.25s;*/*/
 /*}*/
 /*button:hover {*/
 /*  border-color: #646cff;*/
@@ -53,7 +62,7 @@
 /*button:focus-visible {*/
 /*  outline: 4px auto -webkit-focus-ring-color;*/
 /*}*/
-/**/
+
 /*@media (prefers-color-scheme: light) {*/
 /*  :root {*/
 /*    color: #213547;*/

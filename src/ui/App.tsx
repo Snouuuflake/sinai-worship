@@ -1,5 +1,5 @@
 import "./App.css";
-import Body from "./Body";
+import Body from "./Main/Body";
 import GlobalContextProvider from "./Main/GlobalContext";
 
 function App() {

@@ -1,5 +1,6 @@
 import { useContext } from "react";
-import { GlobalContextType, GlobalContext } from "./Main/GlobalContext";
+import { GlobalContextType, GlobalContext } from "./GlobalContext";
+import MainSection from "./MainSection";
 
 function Body() {
   const { liveSong, setLiveSong } = useContext(
@@ -18,13 +19,13 @@ function Body() {
                 name: "Section 1",
                 verses: [
                   {
-                    lines: ["v1 l1", "v1 l2", "v1 l3", "v1 l4"],
+                    lines: ["v1 l1"],
                   },
                   {
-                    lines: ["v2 l1", "v2 l2", "v2 l3", "v2 l4"],
+                    lines: ["v2 l1", "v2 l2"],
                   },
                   {
-                    lines: ["v2 l1", "v2 l2", "v2 l3", "v2 l4"],
+                    lines: ["v3 l1", "v3 l2", "v3 l3", "v3 l4"],
                   },
                 ],
               },
@@ -38,7 +39,7 @@ function Body() {
                     lines: ["v2 l1", "v2 l2", "v2 l3", "v2 l4"],
                   },
                   {
-                    lines: ["v2 l1", "v2 l2", "v2 l3", "v2 l4"],
+                    lines: ["v3 l1", "v3 l2", "v3 l3", "v3 l4"],
                   },
                 ],
               },
@@ -46,13 +47,13 @@ function Body() {
                 name: "Section 3",
                 verses: [
                   {
-                    lines: ["v1 l1", "v1 l2", "v1 l3", "v1 l4"],
+                    lines: ["v1 l1"],
                   },
                   {
-                    lines: ["v2 l1", "v2 l2", "v2 l3", "v2 l4"],
+                    lines: ["v2 l1", "v2 l2"],
                   },
                   {
-                    lines: ["v2 l1", "v2 l2", "v2 l3", "v2 l4"],
+                    lines: ["v3 l1", "v3 l2", "v3 l3"],
                   },
                 ],
               },
@@ -61,28 +62,11 @@ function Body() {
           };
           setLiveSong(testSong);
         }}
-      ></button>
-      <div style={{ whiteSpace: "pre-line" }}>
-        <h2>Title: {liveSong ? liveSong.title : ""}</h2>
-        <h2>Author: {liveSong ? liveSong.author : ""}</h2>
-        {liveSong
-          ? liveSong.sectionOrder
-            .map(
-              (sname) =>
-                sname +
-                liveSong.sections
-                  .find((s) => s.name === sname)!
-                  .verses.reduce(
-                    (p, c) =>
-                      p +
-                      c.lines.reduce((p, c) => p + " \n" + c, "") +
-                      " \n",
-                    "",
-                  ) || "",
-            )
-            .reduce((p, c) => p + " \n" + c)
-          : ""}
-      </div>
+      >
+      Load Test Song
+      </button>
+
+      <MainSection></MainSection>
     </div>
   );
 }
