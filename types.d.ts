@@ -11,6 +11,7 @@ interface Window {
 type Verse = {
   lines: Array<string>;
 };
+
 type Section = {
   name: string;
   verses: Array<Verse>;
@@ -18,7 +19,9 @@ type Section = {
 
 type Song = {
   title: string;
-  author: string;
+  author: string | null;
   sections: Array<Section>;
   sectionOrder: Array<string>;
 };
+
+type LiveSongType = Song?;
