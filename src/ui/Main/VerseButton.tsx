@@ -1,17 +1,41 @@
-import { useState } from "react";
+import { useContext } from "react";
+import { GlobalContext } from "./GlobalContext";
 import "./VerseButton.css";
 
-function VerseButton({ lines }: { lines: Array<string> }) {
-  const [live, setLive] = useState<boolean>(false);
-  const [selected, setSelected] = useState<boolean>(false);
+function VerseButton({
+  lines,
+  buttonID,
+}: {
+  lines: Array<string>;
+  buttonID: number;
+}) {
+  const { liveElement1, liveElement2 } = useContext(
+    GlobalContext,
+  ) as GlobalContextType;
+
+  const live1 = buttonID === liveElement1.value.buttonID;
+  const live2 = buttonID === liveElement2.value.buttonID;
+
+  const selected = false;
+
   return (
     <div className="verse-button-container">
       <div className="icons-container">
         <div className="icon-container">
           <div
-            className="dot"
-            style={{ backgroundColor: live ? "red" : "white" }}
-          ></div>
+            className={
+              /* if both or none */ (live1 && live2) || !(live1 || live2)
+                ? "dot"
+                : "hidden"
+            }
+            style={{ backgroundColor: 
+              live1 && live2 ? "red" : (live1 || live2) ? "transparent": "white" ,
+            color: "red",
+            fontWeight: "bold"
+            }}
+          >
+            {live1 && live2 ? "" : live1 ? "1" : live2 ? "2" : ""}
+          </div>
         </div>
         <div
           className="icon-container"
@@ -32,12 +56,18 @@ function VerseButton({ lines }: { lines: Array<string> }) {
       <button
         className="verse-button"
         onClick={() => {
-          if (live) {
-            setSelected(true);
-            setLive(false);
+          if (Math.floor(Math.random()*10) % 2) {
+            liveElement1.set({
+              type: "text",
+              value: lines.reduce((p, c) => p + "\n" + c, ""),
+              buttonID: buttonID,
+            });
           } else {
-            setSelected(false);
-            setLive(true);
+            liveElement2.set({
+              type: "text",
+              value: lines.reduce((p, c) => p + "\n" + c, ""),
+              buttonID: buttonID,
+            });
           }
         }}
       >
@@ -53,7 +83,7 @@ function VerseButton({ lines }: { lines: Array<string> }) {
       <div className="lights-container">
         <div
           className="icon-container dot-light"
-          style={{ backgroundColor: live ? "red" : "var(--gray-3)" }}
+          style={{ backgroundColor: live1 || live2 ? "red" : "var(--gray-3)" }}
         ></div>
         <div
           className="icon-container s-light"

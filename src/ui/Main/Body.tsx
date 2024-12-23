@@ -1,14 +1,11 @@
 import { useContext } from "react";
-import { GlobalContextType, GlobalContext } from "./GlobalContext";
+import { GlobalContext } from "./GlobalContext";
 import MainSection from "./MainSection";
 
 function Body() {
-  const { liveSong, setLiveSong } = useContext(
-    GlobalContext,
-  ) as GlobalContextType;
+  const { openElement } = useContext(GlobalContext) as GlobalContextType;
   return (
     <div>
-      <h1> MSS-Worship (Now in react!) </h1>
       <button
         onClick={() => {
           const testSong: Song = {
@@ -60,10 +57,13 @@ function Body() {
             ],
             sectionOrder: ["Section 3", "Section 2", "Section 1", "Section 2"],
           };
-          setLiveSong(testSong);
+          openElement.set({
+            type: "song",
+            song: testSong,
+          });
         }}
       >
-      Load Test Song
+        Load Test Song
       </button>
 
       <MainSection></MainSection>

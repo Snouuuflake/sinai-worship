@@ -1,18 +1,27 @@
-import { GlobalContext, GlobalContextType } from "./GlobalContext";
+import { GlobalContext } from "./GlobalContext";
 import { useContext } from "react";
 import VerseButton from "./VerseButton";
 import "./MainSection.css";
 
 function makeSongControls(song: Song) {
+  let buttonIDCounter: number = 0;
   try {
     return song.sectionOrder.flatMap((sname, snameIndex): React.ReactNode[] => {
       const currentS = song.sections.find((s) => s.name === sname)!;
       return [
-        <h3 key={`s${snameIndex}`} className="section-title">{currentS.name}</h3>,
-        currentS.verses.map((v, vIndex) => (
-          <VerseButton key={`v${vIndex}`} lines={v.lines}>
-          </VerseButton>
-        )),
+        <h3 key={`s${snameIndex}`} className="section-title">
+          {currentS.name}
+        </h3>,
+        currentS.verses.map((v, vIndex) => {
+          buttonIDCounter += 1;
+          return (
+            <VerseButton
+              key={`v${vIndex}`}
+              lines={v.lines}
+              buttonID={buttonIDCounter}
+            ></VerseButton>
+          );
+        }),
       ];
     });
   } catch (err) {
@@ -27,10 +36,12 @@ function makeSongControls(song: Song) {
 }
 
 function MainSection() {
-  const { liveSong } = useContext(GlobalContext) as GlobalContextType;
+  const { openElement } = useContext(GlobalContext) as GlobalContextType;
   return (
     <div className="main-section">
-      {liveSong ? makeSongControls(liveSong) : ""}
+      {openElement.value.type === "song" && openElement.value.song
+        ? makeSongControls(openElement.value.song)
+        : ""}
     </div>
   );
 }
