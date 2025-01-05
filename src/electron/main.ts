@@ -14,4 +14,5 @@ app.on("ready", () => {
   } else {
     mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"));
   }
+  //mainWindow.loadFile(path.join(app.getAppPath(), "/dist-display/index.html"))
 });
