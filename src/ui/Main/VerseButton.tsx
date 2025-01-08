@@ -9,12 +9,16 @@ function VerseButton({
   lines: Array<string>;
   buttonID: number;
 }) {
-  const { liveElement1, liveElement2 } = useContext(
+  const { MAX_LIVE_ELEMENTS, liveElementsState } = useContext(
     GlobalContext,
   ) as GlobalContextType;
 
-  const live1 = buttonID === liveElement1.value.buttonID;
-  const live2 = buttonID === liveElement2.value.buttonID;
+  const matchingLiveIndexes = liveElementsState.value.flatMap((le, i) =>
+    le.buttonID == buttonID ? [i] : [],
+  );
+
+  const someMatching = !!matchingLiveIndexes.length;
+  const allMatching = matchingLiveIndexes.length == MAX_LIVE_ELEMENTS;
 
   const selected = false;
 
@@ -24,18 +28,21 @@ function VerseButton({
         <div className="icon-container">
           <div
             className={
-              /* if both or none */ (live1 && live2) || !(live1 || live2)
+              /* if both or none */ allMatching || !someMatching
                 ? "dot"
                 : "hidden"
             }
-            style={{ backgroundColor: 
-              live1 && live2 ? "red" : (live1 || live2) ? "transparent": "white" ,
-            color: "red",
-            fontWeight: "bold"
+            style={{
+              backgroundColor: allMatching
+                ? "red"
+                : someMatching
+                  ? "transparent"
+                  : "white",
+              color: "red",
+              fontWeight: "bold",
             }}
-          >
-            {live1 && live2 ? "" : live1 ? "1" : live2 ? "2" : ""}
-          </div>
+          ></div>
+          {allMatching ? "" : matchingLiveIndexes.map((i) => <span>{i}</span>)}
         </div>
         <div
           className="icon-container"
@@ -56,19 +63,32 @@ function VerseButton({
       <button
         className="verse-button"
         onClick={() => {
-          if (Math.floor(Math.random()*10) % 2) {
-            liveElement1.set({
-              type: "text",
-              value: lines.reduce((p, c) => p + "\n" + c, ""),
-              buttonID: buttonID,
-            });
-          } else {
-            liveElement2.set({
-              type: "text",
-              value: lines.reduce((p, c) => p + "\n" + c, ""),
-              buttonID: buttonID,
-            });
-          }
+          //if (Math.floor(Math.random() * 10) % 2) {
+          //  liveElement1.set({
+          //    type: "text",
+          //    value: lines.reduce((p, c) => p + "\n" + c, ""),
+          //    buttonID: buttonID,
+          //  });
+          //} else {
+          //  liveElement2.set({
+          //    type: "text",
+          //    value: lines.reduce((p, c) => p + "\n" + c, ""),
+          //    buttonID: buttonID,
+          //  });
+          //}
+
+          liveElementsState.set(
+            Array.from({ length: MAX_LIVE_ELEMENTS }).map((_, i) => {
+              return {
+                index: i,
+                liveElement: {
+                  type: "text",
+                  value: lines.reduce((p, c) => p + "\n" + c, ""),
+                  buttonID: buttonID,
+                },
+              };
+            })
+          );
         }}
       >
         {lines
@@ -83,7 +103,13 @@ function VerseButton({
       <div className="lights-container">
         <div
           className="icon-container dot-light"
-          style={{ backgroundColor: live1 || live2 ? "red" : "var(--gray-3)" }}
+          style={{
+            backgroundColor: allMatching
+              ? "red"
+              : someMatching
+                ? "DarkRed"
+                : "var(--gray-3)",
+          }}
         ></div>
         <div
           className="icon-container s-light"

@@ -29,6 +29,8 @@
 .icons-container {
   width: 16px;
   background: var(--gray-3);
+  display: flex;
+  flex-direction: column;
 }
 
 

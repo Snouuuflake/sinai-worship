@@ -1,5 +1,17 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  min-height: 100vh;
+  min-width: 100vw;
+  overflow: clip;
+}
 body {
   background-color: black;
   color: white;
-  overflow: clip;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

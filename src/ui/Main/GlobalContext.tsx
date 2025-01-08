@@ -6,20 +6,27 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   // --- live element ---------------------------------------------------------
-  const makeLiveElementState = (): LiveElementState => {
-    const [v, s] = useState<LiveElementType>({
-      type: "none",
-      value: "",
-      buttonID: -1,
-    });
+  const makeLiveElementsState = (): LiveElementsState => {
+    const [v, s] = useState<LiveElementType[]>([]);
 
     /** wrapper for other stuff to be done when updating live element */
-    const setLiveElement = (newValue: LiveElementType) => {
-      // TODO: send value IPC
-      s(newValue);
+    const setLiveElementsState = (
+      newLiveElements: IndexedLiveElementsObject[],
+    ) => {
+      const newV: LiveElementType[] = [...v];
+      newLiveElements.forEach((item) => {
+        //if (typeof v[item.index] === "undefined") {
+        newV[item.index] = item.liveElement;
+        //} else {
+        //  newV = newV.map((value, i) => (i == item.index ? item.liveElement : value));
+        //}
+        window.electron.sendSetLiveElement(item.index, item.liveElement);
+      });
+      s(newV);
+      console.log(newV);
     };
 
-    return { value: v, set: setLiveElement };
+    return { value: v, set: setLiveElementsState };
   };
 
   const [openV, openS] = useState<OpenElementType>({
@@ -33,8 +40,8 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <GlobalContext.Provider
       value={{
-        liveElement1: makeLiveElementState(),
-        liveElement2: makeLiveElementState(),
+        MAX_LIVE_ELEMENTS: 3,
+        liveElementsState: makeLiveElementsState(),
         openElement,
       }}
     >

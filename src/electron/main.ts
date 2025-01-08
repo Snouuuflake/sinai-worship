@@ -46,6 +46,16 @@ ipcMain.handle("invoke-index", (event) => {
   });
 });
 
+function sendToAllDisplayWindows(channel: string, data: any) {
+  windowArray.forEach((w) => {
+    w.window.webContents.send(channel, data);
+  });
+}
+
+ipcMain.on("set-live-element", (_event, data) => {
+  sendToAllDisplayWindows(`display-${data.index}-text`, data.value);
+});
+
 app.on("ready", () => {
   const mainWindow = new BrowserWindow({
     webPreferences: {

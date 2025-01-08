@@ -1,5 +1,5 @@
 /** INFO:
-Elements that require display window-index-independent styles musty have classes with an # in their name; when the window is loaded, all #'s will be replaced by the appropriate window index.'
+Elements that require display window-index-independent styles must have classes with an # in their name; when the window is loaded, all #'s will be replaced by the appropriate window index.'
 */
 
 /**
@@ -36,6 +36,17 @@ window.addEventListener("load", () => {
     .then((index) => {
       updateAllClasses(index);
       console.log(`Window index is ${index} :3`);
+
+      // INFO: projection element event listeners
+      window.electron.onDisplayText((text) => {
+        const textContainer = document.createElement("div");
+        textContainer.classList.add(`text-container d-${index}-text-container`);
+        const textElement = document.createElement("div");
+        textElement.classList.add(`text d-${index}-text`);
+        textElement.innerText = text;
+        textContainer.appendChild(textElement);
+        document.body.appendChild(textContainer);
+      })
     })
     .catch((e) => {
       console.log(`Error getting window index!\n${e.message}`);

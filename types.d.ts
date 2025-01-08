@@ -4,9 +4,11 @@ type testType = {
 
 interface Window {
   electron: {
+    sendSetLiveElement: (index: number, liveElement: LiveElementType) => void;
     testFunction: () => string;
     sendNewDisplayWindow: (index: number) => void;
     invokeIndex: () => Promise<any>;
+    onDisplayText: (index: number, callback: (text: string) => void) => void;
   };
 }
 
@@ -27,10 +29,11 @@ type Song = {
 };
 
 type GlobalContextType = {
-  liveElement1: LiveElementState;
-  liveElement2: LiveElementState;
+  MAX_LIVE_ELEMENTS: number;
+  liveElementsState: LiveElementsState;
   openElement: OpenElementState;
 };
+
 
 /**
  * type: "none" | "song"
@@ -56,7 +59,12 @@ type LiveElementType = {
   buttonID: number;
 };
 
-type LiveElementState = {
-  value: LiveElementType;
-  set: (newValue: LiveElementType) => void;
+type IndexedLiveElementsObject = {
+  index: number;
+  liveElement: LiveElementType;
+}
+
+type LiveElementsState = {
+  value: LiveElementType[];
+  set: (IndexedLiveElementsObject) => void;
 };
