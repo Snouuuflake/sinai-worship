@@ -5,6 +5,8 @@ type testType = {
 interface Window {
   electron: {
     testFunction: () => string;
+    sendNewDisplayWindow: (index: number) => void;
+    invokeIndex: () => Promise<any>;
   };
 }
 
