@@ -38,15 +38,19 @@ window.addEventListener("load", () => {
       console.log(`Window index is ${index} :3`);
 
       // INFO: projection element event listeners
-      window.electron.onDisplayText((text) => {
+      window.electron.onDisplayText(index, (text) => {
+        console.log(text);
+        document.body.replaceChildren();
         const textContainer = document.createElement("div");
-        textContainer.classList.add(`text-container d-${index}-text-container`);
+        textContainer.classList.add(`text-container`);
+        textContainer.classList.add(`d-${index}-text-container`);
         const textElement = document.createElement("div");
-        textElement.classList.add(`text d-${index}-text`);
+        textElement.classList.add(`text`);
+        textElement.classList.add(`d-${index}-text`);
         textElement.innerText = text;
         textContainer.appendChild(textElement);
         document.body.appendChild(textContainer);
-      })
+      });
     })
     .catch((e) => {
       console.log(`Error getting window index!\n${e.message}`);

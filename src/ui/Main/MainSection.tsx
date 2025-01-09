@@ -1,7 +1,8 @@
 import { GlobalContext } from "./GlobalContext";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import VerseButton from "./VerseButton";
 import "./MainSection.css";
+import "./VerseButton.css";
 
 function makeSongControls(song: Song) {
   let buttonIDCounter: number = 0;
@@ -39,6 +40,7 @@ function MainSection() {
   const { openElement } = useContext(GlobalContext) as GlobalContextType;
   return (
     <div className="main-section">
+      <div className="blink blink-master" style={{ display: "none" }}></div>
       {openElement.value.type === "song" && openElement.value.song
         ? makeSongControls(openElement.value.song)
         : ""}

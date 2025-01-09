@@ -2,9 +2,7 @@ import { createContext, useState } from "react";
 
 export const GlobalContext = createContext<GlobalContextType | null>(null);
 
-const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({ children, }) => {
   // --- live element ---------------------------------------------------------
   const makeLiveElementsState = (): LiveElementsState => {
     const [v, s] = useState<LiveElementType[]>([]);
@@ -15,11 +13,7 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
     ) => {
       const newV: LiveElementType[] = [...v];
       newLiveElements.forEach((item) => {
-        //if (typeof v[item.index] === "undefined") {
         newV[item.index] = item.liveElement;
-        //} else {
-        //  newV = newV.map((value, i) => (i == item.index ? item.liveElement : value));
-        //}
         window.electron.sendSetLiveElement(item.index, item.liveElement);
       });
       s(newV);
@@ -40,7 +34,7 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <GlobalContext.Provider
       value={{
-        MAX_LIVE_ELEMENTS: 3,
+        MAX_LIVE_ELEMENTS: 4,
         liveElementsState: makeLiveElementsState(),
         openElement,
       }}

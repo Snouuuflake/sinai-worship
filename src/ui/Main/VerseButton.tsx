@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import { GlobalContext } from "./GlobalContext";
-import "./VerseButton.css";
 
 function VerseButton({
   lines,
@@ -17,32 +16,29 @@ function VerseButton({
     le.buttonID == buttonID ? [i] : [],
   );
 
+  /** [1,2,...,MAX_LIVE_ELEMENTS-1] */
+  const liveIndexesRange = Array.from(
+    { length: MAX_LIVE_ELEMENTS },
+    (_, i) => i,
+  );
+
   const someMatching = !!matchingLiveIndexes.length;
   const allMatching = matchingLiveIndexes.length == MAX_LIVE_ELEMENTS;
 
   const selected = false;
 
   return (
-    <div className="verse-button-container">
+    <div className="verse-button-container-row">
       <div className="icons-container">
         <div className="icon-container">
           <div
-            className={
-              /* if both or none */ allMatching || !someMatching
-                ? "dot"
-                : "hidden"
-            }
+            className={`dot ${someMatching && !allMatching ? "blink" : ""}`}
             style={{
-              backgroundColor: allMatching
-                ? "red"
-                : someMatching
-                  ? "transparent"
-                  : "white",
+              backgroundColor: someMatching ? "red" : "white",
               color: "red",
               fontWeight: "bold",
             }}
           ></div>
-          {allMatching ? "" : matchingLiveIndexes.map((i) => <span>{i}</span>)}
         </div>
         <div
           className="icon-container"
@@ -63,22 +59,8 @@ function VerseButton({
       <button
         className="verse-button"
         onClick={() => {
-          //if (Math.floor(Math.random() * 10) % 2) {
-          //  liveElement1.set({
-          //    type: "text",
-          //    value: lines.reduce((p, c) => p + "\n" + c, ""),
-          //    buttonID: buttonID,
-          //  });
-          //} else {
-          //  liveElement2.set({
-          //    type: "text",
-          //    value: lines.reduce((p, c) => p + "\n" + c, ""),
-          //    buttonID: buttonID,
-          //  });
-          //}
-
           liveElementsState.set(
-            Array.from({ length: MAX_LIVE_ELEMENTS }).map((_, i) => {
+            Array.from({ length: MAX_LIVE_ELEMENTS - 3 }).map((_, i) => {
               return {
                 index: i,
                 liveElement: {
@@ -87,28 +69,44 @@ function VerseButton({
                   buttonID: buttonID,
                 },
               };
-            })
+            }),
           );
         }}
       >
-        {lines
-          .flatMap((l, lIndex) => [
-            <br key={`br${lIndex}`} />,
-            <span key={`l${lIndex}`} className="line">
-              {l}
-            </span>,
-          ])
-          .slice(1)}
+        <div className="verse-button-container-col">
+          <div className="display-indexes-container">
+            {liveIndexesRange.map((i) => (
+              <span
+                className="display-index"
+                style={{
+                  color:
+                    typeof matchingLiveIndexes.find((j) => j == i) !=
+                      "undefined"
+                      ? "red"
+                      : "gray",
+                }}
+              >
+                {i + 1}
+              </span>
+            ))}
+          </div>
+          <div className="verse-button-content">
+            {lines
+              .flatMap((l, lIndex) => [
+                <hr className="verse-button-hr" key={`hr${lIndex}`} />,
+                <div key={`l${lIndex}`} className="line">
+                  {l}
+                </div>,
+              ])
+              .slice(1)}
+          </div>
+        </div>
       </button>
       <div className="lights-container">
         <div
-          className="icon-container dot-light"
+          className={`icon-container dot-light ${someMatching && !allMatching ? "blink" : ""} blinkcable`}
           style={{
-            backgroundColor: allMatching
-              ? "red"
-              : someMatching
-                ? "DarkRed"
-                : "var(--gray-3)",
+            backgroundColor: someMatching ? "red" : "var(--gray-3)",
           }}
         ></div>
         <div

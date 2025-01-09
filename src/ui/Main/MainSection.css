@@ -1,3 +1,6 @@
+:root {
+  --blink-opacity: 1;
+}
 .main-section {
   /*background: blue*/
 }
@@ -5,3 +8,18 @@
 .section-title {
   margin-bottom: 0;
 }
+
+@keyframes blink {
+  50% {
+    --blink-opacity: 0.3;
+  }
+}
+.main-section {
+  --blink-opacity: 1;
+  animation: blink 0.7s step-start 0s infinite;
+}
+
+.main-section .blink {
+  opacity: var(--blink-opacity);
+}
+
