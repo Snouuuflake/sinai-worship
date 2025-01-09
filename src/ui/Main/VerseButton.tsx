@@ -35,8 +35,6 @@ function VerseButton({
             className={`dot ${someMatching && !allMatching ? "blink" : ""}`}
             style={{
               backgroundColor: someMatching ? "red" : "white",
-              color: "red",
-              fontWeight: "bold",
             }}
           ></div>
         </div>
@@ -56,40 +54,55 @@ function VerseButton({
           </span>
         </div>
       </div>
-      <button
-        className="verse-button"
-        onClick={() => {
-          liveElementsState.set(
-            Array.from({ length: MAX_LIVE_ELEMENTS - 3 }).map((_, i) => {
-              return {
-                index: i,
-                liveElement: {
-                  type: "text",
-                  value: lines.reduce((p, c) => p + "\n" + c, ""),
-                  buttonID: buttonID,
-                },
-              };
-            }),
-          );
-        }}
-      >
-        <div className="verse-button-container-col">
-          <div className="display-indexes-container">
-            {liveIndexesRange.map((i) => (
-              <span
-                className="display-index"
-                style={{
-                  color:
-                    typeof matchingLiveIndexes.find((j) => j == i) !=
-                      "undefined"
-                      ? "red"
-                      : "gray",
-                }}
-              >
-                {i + 1}
-              </span>
-            ))}
-          </div>
+      <div className="verse-button-container-col">
+        <div className="display-indexes-container">
+          {liveIndexesRange.map((i) => (
+            <button
+              key={`di${i}`}
+              className="display-index"
+              style={{
+                color:
+                  typeof matchingLiveIndexes.find((j) => j == i) != "undefined"
+                    ? "red"
+                    : "gray",
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                liveElementsState.set([
+                  {
+                    index: i,
+                    liveElement: {
+                      type: "text",
+                      value: lines.reduce((p, c) => p + "\n" + c, ""),
+                      buttonID: buttonID,
+                    },
+                  },
+                ]);
+              }}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+        <button
+          className="verse-button"
+          key={`b${buttonID}`}
+          onClick={() => {
+            console.log(someMatching, allMatching);
+            liveElementsState.set(
+              Array.from({ length: MAX_LIVE_ELEMENTS - 0 }).map((_, i) => {
+                return {
+                  index: i,
+                  liveElement: {
+                    type: "text",
+                    value: lines.reduce((p, c) => p + "\n" + c, ""),
+                    buttonID: buttonID,
+                  },
+                };
+              }),
+            );
+          }}
+        >
           <div className="verse-button-content">
             {lines
               .flatMap((l, lIndex) => [
@@ -100,8 +113,8 @@ function VerseButton({
               ])
               .slice(1)}
           </div>
-        </div>
-      </button>
+        </button>
+      </div>
       <div className="lights-container">
         <div
           className={`icon-container dot-light ${someMatching && !allMatching ? "blink" : ""} blinkcable`}

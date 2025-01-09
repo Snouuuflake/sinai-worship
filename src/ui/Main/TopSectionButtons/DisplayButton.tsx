@@ -5,6 +5,7 @@ import { GlobalContext } from "../GlobalContext";
 function makeIndexButtons(n: number) {
   return [...Array(n).keys()].map((element) => (
     <button
+      key={`${element}`}
       className="index"
       onClick={() => {
         window.electron.sendNewDisplayWindow(element);

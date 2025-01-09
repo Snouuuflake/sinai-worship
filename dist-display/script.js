@@ -41,6 +41,10 @@ window.addEventListener("load", () => {
       window.electron.onDisplayText(index, (text) => {
         console.log(text);
         document.body.replaceChildren();
+        const displayNum = document.createElement("h1");
+        displayNum.textContent = `${index + 1}`;
+        displayNum.style= {position: "absolute", top:"0", left:"0"};
+        document.body.appendChild( displayNum);
         const textContainer = document.createElement("div");
         textContainer.classList.add(`text-container`);
         textContainer.classList.add(`d-${index}-text-container`);

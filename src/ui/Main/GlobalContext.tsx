@@ -34,7 +34,7 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   return (
     <GlobalContext.Provider
       value={{
-        MAX_LIVE_ELEMENTS: 4,
+        MAX_LIVE_ELEMENTS: 3000,
         liveElementsState: makeLiveElementsState(),
         openElement,
       }}
