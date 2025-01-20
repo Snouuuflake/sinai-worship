@@ -73,7 +73,7 @@ function VerseButton({
                     index: i,
                     liveElement: {
                       type: "text",
-                      value: lines.reduce((p, c) => p + "\n" + c, ""),
+                      value: lines.reduce((p, c) => p + "\n" + c, "").trim(),
                       buttonID: buttonID,
                     },
                   },
@@ -90,12 +90,12 @@ function VerseButton({
           onClick={() => {
             console.log(someMatching, allMatching);
             liveElementsState.set(
-              Array.from({ length: MAX_LIVE_ELEMENTS - 0 }).map((_, i) => {
+              Array.from({ length: MAX_LIVE_ELEMENTS }).map((_, i) => {
                 return {
                   index: i,
                   liveElement: {
                     type: "text",
-                    value: lines.reduce((p, c) => p + "\n" + c, ""),
+                    value: lines.reduce((p, c) => p + "\n" + c, "").trim(),
                     buttonID: buttonID,
                   },
                 };

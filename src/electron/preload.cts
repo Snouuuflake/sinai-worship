@@ -2,6 +2,17 @@ const electron = require("electron");
 
 electron.contextBridge.exposeInMainWorld("electron", {
   // for react
+  invokeReadSong: (callback: (song: Song) => void) => {
+    electron.ipcRenderer.invoke("read-song").then(
+      (s) => {
+        callback(s);
+      },
+      (e) => {
+        console.error(e);
+      },
+    );
+  },
+
   /**
    * @param {number} index Display index
    */
@@ -19,6 +30,11 @@ electron.contextBridge.exposeInMainWorld("electron", {
   invokeIndex: () => electron.ipcRenderer.invoke("invoke-index"),
   onDisplayText: (index: number, callback: (text: string) => void) => {
     electron.ipcRenderer.on(`display-${index}-text`, (_event, data) => {
+      callback(data);
+    });
+  },
+  onDisplayImage: (index: number, callback: (path: string) => void) => {
+    electron.ipcRenderer.on(`display-${index}text`, (_event, data) => {
       callback(data);
     });
   },

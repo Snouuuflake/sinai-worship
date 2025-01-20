@@ -29,6 +29,25 @@ function updateAllClasses(index) {
   }
 }
 
+function overflows(element) {
+  return ((element.clientHeight < element.scrollHeight) || (element.clientWidth < element.scrollWidth));
+}
+function fitText(textElement, parentElement, maxSize) {
+
+  let i = 0;
+  textElement.style.fontSize = i + "px";
+
+  for (i = 0; !overflows(parentElement) && i != maxSize; i++) {
+    textElement.style.fontSize = i + "px";
+    console.log(i);
+  }
+
+  if (overflows(parentElement)) {
+    textElement.style.fontSize = i - 2 + "px";
+    console.log(i);
+  }
+}
+
 /** main code: */
 window.addEventListener("load", () => {
   window.electron
@@ -36,25 +55,29 @@ window.addEventListener("load", () => {
     .then((index) => {
       updateAllClasses(index);
       console.log(`Window index is ${index} :3`);
+      document.title = `Window #${index + 1}`;
 
       // INFO: projection element event listeners
       window.electron.onDisplayText(index, (text) => {
         console.log(text);
         document.body.replaceChildren();
-        const displayNum = document.createElement("h1");
-        displayNum.textContent = `${index + 1}`;
-        displayNum.style= {position: "absolute", top:"0", left:"0"};
-        document.body.appendChild( displayNum);
         const textContainer = document.createElement("div");
         textContainer.classList.add(`text-container`);
         textContainer.classList.add(`d-${index}-text-container`);
         const textElement = document.createElement("div");
         textElement.classList.add(`text`);
         textElement.classList.add(`d-${index}-text`);
+
         textElement.innerText = text;
         textContainer.appendChild(textElement);
+
         document.body.appendChild(textContainer);
+
+        const maxFontSize = parseInt(getComputedStyle(textElement).fontSize);
+        console.log(maxFontSize);
+        fitText(textElement, textContainer, maxFontSize);
       });
+      //window.electron.onDisplayImage()
     })
     .catch((e) => {
       console.log(`Error getting window index!\n${e.message}`);

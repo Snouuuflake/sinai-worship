@@ -1,7 +1,8 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
 import { isDev } from "./util.js";
 import { getPreloadPath } from "./pathResolver.js";
+import { readMSSFile } from "./parser.js";
 
 const windowArray: Array<DisplayWindow> = [];
 
@@ -61,6 +62,12 @@ ipcMain.on("set-live-element", (_event, data) => {
       data.liveElement.value,
     );
   }
+  //else if (data.liveElement.type === "image") {
+  //  sendToAllDisplayWindows(
+  //    `display${data.index}-image`,
+  //    data.liveElement.value, // (path)
+  //  );
+  //}
 });
 
 app.on("ready", () => {
@@ -75,10 +82,30 @@ app.on("ready", () => {
     mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"));
   }
 });
+
 app.on("window-all-closed", () => {
   app.quit();
 });
 
 ipcMain.on("new-display-window", (_event, index: number) => {
   new DisplayWindow(index);
+});
+
+ipcMain.handle("read-song", (_event) => {
+  return new Promise((resolve, reject) => {
+    dialog.showOpenDialog({ properties: ["openFile"] }).then((result) => {
+      if (!result.canceled) {
+        readMSSFile(result.filePaths[0]).then(
+          (s) => {
+            resolve(s);
+          },
+          (e) => {
+            dialog.showErrorBox("Error reading song", e.message);
+            reject();
+          },
+        );
+      }
+    });
+
+  });
 });

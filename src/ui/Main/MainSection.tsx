@@ -7,26 +7,34 @@ import "./VerseButton.css";
 function makeSongControls(song: Song) {
   let buttonIDCounter: number = 0;
   try {
-    return song.sectionOrder.flatMap((sname, snameIndex): React.ReactNode[] => {
-      const currentS = song.sections.find((s) => s.name === sname)!;
-      return [
-        <h3 key={`s${snameIndex}`} className="section-title">
-          {currentS.name}
-        </h3>,
-        currentS.verses.map((v, vIndex) => {
-          buttonIDCounter += 1;
-          return (
-            <VerseButton
-              key={`v${vIndex}`}
-              lines={v.lines}
-              buttonID={buttonIDCounter}
-            ></VerseButton>
-          );
-        }),
-      ];
+    return song.sectionOrder.flatMap((sei, seiIndex) => {
+      if (sei.type === "section" || sei.type === "repeat") {
+        return [
+          <h3 key={`s${seiIndex}`} className="section-title">
+            {sei.name}
+          </h3>,
+
+          song.sections
+            .find((s) => s.name == sei.name)!
+            .verses.map((v, vIndex) => {
+              buttonIDCounter += 1;
+              return (
+                <VerseButton
+                  key={`s${seiIndex}v${vIndex}`}
+                  lines={v.lines}
+                  buttonID={buttonIDCounter}
+                ></VerseButton>
+              );
+            }),
+        ];
+      } else if (sei.type === "note") {
+        return (
+          <h4 key={sei.name} className="note">{song.notes.find(n => n.name === sei.name)!.text} </h4>
+        )
+      }
     });
   } catch (err) {
-    // NOTE: this is here because of the song.sections.find type assertion. could be undefinied.
+    // NOTE: this is here because of the song.sections.find type assertion. could be undefined.
     //       if the song file was genereated remotely right, this should never happen.
     const e = err as Error;
     // TODO: handle this properly
