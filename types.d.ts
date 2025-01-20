@@ -78,31 +78,39 @@ interface Window {
 type GlobalContextType = {
   MAX_LIVE_ELEMENTS: number;
   liveElementsState: LiveElementsState;
-  openElement: OpenElementState;
+  openElements: OpenElementsState;
+  viewElement: OpenElementState;
 };
 
 /**
  * type: "none" | "song"
  */
 type OpenElementType = {
-  type: string;
+  type: "none" | "song";
   song: Song?;
 };
 
 type OpenElementState = {
   value: OpenElementType;
   set: (newValue: OpenElementType) => void;
+}
+
+type OpenElementsState = {
+  value: OpenElementType[];
+  set: (newValue: OpenElementType[]) => void;
 };
 
 /**
  * type: "none" | "text" (for lyrics)
  * value: text or path to be projected
  * buttonID: ui button that was selected (if applicable). if -1 -> none.
+ * object: literal reference to the song or whatever object in react
  */
 type LiveElementType = {
   type: string;
   value: string;
   buttonID: number;
+  object: any;
 };
 
 type IndexedLiveElementsObject = {

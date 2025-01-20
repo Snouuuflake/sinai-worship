@@ -20,6 +20,8 @@
   --gray-4: #404040ff;
   --gray-5: #484848ff;
   --gray-6: #505050ff;
+
+  --hi1: rgb(255,30,60);
 }
 
 .top-section-button {

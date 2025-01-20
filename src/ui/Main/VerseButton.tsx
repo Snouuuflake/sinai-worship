@@ -1,19 +1,25 @@
-import { useContext } from "react";
+import { useContext, useRef, useEffect } from "react";
 import { GlobalContext } from "./GlobalContext";
 
 function VerseButton({
   lines,
   buttonID,
+  object,
+  selected,
+  setSelected,
 }: {
   lines: Array<string>;
   buttonID: number;
+  object: any;
+  selected: boolean;
+  setSelected: (value: React.SetStateAction<number>) => void;
 }) {
   const { MAX_LIVE_ELEMENTS, liveElementsState } = useContext(
     GlobalContext,
   ) as GlobalContextType;
 
   const matchingLiveIndexes = liveElementsState.value.flatMap((le, i) =>
-    le.buttonID == buttonID ? [i] : [],
+    le.buttonID == buttonID && le.object == object ? [i] : [],
   );
 
   /** [1,2,...,MAX_LIVE_ELEMENTS-1] */
@@ -25,16 +31,22 @@ function VerseButton({
   const someMatching = !!matchingLiveIndexes.length;
   const allMatching = matchingLiveIndexes.length == MAX_LIVE_ELEMENTS;
 
-  const selected = false;
+  const thisRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (selected && thisRef.current) {
+      thisRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [selected]);
 
   return (
-    <div className="verse-button-container-row">
+    <div className="verse-button-container-row" ref={thisRef}>
       <div className="icons-container">
         <div className="icon-container">
           <div
             className={`dot ${someMatching && !allMatching ? "blink" : ""}`}
             style={{
-              backgroundColor: someMatching ? "red" : "white",
+              backgroundColor: someMatching ? "var(--hi1)" : "white",
             }}
           ></div>
         </div>
@@ -58,12 +70,13 @@ function VerseButton({
         <div className="display-indexes-container">
           {liveIndexesRange.map((i) => (
             <button
+              tabIndex={-1}
               key={`di${i}`}
               className="display-index"
               style={{
                 color:
                   typeof matchingLiveIndexes.find((j) => j == i) != "undefined"
-                    ? "red"
+                    ? "var(--hi1)"
                     : "gray",
               }}
               onClick={(e) => {
@@ -75,6 +88,7 @@ function VerseButton({
                       type: "text",
                       value: lines.reduce((p, c) => p + "\n" + c, "").trim(),
                       buttonID: buttonID,
+                      object: object,
                     },
                   },
                 ]);
@@ -85,10 +99,13 @@ function VerseButton({
           ))}
         </div>
         <button
+          tabIndex={-1}
           className="verse-button"
           key={`b${buttonID}`}
+          id={`verse-button-${buttonID}`}
           onClick={() => {
             console.log(someMatching, allMatching);
+            setSelected(buttonID);
             liveElementsState.set(
               Array.from({ length: MAX_LIVE_ELEMENTS }).map((_, i) => {
                 return {
@@ -97,6 +114,7 @@ function VerseButton({
                     type: "text",
                     value: lines.reduce((p, c) => p + "\n" + c, "").trim(),
                     buttonID: buttonID,
+                    object: object,
                   },
                 };
               }),
@@ -119,7 +137,7 @@ function VerseButton({
         <div
           className={`icon-container dot-light ${someMatching && !allMatching ? "blink" : ""} blinkcable`}
           style={{
-            backgroundColor: someMatching ? "red" : "var(--gray-3)",
+            backgroundColor: someMatching ? "var(--hi1)" : "var(--gray-3)",
           }}
         ></div>
         <div

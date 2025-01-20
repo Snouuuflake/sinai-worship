@@ -1,0 +1,25 @@
+.open-element-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.open-element-item {
+  all: unset;
+  line-height: 1.1em;
+  display: flex;
+  gap: 5px;
+}
+
+.open-element-item:hover > * {
+  color: var(--gray-5) !important;
+}
+
+.open-element-item:active {
+  color: var(--hi1);
+}
+
+.open-element-item-name {
+  color: color-mix(in srgb, gray, white 50%);
+  font-weight: bold;
+}

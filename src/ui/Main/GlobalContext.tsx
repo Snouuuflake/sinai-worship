@@ -1,11 +1,20 @@
 import { createContext, useState } from "react";
 
 export const GlobalContext = createContext<GlobalContextType | null>(null);
-
-const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({ children, }) => {
+const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const MAX_LIVE_ELEMENTS = 4;
   // --- live element ---------------------------------------------------------
   const makeLiveElementsState = (): LiveElementsState => {
-    const [v, s] = useState<LiveElementType[]>([]);
+    const [v, s] = useState<LiveElementType[]>(
+      Array.from({ length: MAX_LIVE_ELEMENTS }, (_) => ({
+        type: "none",
+        value: "",
+        buttonID: -1,
+        object: null,
+      })),
+    );
 
     /** wrapper for other stuff to be done when updating live element */
     const setLiveElementsState = (
@@ -23,20 +32,22 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return { value: v, set: setLiveElementsState };
   };
 
-  const [openV, openS] = useState<OpenElementType>({
+  const [openV, openS] = useState<OpenElementType[]>([]);
+  const [viewV, viewS] = useState<OpenElementType>({
     type: "none",
     song: null,
   });
 
-  // --- open element ---------------------------------------------------------
-  const openElement = { value: openV, set: openS };
+  const openElements = { value: openV, set: openS };
+  const viewElement = { value: viewV, set: viewS };
 
   return (
     <GlobalContext.Provider
       value={{
-        MAX_LIVE_ELEMENTS: 4,
+        MAX_LIVE_ELEMENTS,
         liveElementsState: makeLiveElementsState(),
-        openElement,
+        openElements,
+        viewElement,
       }}
     >
       {children}

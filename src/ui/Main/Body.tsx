@@ -1,13 +1,16 @@
-import { useContext } from "react";
-import { GlobalContext } from "./GlobalContext";
-import MainSection from "./MainSection";
+import "./Body.css"
+import ControlSection from "./ControlSection";
+import OpenElementMenu from "./OpenElementMenu";
 import TopSection from "./TopSection";
 
 function Body() {
   return (
     <div>
       <TopSection />
-      <MainSection></MainSection>
+      <div className="main-container">
+        <OpenElementMenu />
+        <ControlSection />
+      </div>
     </div>
   );
 }
