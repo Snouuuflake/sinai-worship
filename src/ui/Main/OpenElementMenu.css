@@ -1,7 +1,46 @@
 .open-element-menu {
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   gap: 7px;
+  padding: 10px;
+  background-image: linear-gradient(var(--gray-3), var(--gray-0));
+}
+
+.open-element-item-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.open-element-action-button-container {
+  margin: 0;
+  padding: 0;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.open-element-action-button {
+  all: unset;
+  background-color: color-mix(in srgb, var(--gray-5), white 70%);
+  border-radius: 4px;
+  width: 20px;
+  height: 20px;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.open-element-action-button:hover {
+  background-color: white;
+}
+
+.open-element-action-button-content {
+  padding: 0;
+  margin: 0;
 }
 
 .open-element-item {

@@ -24,6 +24,10 @@
   --hi1: rgb(255,30,60);
 }
 
+* {
+   zoom: reset;
+   }
+
 .top-section-button {
   all: unset;
   background: var(--gray-2);

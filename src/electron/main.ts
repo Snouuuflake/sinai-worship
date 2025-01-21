@@ -70,17 +70,21 @@ ipcMain.on("set-live-element", (_event, data) => {
   //}
 });
 
+
 app.on("ready", () => {
   const mainWindow = new BrowserWindow({
     webPreferences: {
       preload: getPreloadPath(),
     },
   });
+  mainWindow.setMenu(null);
   if (isDev()) {
     mainWindow.loadURL("http://localhost:5123");
+  mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"));
   }
+
 });
 
 app.on("window-all-closed", () => {
@@ -106,6 +110,5 @@ ipcMain.handle("read-song", (_event) => {
         );
       }
     });
-
   });
 });

@@ -8,10 +8,35 @@
 }
 .main-container {
   animation: blink 0.7s step-start 0s infinite;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  max-width: 1800px;
+}
+
+.main-container > .open-element-menu {
+    min-height: 200px;
+    max-width: 250px;
+    min-width: 250px;
+}
+.main-container > .control-section {
+  flex-grow: 2;
+}
+
+@media (max-width: 500px) {
+  .main-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .main-container > .open-element-menu {
+    min-height: 0px;
+    max-width: none;
+    min-width: none;
+    height: 100px;
+    max-height: 100px;
+  }
 }
 
 .blink {
   opacity: var(--blink-opacity);
 }
-
-
