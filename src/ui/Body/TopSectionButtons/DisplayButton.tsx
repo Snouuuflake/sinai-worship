@@ -1,6 +1,6 @@
 import "./DisplayButton.css";
 import { useContext } from "react";
-import { GlobalContext } from "../GlobalContext";
+import { GlobalContext } from "../../GlobalContext";
 
 function makeIndexButtons(n: number) {
   return [...Array(n).keys()].map((element) => (

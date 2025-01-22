@@ -2,13 +2,15 @@ import { useContext, useRef, useEffect } from "react";
 import { GlobalContext } from "../GlobalContext";
 
 function VerseButton({
-  lines,
+  section,
+  verseIndex,
   buttonID,
   object,
   selected,
   setSelected,
 }: {
-  lines: Array<string>;
+  section: Section;
+  verseIndex: number;
   buttonID: number;
   object: any;
   selected: boolean;
@@ -50,10 +52,27 @@ function VerseButton({
             }}
           ></div>
         </div>
+        <div className="icon-container icon-button">
+          <span
+            className="text-icon no-select"
+            onClick={() => {
+              console.log("span clicked");
+            }}
+          >
+            {/* TODO: make state for editor?
+             * -> state for text input & text icon save/cancel buttons
+             * that alwas save text input state value but are hidden
+             * it may fail spectacularly, but we edit the song object,
+             * and then set the state to its value?? and cause a re-render??
+             */}
+            E
+          </span>
+        </div>
         <div
           className="icon-container"
           style={{
             backgroundColor: selected ? "white" : "var(--icon-container-bg)",
+            flexGrow: 1,
           }}
         >
           <span
@@ -62,7 +81,7 @@ function VerseButton({
               color: selected ? "var(--icon-container-bg)" : "white",
             }}
           >
-            s
+            {/*s*/}
           </span>
         </div>
       </div>
@@ -86,7 +105,9 @@ function VerseButton({
                     index: i,
                     liveElement: {
                       type: "text",
-                      value: lines.reduce((p, c) => p + "\n" + c, "").trim(),
+                      value: section.verses[verseIndex].lines
+                        .reduce((p, c) => p + "\n" + c, "")
+                        .trim(),
                       buttonID: buttonID,
                       object: object,
                     },
@@ -112,7 +133,9 @@ function VerseButton({
                   index: i,
                   liveElement: {
                     type: "text",
-                    value: lines.reduce((p, c) => p + "\n" + c, "").trim(),
+                    value: section.verses[verseIndex].lines
+                      .reduce((p, c) => p + "\n" + c, "")
+                      .trim(),
                     buttonID: buttonID,
                     object: object,
                   },
@@ -122,7 +145,7 @@ function VerseButton({
           }}
         >
           <div className="verse-button-content">
-            {lines
+            {section.verses[verseIndex].lines
               .flatMap((l, lIndex) => [
                 <hr className="verse-button-hr" key={`hr${lIndex}`} />,
                 <div key={`l${lIndex}`} className="line">
@@ -144,6 +167,7 @@ function VerseButton({
           className="icon-container s-light"
           style={{
             backgroundColor: selected ? "white" : "var(--icon-container-bg)",
+            flexGrow: 1,
           }}
         ></div>
       </div>

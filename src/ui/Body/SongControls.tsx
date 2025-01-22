@@ -29,7 +29,9 @@ function SongControls({ song }: { song: Song }) {
         case " ":
         case "Enter":
           event.preventDefault();
-          const buttonToPress = document.getElementById(`verse-button-${selected}`)
+          const buttonToPress = document.getElementById(
+            `verse-button-${selected}`,
+          );
           if (buttonToPress) {
             buttonToPress.click();
           }
@@ -52,21 +54,24 @@ function SongControls({ song }: { song: Song }) {
           {sei.name}
         </h3>,
 
-        song.sections
-          .find((s) => s.name == sei.name)!
-          .verses.map((v, vIndex) => {
-            buttonIDCounter += 1;
-            return (
-              <VerseButton
-                key={`s${seiIndex}v${vIndex}`}
-                lines={v.lines}
-                buttonID={buttonIDCounter}
-                object={song}
-                selected={selected == buttonIDCounter}
-                setSelected={setSelected}
-              ></VerseButton>
-            );
-          }),
+        (() => { // <- this is stupid
+          const currentSection = song.sections .find((s) => s.name == sei.name)!
+          return currentSection.verses.map((v, vIndex) => {
+              buttonIDCounter += 1;
+              return (
+                <VerseButton
+                  key={`s${seiIndex}v${vIndex}`}
+                  //lines={v.lines}
+                  section={currentSection}
+                  verseIndex={vIndex}
+                  buttonID={buttonIDCounter}
+                  object={song}
+                  selected={selected == buttonIDCounter}
+                  setSelected={setSelected}
+                ></VerseButton>
+              );
+            });
+        })(),
       ];
     } else if (sei.type === "note") {
       return (

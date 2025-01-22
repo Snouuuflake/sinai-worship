@@ -6,7 +6,7 @@ import GlobalContextProvider from "./GlobalContext";
 function App() {
   return (
     <GlobalContextProvider>
-      <InlineEditor />
+    {/*<InlineEditor />*/}
       <Body></Body>
     </GlobalContextProvider>
   );

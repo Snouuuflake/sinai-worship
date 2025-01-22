@@ -6,14 +6,13 @@ function OpenElementMenu() {
   const { openElements, viewElement } = useContext(
     GlobalContext,
   ) as GlobalContextType;
-  useEffect(() => {}, [openElements, viewElement]);
+  useEffect(() => { }, [openElements, viewElement]);
   return (
     <div className="open-element-menu">
       {openElements.value.map((oe, oeIndex) => {
         return (
-          <div className="open-element-item-container">
+          <div className="open-element-item-container" key={`${oeIndex}`}>
             <button
-              key={`${oeIndex}`}
               className="open-element-item"
               onClick={() => {
                 viewElement.set(oe);
@@ -25,8 +24,8 @@ function OpenElementMenu() {
                 style={{
                   color:
                     oe.type !== "none" &&
-                    oe.type === viewElement.value.type &&
-                    oe[oe.type] === viewElement.value[oe.type]
+                      oe.type === viewElement.value.type &&
+                      oe[oe.type] === viewElement.value[oe.type]
                       ? "var(--hi1)"
                       : "",
                 }}
@@ -47,7 +46,8 @@ function OpenElementMenu() {
                   }
                   openElements.set(
                     openElements.value.toSpliced(
-                      openElements.value.indexOf(oe), 1
+                      openElements.value.indexOf(oe),
+                      1,
                     ),
                   );
                 }}
