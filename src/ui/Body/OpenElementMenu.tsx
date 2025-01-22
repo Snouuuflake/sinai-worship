@@ -1,6 +1,6 @@
 import "./OpenElementMenu.css";
 import { useContext, useEffect } from "react";
-import { GlobalContext } from "./GlobalContext";
+import { GlobalContext } from "../GlobalContext";
 import OpenElementIcon from "./OpenElementIcon";
 function OpenElementMenu() {
   const { openElements, viewElement } = useContext(

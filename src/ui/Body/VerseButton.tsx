@@ -1,5 +1,5 @@
 import { useContext, useRef, useEffect } from "react";
-import { GlobalContext } from "./GlobalContext";
+import { GlobalContext } from "../GlobalContext";
 
 function VerseButton({
   lines,
