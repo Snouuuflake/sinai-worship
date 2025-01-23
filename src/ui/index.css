@@ -22,11 +22,13 @@
   --gray-6: #505050ff;
 
   --hi1: rgb(255,30,60);
+  --hi2: rgb(120,200,255);
 }
 
 * {
    zoom: reset;
    }
+
 
 .top-section-button {
   all: unset;

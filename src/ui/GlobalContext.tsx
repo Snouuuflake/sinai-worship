@@ -26,7 +26,6 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
         window.electron.sendSetLiveElement(item.index, item.liveElement);
       });
       s(newV);
-      console.log(newV);
     };
 
     return { value: v, set: setLiveElementsState };

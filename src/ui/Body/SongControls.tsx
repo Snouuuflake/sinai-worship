@@ -13,30 +13,33 @@ function SongControls({ song }: { song: Song }) {
 
   useEffect(() => {
     function keyHandler(event: KeyboardEvent) {
-      switch (event.key) {
-        case "ArrowUp":
-          event.preventDefault();
-          if (selected > 0) {
-            setSelected(selected - 1);
-          }
-          break;
-        case "ArrowDown":
-          event.preventDefault();
-          if (selected < maxSelected - 1) {
-            setSelected(selected + 1);
-          }
-          break;
-        case " ":
-        case "Enter":
-          event.preventDefault();
-          const buttonToPress = document.getElementById(
-            `verse-button-${selected}`,
-          );
-          if (buttonToPress) {
-            buttonToPress.click();
-          }
-        default:
-          break;
+      const target = event.target as HTMLElement;
+      if (target.tagName !== "TEXTAREA") {
+        switch (event.key) {
+          case "ArrowUp":
+            event.preventDefault();
+            if (selected > 0) {
+              setSelected(selected - 1);
+            }
+            break;
+          case "ArrowDown":
+            event.preventDefault();
+            if (selected < maxSelected - 1) {
+              setSelected(selected + 1);
+            }
+            break;
+          case " ":
+          case "Enter":
+            event.preventDefault();
+            const buttonToPress = document.getElementById(
+              `verse-button-${selected}`,
+            );
+            if (buttonToPress) {
+              buttonToPress.click();
+            }
+          default:
+            break;
+        }
       }
     }
 
@@ -54,23 +57,24 @@ function SongControls({ song }: { song: Song }) {
           {sei.name}
         </h3>,
 
-        (() => { // <- this is stupid
-          const currentSection = song.sections .find((s) => s.name == sei.name)!
+        (() => {
+          // <- this is stupid
+          const currentSection = song.sections.find((s) => s.name == sei.name)!;
           return currentSection.verses.map((v, vIndex) => {
-              buttonIDCounter += 1;
-              return (
-                <VerseButton
-                  key={`s${seiIndex}v${vIndex}`}
-                  //lines={v.lines}
-                  section={currentSection}
-                  verseIndex={vIndex}
-                  buttonID={buttonIDCounter}
-                  object={song}
-                  selected={selected == buttonIDCounter}
-                  setSelected={setSelected}
-                ></VerseButton>
-              );
-            });
+            buttonIDCounter += 1;
+            return (
+              <VerseButton
+                key={`s${seiIndex}v${vIndex}`}
+                //lines={v.lines}
+                section={currentSection}
+                verseIndex={vIndex}
+                buttonID={buttonIDCounter}
+                object={song}
+                selected={selected == buttonIDCounter}
+                setSelected={setSelected}
+              ></VerseButton>
+            );
+          });
         })(),
       ];
     } else if (sei.type === "note") {

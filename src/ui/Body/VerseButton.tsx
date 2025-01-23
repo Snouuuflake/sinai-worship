@@ -1,4 +1,5 @@
-import { useContext, useRef, useEffect } from "react";
+import "./VerseButton.css";
+import { useContext, useRef, useEffect, useState } from "react";
 import { GlobalContext } from "../GlobalContext";
 
 function VerseButton({
@@ -16,9 +17,8 @@ function VerseButton({
   selected: boolean;
   setSelected: (value: React.SetStateAction<number>) => void;
 }) {
-  const { MAX_LIVE_ELEMENTS, liveElementsState } = useContext(
-    GlobalContext,
-  ) as GlobalContextType;
+  const { MAX_LIVE_ELEMENTS, liveElementsState, openElements, viewElement } =
+    useContext(GlobalContext) as GlobalContextType;
 
   const matchingLiveIndexes = liveElementsState.value.flatMap((le, i) =>
     le.buttonID == buttonID && le.object == object ? [i] : [],
@@ -41,6 +41,11 @@ function VerseButton({
     }
   }, [selected]);
 
+  const [editorOpen, setEditorOpen] = useState<boolean>(false);
+  const editorContentRef = useRef<string>(
+    section.verses[verseIndex].lines.reduce((p, c) => p + "\n" + c, ""),
+  );
+
   return (
     <div className="verse-button-container-row" ref={thisRef}>
       <div className="icons-container">
@@ -52,11 +57,18 @@ function VerseButton({
             }}
           ></div>
         </div>
-        <div className="icon-container icon-button">
+        <div
+          className="icon-container icon-button"
+          style={{ backgroundColor: editorOpen ? "var(--hi2)" : "", color: editorOpen ? "var(--icon-container-bg)" : ""}}
+        >
           <span
             className="text-icon no-select"
             onClick={() => {
-              console.log("span clicked");
+              if (editorOpen) {
+                setEditorOpen(false);
+              } else {
+                setEditorOpen(true);
+              }
             }}
           >
             {/* TODO: make state for editor?
@@ -68,6 +80,30 @@ function VerseButton({
             E
           </span>
         </div>
+        {editorOpen ? (
+          <div className="icon-container icon-button">
+            <span
+              className="text-icon no-select"
+              onClick={() => {
+                if (editorOpen) {
+                  section.verses[verseIndex].lines = editorContentRef.current
+                    .replace(/[\n\r]/, "\n")
+                    .split("\n")
+                    .map((l) => l.trim());
+                  openElements.set([...openElements.value]);
+                  viewElement.set(viewElement.value);
+                  setEditorOpen(false);
+                } else {
+                  setEditorOpen(true);
+                }
+              }}
+            >
+              S
+            </span>
+          </div>
+        ) : (
+          <></>
+        )}
         <div
           className="icon-container"
           style={{
@@ -119,42 +155,55 @@ function VerseButton({
             </button>
           ))}
         </div>
-        <button
-          tabIndex={-1}
-          className="verse-button"
-          key={`b${buttonID}`}
-          id={`verse-button-${buttonID}`}
-          onClick={() => {
-            console.log(someMatching, allMatching);
-            setSelected(buttonID);
-            liveElementsState.set(
-              Array.from({ length: MAX_LIVE_ELEMENTS }).map((_, i) => {
-                return {
-                  index: i,
-                  liveElement: {
-                    type: "text",
-                    value: section.verses[verseIndex].lines
-                      .reduce((p, c) => p + "\n" + c, "")
-                      .trim(),
-                    buttonID: buttonID,
-                    object: object,
-                  },
-                };
-              }),
-            );
-          }}
-        >
-          <div className="verse-button-content">
-            {section.verses[verseIndex].lines
-              .flatMap((l, lIndex) => [
-                <hr className="verse-button-hr" key={`hr${lIndex}`} />,
-                <div key={`l${lIndex}`} className="line">
-                  {l}
-                </div>,
-              ])
+
+        {editorOpen ? (
+          <textarea
+            className="inline-verse-editor"
+            defaultValue={section.verses[verseIndex].lines
+              .reduce((p, c) => p + "\n" + c, "")
               .slice(1)}
-          </div>
-        </button>
+            style={{ width: "100%", height: "100%", resize: "none" }}
+            onChange={(event) => {
+              editorContentRef.current = event.target.value;
+            }}
+          ></textarea>
+        ) : (
+          <button
+            tabIndex={-1}
+            className="verse-button"
+            key={`b${buttonID}`}
+            id={`verse-button-${buttonID}`}
+            onClick={() => {
+              setSelected(buttonID);
+              liveElementsState.set(
+                Array.from({ length: MAX_LIVE_ELEMENTS }).map((_, i) => {
+                  return {
+                    index: i,
+                    liveElement: {
+                      type: "text",
+                      value: section.verses[verseIndex].lines
+                        .reduce((p, c) => p + "\n" + c, "")
+                        .trim(),
+                      buttonID: buttonID,
+                      object: object,
+                    },
+                  };
+                }),
+              );
+            }}
+          >
+            <div className="verse-button-content">
+              {section.verses[verseIndex].lines
+                .flatMap((l, lIndex) => [
+                  <hr className="verse-button-hr" key={`hr${lIndex}`} />,
+                  <div key={`l${lIndex}`} className="line">
+                    {l}
+                  </div>,
+                ])
+                .slice(1)}
+            </div>
+          </button>
+        )}
       </div>
       <div className="lights-container">
         <div
