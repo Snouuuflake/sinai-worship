@@ -59,7 +59,10 @@ function VerseButton({
         </div>
         <div
           className="icon-container icon-button"
-          style={{ backgroundColor: editorOpen ? "var(--hi2)" : "", color: editorOpen ? "var(--icon-container-bg)" : ""}}
+          style={{
+            backgroundColor: editorOpen ? "var(--hi2)" : "",
+            color: editorOpen ? "var(--icon-container-bg)" : "",
+          }}
         >
           <span
             className="text-icon no-select"
@@ -77,7 +80,7 @@ function VerseButton({
              * it may fail spectacularly, but we edit the song object,
              * and then set the state to its value?? and cause a re-render??
              */}
-            E
+            {editorOpen ? "X" : "E"}
           </span>
         </div>
         {editorOpen ? (
@@ -86,15 +89,16 @@ function VerseButton({
               className="text-icon no-select"
               onClick={() => {
                 if (editorOpen) {
-                  section.verses[verseIndex].lines = editorContentRef.current
-                    .replace(/[\n\r]/, "\n")
-                    .split("\n")
-                    .map((l) => l.trim());
-                  openElements.set([...openElements.value]);
-                  viewElement.set(viewElement.value);
-                  setEditorOpen(false);
-                } else {
-                  setEditorOpen(true);
+                  if (editorContentRef.current.trim() !== "") {
+                    section.verses[verseIndex].lines = editorContentRef.current
+                      .replace(/[\n\r]/, "\n")
+                      .split("\n")
+                      .map((l) => l.trim());
+                    openElements.set([...openElements.value]);
+                    setEditorOpen(false);
+                  } else {
+                    window.electron.sendAlert("Verse cannot be empty.")
+                  }
                 }
               }}
             >

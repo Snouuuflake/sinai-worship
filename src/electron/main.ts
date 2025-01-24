@@ -70,7 +70,6 @@ ipcMain.on("set-live-element", (_event, data) => {
   //}
 });
 
-
 app.on("ready", () => {
   const mainWindow = new BrowserWindow({
     webPreferences: {
@@ -80,11 +79,10 @@ app.on("ready", () => {
   mainWindow.setMenu(null);
   if (isDev()) {
     mainWindow.loadURL("http://localhost:5123");
-  mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"));
   }
-
 });
 
 app.on("window-all-closed", () => {
@@ -93,6 +91,10 @@ app.on("window-all-closed", () => {
 
 ipcMain.on("new-display-window", (_event, index: number) => {
   new DisplayWindow(index);
+});
+
+ipcMain.on("alert", (_event, message: string) => {
+  dialog.showMessageBox({ message: message });
 });
 
 ipcMain.handle("read-song", (_event) => {

@@ -9,7 +9,6 @@ function ControlsSection() {
 
   return (
     <div className="control-section">
-      <div className="blink blink-master" style={{ display: "none" }}></div>
       {viewElement.value.type === "song" && viewElement.value.song
         ?<SongControls song={viewElement.value.song}></SongControls>
         : ""}

@@ -69,6 +69,7 @@ interface Window {
     sendSetLiveElement: (index: number, liveElement: LiveElementType) => void;
     testFunction: () => string;
     sendNewDisplayWindow: (index: number) => void;
+    sendAlerd: (message: string) => void;
     invokeIndex: () => Promise<any>;
     onDisplayText: (index: number, callback: (text: string) => void) => void;
     onDisplayImage: (index: number, callback: (path: string) => void) => void;

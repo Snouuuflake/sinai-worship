@@ -161,19 +161,20 @@ function parseMSS(multilineStr: string) {
 
     if (commandLines[i].content.match(/^!-S/)) {
       const name: string = commandLines[i].content.substring(3).trim();
+      let stringContent: string = "";
 
-      if (!(commandLines[i].index < lastLineIndex)) {
-        throw new Error(`Section ${name} is empty`);
+
+      if ((commandLines[i].index < lastLineIndex)) {
+        stringContent = lines
+          .slice(commandLines[i].index + 1, lastLineIndex)
+          .reduce((p, c) => p + "\n" + c.content, "")
+          .trim();
       }
+      // else used to have an error
 
-      const stringContent = lines
-        .slice(commandLines[i].index + 1, lastLineIndex)
-        .reduce((p, c) => p + "\n" + c.content, "")
-        .trim();
-
-      if (stringContent === "") {
-        throw new Error(`Section ${name} is empty`);
-      }
+      //if (stringContent === "") {
+      //  throw new Error(`Section ${name} is empty`);
+      //}
       if (
         order.filter((sei) => sei.type === "section" && sei.name === name)
           .length != 0
@@ -184,7 +185,7 @@ function parseMSS(multilineStr: string) {
       sections.push(
         new Section(
           name,
-          stringContent.split("\n\n").map((x) => new Verse(x.split("\n"))),
+          stringContent ? stringContent.split("\n\n").map((x) => new Verse(x.split("\n"))) : [],
         ),
       );
       order.push(new SongElementIdentifier("section", name));

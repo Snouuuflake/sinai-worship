@@ -27,6 +27,7 @@ electron.contextBridge.exposeInMainWorld("electron", {
   sendNewDisplayWindow: (index: number) => {
     electron.ipcRenderer.send("new-display-window", index);
   },
+  sendAlert: (message: string) => {electron.ipcRenderer.send("alert", message)},
   invokeIndex: () => electron.ipcRenderer.invoke("invoke-index"),
   onDisplayText: (index: number, callback: (text: string) => void) => {
     electron.ipcRenderer.on(`display-${index}-text`, (_event, data) => {

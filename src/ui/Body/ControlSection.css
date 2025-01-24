@@ -1,5 +1,6 @@
-
-.section-title {
-  margin-bottom: 0;
+.control-section {
+  display: flex;
+  flex-direction: column;
 }
+
 
