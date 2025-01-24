@@ -97,7 +97,8 @@ function VerseButton({
                     openElements.set([...openElements.value]);
                     setEditorOpen(false);
                   } else {
-                    window.electron.sendAlert("Verse cannot be empty.")
+                    section.verses.splice(verseIndex,1);
+                    openElements.set([...openElements.value]);
                   }
                 }
               }}
@@ -162,11 +163,11 @@ function VerseButton({
 
         {editorOpen ? (
           <textarea
-            className="inline-verse-editor"
+            className="inline-verse-editor text-input"
             defaultValue={section.verses[verseIndex].lines
               .reduce((p, c) => p + "\n" + c, "")
               .slice(1)}
-            style={{ width: "100%", height: "100%", resize: "none" }}
+            style={{ width: "100%", height: `${section.verses[verseIndex].lines.length + 1}em`, minHeight: "100%", resize: "none" }}
             onChange={(event) => {
               editorContentRef.current = event.target.value;
             }}

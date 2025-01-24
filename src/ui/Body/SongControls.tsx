@@ -17,7 +17,7 @@ function SongControls({ song }: { song: Song }) {
   useEffect(() => {
     function keyHandler(event: KeyboardEvent) {
       const target = event.target as HTMLElement;
-      if (target.tagName !== "TEXTAREA") {
+      if (!target.classList.contains("text-input")) {
         switch (event.key) {
           case "ArrowUp":
             event.preventDefault();
