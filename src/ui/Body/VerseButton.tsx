@@ -1,4 +1,6 @@
 import "./VerseButton.css";
+import "./general-icon-button.css";
+import Icon from "../Icon";
 import { useContext, useRef, useEffect, useState } from "react";
 import { GlobalContext } from "../GlobalContext";
 
@@ -9,6 +11,7 @@ function VerseButton({
   object,
   selected,
   setSelected,
+  updateState,
 }: {
   section: Section;
   verseIndex: number;
@@ -16,9 +19,11 @@ function VerseButton({
   object: any;
   selected: boolean;
   setSelected: (value: React.SetStateAction<number>) => void;
+  updateState: () => void;
 }) {
-  const { MAX_LIVE_ELEMENTS, liveElementsState, openElements, viewElement } =
-    useContext(GlobalContext) as GlobalContextType;
+  const { MAX_LIVE_ELEMENTS, liveElementsState } = useContext(
+    GlobalContext,
+  ) as GlobalContextType;
 
   const matchingLiveIndexes = liveElementsState.value.flatMap((le, i) =>
     le.buttonID == buttonID && le.object == object ? [i] : [],
@@ -94,12 +99,11 @@ function VerseButton({
                       .replace(/[\n\r]/, "\n")
                       .split("\n")
                       .map((l) => l.trim());
-                    openElements.set([...openElements.value]);
-                    setEditorOpen(false);
                   } else {
-                    section.verses.splice(verseIndex,1);
-                    openElements.set([...openElements.value]);
+                    section.verses.splice(verseIndex, 1);
                   }
+                  setEditorOpen(false);
+                  updateState();
                 }
               }}
             >
@@ -159,6 +163,40 @@ function VerseButton({
               {i + 1}
             </button>
           ))}
+          <div className="up-down-container">
+            <button
+              className="general-icon-button"
+              onClick={() => {
+                if (verseIndex > 0) {
+                  [section.verses[verseIndex], section.verses[verseIndex - 1]] =
+                    [
+                      section.verses[verseIndex - 1],
+                      section.verses[verseIndex],
+                    ];
+
+                  updateState();
+                }
+              }}
+            >
+              <Icon code="U" />
+            </button>
+            <button
+              className="general-icon-button"
+              onClick={() => {
+                if (verseIndex < section.verses.length - 1) {
+                  [section.verses[verseIndex], section.verses[verseIndex + 1]] =
+                    [
+                      section.verses[verseIndex + 1],
+                      section.verses[verseIndex],
+                    ];
+
+                  updateState();
+                }
+              }}
+            >
+              <Icon code="D" />
+            </button>
+          </div>
         </div>
 
         {editorOpen ? (
@@ -167,7 +205,12 @@ function VerseButton({
             defaultValue={section.verses[verseIndex].lines
               .reduce((p, c) => p + "\n" + c, "")
               .slice(1)}
-            style={{ width: "100%", height: `${section.verses[verseIndex].lines.length + 1}em`, minHeight: "100%", resize: "none" }}
+            style={{
+              width: "100%",
+              height: `${section.verses[verseIndex].lines.length + 1}em`,
+              minHeight: "100%",
+              resize: "none",
+            }}
             onChange={(event) => {
               editorContentRef.current = event.target.value;
             }}

@@ -1,12 +1,25 @@
 import VerseButton from "./VerseButton";
 import AddButtons from "./AddButtons";
+import Icon from "../Icon";
+import "./general-icon-button.css";
 import { GlobalContext } from "../GlobalContext";
+import "./SongControls.css";
 import "./VerseButton.css";
 
 import { useContext, useEffect, useState, useRef } from "react";
 
+function makeNoteTitle(text: string) {
+  return (
+    <>
+      <b>Note: </b>
+      {text.length > 30 ? text.slice(0, 30) + "..." : text}
+    </>
+  );
+}
+
 function SongControls({ song }: { song: Song }) {
   const [selected, setSelected] = useState<number>(0);
+  const newSectionName = useRef<string>("");
   const maxSelected = song.sectionOrder.flatMap((sei) =>
     sei.type === "section" || sei.type === "repeat"
       ? song.sections.find((s) => s.name === sei.name)!.verses
@@ -54,16 +67,23 @@ function SongControls({ song }: { song: Song }) {
 
   let buttonIDCounter: number = -1;
   console.log(song);
+  const updateState = () => {
+    openElements.set([...openElements.value]);
+  };
   return [
     <div className="section-controls" key="sectioncontrols">
       {song.sectionOrder.map((sei, seiIndex) => {
-        const updateState = () => {
-          openElements.set([...openElements.value]);
-        };
         return (
           <div key={`sc${seiIndex}`} style={{ display: "flex", gap: "5px" }}>
-            <div style={{ flexGrow: 1 }}>{sei.name}</div>
+            <div style={{ flexGrow: 1 }}>
+              {sei.type === "section" || sei.type === "repeat"
+                ? sei.name
+                : makeNoteTitle(
+                    song.notes.find((n) => n.name === sei.name)!.text,
+                  )}
+            </div>
             <button
+              className="general-icon-button"
               onClick={() => {
                 song.sectionOrder.splice(seiIndex + 1, 0, {
                   type: "repeat",
@@ -73,9 +93,10 @@ function SongControls({ song }: { song: Song }) {
                 updateState();
               }}
             >
-              cp
+              <Icon code="C" />
             </button>
             <button
+              className="general-icon-button"
               onClick={() => {
                 if (sei.type === "repeat") {
                   song.sectionOrder.splice(seiIndex, 1);
@@ -106,9 +127,10 @@ function SongControls({ song }: { song: Song }) {
                 }
               }}
             >
-              X
+              <Icon code="X" />
             </button>
             <button
+              className="general-icon-button"
               onClick={() => {
                 if (seiIndex > 0) {
                   [
@@ -122,9 +144,10 @@ function SongControls({ song }: { song: Song }) {
                 }
               }}
             >
-              U
+              <Icon code="U" />
             </button>
             <button
+              className="general-icon-button"
               onClick={() => {
                 if (seiIndex < song.sectionOrder.length - 1) {
                   [
@@ -137,10 +160,42 @@ function SongControls({ song }: { song: Song }) {
                   updateState();
                 }
               }}
-            >D</button>
+            >
+              <Icon code="D" />
+            </button>
           </div>
         );
       })}
+      <div className="new-element-container">
+        <input
+          className="new-element-input"
+          type="text"
+          onChange={(event) => {
+            newSectionName.current = event.target.value.trim();
+          }}
+        ></input>
+        <button className="new-element-button" onClick={() => {}}>
+          <div className="new-element-button-content">+N</div>
+        </button>
+        <button
+          className="new-element-button"
+          onClick={() => {
+            if (
+              !song.sections.find((s) => s.name === newSectionName.current) &&
+              newSectionName.current
+            ) {
+              song.sections.push({ name: newSectionName.current, verses: [] });
+              song.sectionOrder.push({
+                name: newSectionName.current,
+                type: "section",
+              });
+              updateState();
+            }
+          }}
+        >
+          <div className="new-element-button-content">+S</div>
+        </button>
+      </div>
     </div>,
     ...song.sectionOrder.flatMap((sei, seiIndex) => {
       if (sei.type === "section" || sei.type === "repeat") {
@@ -161,6 +216,7 @@ function SongControls({ song }: { song: Song }) {
                 object={song}
                 selected={selected == buttonIDCounter}
                 setSelected={setSelected}
+                updateState={updateState}
               ></VerseButton>
             );
           }),

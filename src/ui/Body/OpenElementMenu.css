@@ -1,21 +1,20 @@
 .open-element-menu {
-  margin-top: 20px;
+  /*margin-top: 20px;*/
   display: flex;
   flex-direction: column;
   gap: 7px;
-  padding: 10px;
-  background-image: linear-gradient(var(--gray-3), var(--gray-0));
+  /*padding: 10px;*/
+  /*background-image: linear-gradient(var(--gray-3), var(--gray-0));*/
 }
 
 .open-element-item-container {
+  height: 24px;
   display: flex;
   flex-direction: row;
   align-items: center;
 }
 
 .open-element-action-button-container {
-  margin: 0;
-  padding: 0;
   margin-left: auto;
   display: flex;
   align-items: center;

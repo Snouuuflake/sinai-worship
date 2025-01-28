@@ -1,11 +1,19 @@
 :root {
   --blink-opacity: 1;
 }
+
 @keyframes blink {
   50% {
     --blink-opacity: 0.3;
   }
 }
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .main-container {
   animation: blink 0.7s step-start 0s infinite;
   display: flex;

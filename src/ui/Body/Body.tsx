@@ -5,7 +5,7 @@ import TopSection from "./TopSection";
 
 function Body() {
   return (
-    <div>
+    <div className="body">
       <TopSection />
       <div className="main-container">
         <OpenElementMenu />

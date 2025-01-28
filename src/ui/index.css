@@ -30,14 +30,3 @@
    }
 
 
-.top-section-button {
-  all: unset;
-  background: var(--gray-2);
-  padding: 5px 10px;
-  min-width: 120px;
-  text-align: center;
-}
-
-.top-section-button:hover {
-  background-color: var(--gray-4);
-}

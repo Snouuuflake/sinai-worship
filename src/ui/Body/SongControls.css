@@ -1,0 +1,41 @@
+.section-controls {
+  display: flex;
+  flex-direction: column;
+}
+.new-element-container {
+  display: flex;
+  gap: 5px;
+  margin-top: 15px ;
+  height: 28px;
+}
+
+.new-element-input {
+  all: unset;
+  border-radius: 3px 3px 0 0;
+  flex-grow: 1;
+  border-bottom: 3px solid white;
+  background-color: var(--gray-2);
+}
+
+.new-element-button {
+  all: unset;
+  border-radius: 3px;
+  background-color: var(--gray-2);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.new-element-button:hover {
+  background-color: var(--gray-5);
+}
+
+.new-element-button:active {
+  background-color: white
+}
+
+.new-element-button-content {
+  height: 27px;
+}

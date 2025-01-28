@@ -83,10 +83,24 @@
   color: white !important;
 }
 
+.up-down-container {
+  margin-left: auto;
+  display: flex;
+  gap: 5px;
+  justify-items: center;
+  align-items: center;
+}
+
 .verse-button-container-row {
   margin: 10px 0;
   display: flex;
   overflow: clip;
+}
+
+.verse-up-down-button {
+  display: flex;
+  align-items: center;
+  justify-items: center;
 }
 
 .verse-button {

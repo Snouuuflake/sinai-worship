@@ -1,4 +1,6 @@
 import "./OpenElementMenu.css";
+import "./general-icon-button.css"
+import Icon from "../Icon"
 import { useContext, useEffect } from "react";
 import { GlobalContext } from "../GlobalContext";
 import OpenElementIcon from "./OpenElementIcon";
@@ -35,7 +37,7 @@ function OpenElementMenu() {
             </button>
             <div className="open-element-action-button-container">
               <button
-                className="open-element-action-button open-element-delete"
+                className="open-element-delete general-icon-button"
                 onClick={() => {
                   if (
                     oe.type !== "none" &&
@@ -52,10 +54,10 @@ function OpenElementMenu() {
                   );
                 }}
               >
-                <div className="open-element-action-button-content">X</div>
+                <Icon code="X"/>
               </button>
               <button
-                className="open-element-action-button open-element-up"
+                className="open-element-up general-icon-button"
                 onClick={() => {
                   const oeIndex = openElements.value.indexOf(oe);
                   if (oeIndex > 0) {
@@ -69,10 +71,10 @@ function OpenElementMenu() {
                   }
                 }}
               >
-                <div className="open-element-action-button-content">U</div>
+              <Icon code="U"/>
               </button>
               <button
-                className="open-element-action-button open-element-down"
+                className="general-icon-button open-element-down"
                 onClick={() => {
                   const oeIndex = openElements.value.indexOf(oe);
                   if (oeIndex < openElements.value.length - 1) {
@@ -86,7 +88,7 @@ function OpenElementMenu() {
                   }
                 }}
               >
-                <div className="open-element-action-button-content">D</div>
+              <Icon code="D"/>
               </button>
             </div>
           </div>
