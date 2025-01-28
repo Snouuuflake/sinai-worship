@@ -11,6 +11,7 @@ function OpenElementMenu() {
   useEffect(() => { }, [openElements, viewElement]);
   return (
     <div className="open-element-menu">
+      <div className="inverse-title">Setlist</div>
       {openElements.value.map((oe, oeIndex) => {
         return (
           <div className="open-element-item-container" key={`${oeIndex}`}>

@@ -2,6 +2,11 @@
   display: flex;
   flex-direction: column;
 }
+
+.margin-bottom-7 {
+  margin-bottom: 7px;
+}
+
 .new-element-container {
   display: flex;
   gap: 5px;
@@ -38,4 +43,16 @@
 
 .new-element-button-content {
   height: 27px;
+}
+
+.note {
+  display: block;
+  text-wrap: wrap;
+  word-wrap: break-word;
+  white-space: wrap;
+}
+
+.section-title {
+  margin: 0;
+  margin-top: 30px;
 }

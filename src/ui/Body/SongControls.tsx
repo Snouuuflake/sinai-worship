@@ -11,15 +11,14 @@ import { useContext, useEffect, useState, useRef } from "react";
 function makeNoteTitle(text: string) {
   return (
     <>
-      <b>Note: </b>
-      {text.length > 30 ? text.slice(0, 30) + "..." : text}
+      <b>Note: </b> {text}
     </>
   );
 }
 
 function SongControls({ song }: { song: Song }) {
   const [selected, setSelected] = useState<number>(0);
-  const newSectionName = useRef<string>("");
+  const newElementText = useRef<string>("");
   const maxSelected = song.sectionOrder.flatMap((sei) =>
     sei.type === "section" || sei.type === "repeat"
       ? song.sections.find((s) => s.name === sei.name)!.verses
@@ -72,15 +71,23 @@ function SongControls({ song }: { song: Song }) {
   };
   return [
     <div className="section-controls" key="sectioncontrols">
+      <div className="inverse-title margin-bottom-7">Song Sections</div>
       {song.sectionOrder.map((sei, seiIndex) => {
         return (
           <div key={`sc${seiIndex}`} style={{ display: "flex", gap: "5px" }}>
-            <div style={{ flexGrow: 1 }}>
+            <div
+              style={{
+                flexGrow: 1,
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+                whiteSpace: "preserve nowrap",
+              }}
+            >
               {sei.type === "section" || sei.type === "repeat"
                 ? sei.name
                 : makeNoteTitle(
-                    song.notes.find((n) => n.name === sei.name)!.text,
-                  )}
+                  song.notes.find((n) => n.name === sei.name)!.text,
+                )}
             </div>
             <button
               className="general-icon-button"
@@ -100,7 +107,6 @@ function SongControls({ song }: { song: Song }) {
               onClick={() => {
                 if (sei.type === "repeat") {
                   song.sectionOrder.splice(seiIndex, 1);
-                  updateState();
                 } else if (sei.type === "section") {
                   if (
                     song.sectionOrder.filter(
@@ -122,9 +128,15 @@ function SongControls({ song }: { song: Song }) {
                       1,
                     );
                   }
-
-                  updateState();
+                } else if (sei.type === "note") {
+                  song.sectionOrder.splice(seiIndex, 1);
+                  song.notes.splice(
+                    song.notes.indexOf(
+                      song.notes.find((n) => n.name === sei.name)!,
+                    ),
+                  );
                 }
+                updateState();
               }}
             >
               <Icon code="X" />
@@ -137,9 +149,9 @@ function SongControls({ song }: { song: Song }) {
                     song.sectionOrder[seiIndex - 1],
                     song.sectionOrder[seiIndex],
                   ] = [
-                    song.sectionOrder[seiIndex],
-                    song.sectionOrder[seiIndex - 1],
-                  ];
+                      song.sectionOrder[seiIndex],
+                      song.sectionOrder[seiIndex - 1],
+                    ];
                   updateState();
                 }
               }}
@@ -154,9 +166,9 @@ function SongControls({ song }: { song: Song }) {
                     song.sectionOrder[seiIndex + 1],
                     song.sectionOrder[seiIndex],
                   ] = [
-                    song.sectionOrder[seiIndex],
-                    song.sectionOrder[seiIndex + 1],
-                  ];
+                      song.sectionOrder[seiIndex],
+                      song.sectionOrder[seiIndex + 1],
+                    ];
                   updateState();
                 }
               }}
@@ -168,25 +180,49 @@ function SongControls({ song }: { song: Song }) {
       })}
       <div className="new-element-container">
         <input
-          className="new-element-input"
+          className="new-element-input text-input"
           type="text"
           onChange={(event) => {
-            newSectionName.current = event.target.value.trim();
+            newElementText.current = event.target.value.trim();
           }}
         ></input>
-        <button className="new-element-button" onClick={() => {}}>
+        <button
+          className="new-element-button"
+          onClick={() => {
+            if (!newElementText.current) {
+              return;
+            }
+
+            let noteID: number = 1;
+            while (song.notes.find((n) => n.name === `note${noteID}`)) {
+              noteID++;
+              if (noteID >= Number.MAX_SAFE_INTEGER) {
+                return;
+              }
+            }
+            const newNoteName = `note${noteID}`;
+            song.notes.push({
+              name: newNoteName,
+              text: newElementText.current,
+            });
+
+            song.sectionOrder.push({ name: newNoteName, type: "note" });
+
+            updateState();
+          }}
+        >
           <div className="new-element-button-content">+N</div>
         </button>
         <button
           className="new-element-button"
           onClick={() => {
             if (
-              !song.sections.find((s) => s.name === newSectionName.current) &&
-              newSectionName.current
+              !song.sections.find((s) => s.name === newElementText.current) &&
+              newElementText.current
             ) {
-              song.sections.push({ name: newSectionName.current, verses: [] });
+              song.sections.push({ name: newElementText.current, verses: [] });
               song.sectionOrder.push({
-                name: newSectionName.current,
+                name: newElementText.current,
                 type: "section",
               });
               updateState();
@@ -230,9 +266,10 @@ function SongControls({ song }: { song: Song }) {
         ];
       } else if (sei.type === "note") {
         return (
-          <h4 key={sei.name} className="note">
+          <div key={sei.name} className="note">
+            <b>Note: </b>
             {song.notes.find((n) => n.name === sei.name)!.text}{" "}
-          </h4>
+          </div>
         );
       }
     }),

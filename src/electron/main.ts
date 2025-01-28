@@ -13,6 +13,7 @@ class DisplayWindow {
   constructor(index: number) {
     this.index = index;
     this.window = new BrowserWindow({
+      minWidth: 400,
       webPreferences: {
         preload: getPreloadPath(),
         additionalArguments: [`${index}`],
