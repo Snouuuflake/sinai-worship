@@ -1,6 +1,19 @@
 .section-controls {
   display: flex;
   flex-direction: column;
+  margin-bottom: 30px;
+}
+
+.section-controls-row {
+ display: flex;
+ gap: 5px
+}
+
+.section-row-text{
+  flex-grow: 1;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: preserve nowrap;
 }
 
 .margin-bottom-7 {

@@ -1,6 +1,7 @@
 import VerseButton from "./VerseButton";
 import AddButtons from "./AddButtons";
 import Icon from "../Icon";
+import ConfirmKillButton from "../ConfirmKillButton";
 import "./general-icon-button.css";
 import { GlobalContext } from "../GlobalContext";
 import "./SongControls.css";
@@ -74,15 +75,8 @@ function SongControls({ song }: { song: Song }) {
       <div className="inverse-title margin-bottom-7">Song Sections</div>
       {song.sectionOrder.map((sei, seiIndex) => {
         return (
-          <div key={`sc${seiIndex}`} style={{ display: "flex", gap: "5px" }}>
-            <div
-              style={{
-                flexGrow: 1,
-                textOverflow: "ellipsis",
-                overflow: "hidden",
-                whiteSpace: "preserve nowrap",
-              }}
-            >
+          <div key={`sc${seiIndex}`} className="section-controls-row">
+            <div className="section-row-text">
               {sei.type === "section" || sei.type === "repeat"
                 ? sei.name
                 : makeNoteTitle(
@@ -102,9 +96,8 @@ function SongControls({ song }: { song: Song }) {
             >
               <Icon code="C" />
             </button>
-            <button
-              className="general-icon-button"
-              onClick={() => {
+            <ConfirmKillButton
+              callback={() => {
                 if (sei.type === "repeat") {
                   song.sectionOrder.splice(seiIndex, 1);
                 } else if (sei.type === "section") {
@@ -138,9 +131,7 @@ function SongControls({ song }: { song: Song }) {
                 }
                 updateState();
               }}
-            >
-              <Icon code="X" />
-            </button>
+            />
             <button
               className="general-icon-button"
               onClick={() => {
@@ -234,45 +225,45 @@ function SongControls({ song }: { song: Song }) {
       </div>
     </div>,
     ...song.sectionOrder.flatMap((sei, seiIndex) => {
-      if (sei.type === "section" || sei.type === "repeat") {
-        const currentSection = song.sections.find((s) => s.name == sei.name)!;
-        return [
-          <h3 key={`s${seiIndex}`} className="section-title">
-            {sei.name}
-          </h3>,
+        if (sei.type === "section" || sei.type === "repeat") {
+          const currentSection = song.sections.find((s) => s.name == sei.name)!;
+          return [
+            <h3 key={`s${seiIndex}`} className="section-title" style={{marginTop:seiIndex == 0 ? 0 : ""}}>
+              {sei.name}
+            </h3>,
 
-          currentSection.verses.map((_v, vIndex) => {
-            buttonIDCounter += 1;
-            return (
-              <VerseButton
-                key={`s${seiIndex}v${vIndex}`}
-                section={currentSection}
-                verseIndex={vIndex}
-                buttonID={buttonIDCounter}
-                object={song}
-                selected={selected == buttonIDCounter}
-                setSelected={setSelected}
-                updateState={updateState}
-              ></VerseButton>
-            );
-          }),
+            currentSection.verses.map((_v, vIndex) => {
+              buttonIDCounter += 1;
+              return (
+                <VerseButton
+                  key={`s${seiIndex}v${vIndex}`}
+                  section={currentSection}
+                  verseIndex={vIndex}
+                  buttonID={buttonIDCounter}
+                  object={song}
+                  selected={selected == buttonIDCounter}
+                  setSelected={setSelected}
+                  updateState={updateState}
+                ></VerseButton>
+              );
+            }),
 
-          <AddButtons
-            song={song}
-            key={`ab${seiIndex}`}
-            section={currentSection}
-            sectionOrderIndex={seiIndex}
-          />,
-        ];
-      } else if (sei.type === "note") {
-        return (
-          <div key={sei.name} className="note">
-            <b>Note: </b>
-            {song.notes.find((n) => n.name === sei.name)!.text}{" "}
-          </div>
-        );
-      }
-    }),
+            <AddButtons
+              song={song}
+              key={`ab${seiIndex}`}
+              section={currentSection}
+              sectionOrderIndex={seiIndex}
+            />,
+          ];
+        } else if (sei.type === "note") {
+          return (
+            <div key={sei.name} className="note">
+              <b>Note: </b>
+              {song.notes.find((n) => n.name === sei.name)!.text}{" "}
+            </div>
+          );
+        }
+      }),
   ];
   //} catch (err) {
   //  // NOTE: this is here because of the song.sections.find type assertion. could be undefined.
