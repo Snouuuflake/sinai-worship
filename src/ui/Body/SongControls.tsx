@@ -72,7 +72,25 @@ function SongControls({ song }: { song: Song }) {
   };
   return [
     <div className="section-controls" key="sectioncontrols">
-      <div className="inverse-title margin-bottom-7">Song Sections</div>
+      <div className="section-controls-title-container margin-bottom-7">
+        <div className="section-controls-title inverse-title">Song Sections</div>
+        <button
+          className="save-song-button"
+          onClick={() => {
+            window.electron.invokeSaveSong(song).then(
+              () => {
+                console.log("wrote song");
+              },
+              (e) => {
+                console.log("error writing song: " + e.message);
+                window.electron.sendAlert(e.message);
+              },
+            );
+          }}
+        >
+          Save Song
+        </button>
+      </div>
       {song.sectionOrder.map((sei, seiIndex) => {
         return (
           <div key={`sc${seiIndex}`} className="section-controls-row">
@@ -225,45 +243,49 @@ function SongControls({ song }: { song: Song }) {
       </div>
     </div>,
     ...song.sectionOrder.flatMap((sei, seiIndex) => {
-        if (sei.type === "section" || sei.type === "repeat") {
-          const currentSection = song.sections.find((s) => s.name == sei.name)!;
-          return [
-            <h3 key={`s${seiIndex}`} className="section-title" style={{marginTop:seiIndex == 0 ? 0 : ""}}>
-              {sei.name}
-            </h3>,
+      if (sei.type === "section" || sei.type === "repeat") {
+        const currentSection = song.sections.find((s) => s.name == sei.name)!;
+        return [
+          <h3
+            key={`s${seiIndex}`}
+            className="section-title"
+            style={{ marginTop: seiIndex == 0 ? 0 : "" }}
+          >
+            {sei.name}
+          </h3>,
 
-            currentSection.verses.map((_v, vIndex) => {
-              buttonIDCounter += 1;
-              return (
-                <VerseButton
-                  key={`s${seiIndex}v${vIndex}`}
-                  section={currentSection}
-                  verseIndex={vIndex}
-                  buttonID={buttonIDCounter}
-                  object={song}
-                  selected={selected == buttonIDCounter}
-                  setSelected={setSelected}
-                  updateState={updateState}
-                ></VerseButton>
-              );
-            }),
+          currentSection.verses.map((_v, vIndex) => {
+            buttonIDCounter += 1;
+            return (
+              <VerseButton
+                key={`s${seiIndex}v${vIndex}`}
+                section={currentSection}
+                verseIndex={vIndex}
+                buttonID={buttonIDCounter}
+                object={song}
+                selected={selected == buttonIDCounter}
+                setSelected={setSelected}
+                updateState={updateState}
+              ></VerseButton>
+            );
+          }),
 
-            <AddButtons
-              song={song}
-              key={`ab${seiIndex}`}
-              section={currentSection}
-              sectionOrderIndex={seiIndex}
-            />,
-          ];
-        } else if (sei.type === "note") {
-          return (
-            <div key={sei.name} className="note">
-              <b>Note: </b>
-              {song.notes.find((n) => n.name === sei.name)!.text}{" "}
-            </div>
-          );
-        }
-      }),
+          <AddButtons
+            song={song}
+            key={`ab${seiIndex}`}
+            section={currentSection}
+            sectionOrderIndex={seiIndex}
+          />,
+        ];
+      } else if (sei.type === "note") {
+        return (
+          <div key={sei.name} className="note">
+            <b>Note: </b>
+            {song.notes.find((n) => n.name === sei.name)!.text}{" "}
+          </div>
+        );
+      }
+    }),
   ];
   //} catch (err) {
   //  // NOTE: this is here because of the song.sections.find type assertion. could be undefined.

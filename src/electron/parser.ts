@@ -1,4 +1,4 @@
-import { readFile } from "fs";
+import { readFile, writeFile } from "fs";
 
 class Verse {
   lines: Array<string>;
@@ -163,8 +163,7 @@ function parseMSS(multilineStr: string) {
       const name: string = commandLines[i].content.substring(3).trim();
       let stringContent: string = "";
 
-
-      if ((commandLines[i].index < lastLineIndex)) {
+      if (commandLines[i].index < lastLineIndex) {
         stringContent = lines
           .slice(commandLines[i].index + 1, lastLineIndex)
           .reduce((p, c) => p + "\n" + c.content, "")
@@ -185,7 +184,9 @@ function parseMSS(multilineStr: string) {
       sections.push(
         new Section(
           name,
-          stringContent ? stringContent.split("\n\n").map((x) => new Verse(x.split("\n"))) : [],
+          stringContent
+            ? stringContent.split("\n\n").map((x) => new Verse(x.split("\n")))
+            : [],
         ),
       );
       order.push(new SongElementIdentifier("section", name));
@@ -235,4 +236,55 @@ function readMSSFile(path: string): Promise<Song> {
   });
 }
 
-export { readMSSFile };
+function sortSectionOrder(song: Song): void {
+  for (const s of song.sections) {
+    const filtered = song.sectionOrder.filter((sei) => sei.name === s.name);
+    filtered.forEach((sei) => {
+      sei.type = "repeat";
+    });
+    filtered[0]!.type = "section";
+  }
+}
+
+function sectionContentToString(section: Section): string {
+  return section.verses
+    .map<string>((v) => v.lines.reduce((p, c) => (p ? p + c + "\n" : p + "\n")))
+    .reduce((p, c) => (p ? p + "\n" + c : p));
+}
+
+function mssToString(song: Song): string {
+  sortSectionOrder(song);
+  try {
+    return (
+      `!-T ${song.properties.title}\n` +
+      (song.properties.author ? `!-A ${song.properties.author}\n` : "") +
+      song.sectionOrder
+        .map<string>((sei) =>
+          sei.type === "section"
+            ? `!-S ${sei.name}\n${sectionContentToString(song.sections.find((s) => s.name === sei.name)!)}`
+            : sei.type === "repeat"
+              ? `!-R ${sei.name}\n`
+              : sei.type === "note"
+                ? `!-N ${song.notes.find((n) => n.name === sei.name)!.text}\n\n`
+                : "",
+        )
+        .reduce((p, c) => (p ? p + c + "\n" : p + "\n"))
+    );
+  } catch (e) {
+    throw e;
+  }
+}
+
+function writeMSSFile(filePath: string, song: Song): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    writeFile(filePath, mssToString(song), { encoding: "utf-8" }, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+export { readMSSFile, writeMSSFile };

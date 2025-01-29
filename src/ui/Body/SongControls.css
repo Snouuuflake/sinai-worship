@@ -3,13 +3,29 @@
   flex-direction: column;
   margin-bottom: 30px;
 }
-
-.section-controls-row {
- display: flex;
- gap: 5px
+.section-controls-title-container {
+  display: flex;
+  gap: 7px;
 }
 
-.section-row-text{
+.save-song-button {
+  border: none;
+  background-color: var(--gray-3);
+}
+.save-song-button:hover {
+  background-color: var(--gray-5);
+}
+
+.section-controls-title {
+  flex-grow: 2;
+}
+
+.section-controls-row {
+  display: flex;
+  gap: 5px;
+}
+
+.section-row-text {
   flex-grow: 1;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -23,7 +39,7 @@
 .new-element-container {
   display: flex;
   gap: 5px;
-  margin-top: 15px ;
+  margin-top: 15px;
   height: 28px;
 }
 
@@ -51,7 +67,7 @@
 }
 
 .new-element-button:active {
-  background-color: white
+  background-color: white;
 }
 
 .new-element-button-content {

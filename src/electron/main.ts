@@ -2,7 +2,8 @@ import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
 import { isDev } from "./util.js";
 import { getPreloadPath } from "./pathResolver.js";
-import { readMSSFile } from "./parser.js";
+import { readMSSFile, writeMSSFile } from "./parser.js";
+import fs from "fs";
 
 const windowArray: Array<DisplayWindow> = [];
 
@@ -84,6 +85,31 @@ app.on("ready", () => {
   } else {
     mainWindow.loadFile(path.join(app.getAppPath(), "/dist-react/index.html"));
   }
+
+  ipcMain.handle("save-song", (_event, song) => {
+    return new Promise<void>((resolve, reject) => {
+      dialog
+        .showSaveDialog(mainWindow, {
+          title: "Save Song",
+          buttonLabel: "Save",
+          filters: [{ name: "txt", extensions: ["txt"] }],
+        })
+        .then((res) => {
+          if (res.canceled) {
+            resolve();
+          } else {
+            writeMSSFile(res.filePath, song).then(
+              () => {
+                resolve();
+              },
+              (err) => {
+                reject(err);
+              },
+            );
+          }
+        });
+    });
+  });
 });
 
 app.on("window-all-closed", () => {

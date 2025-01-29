@@ -12,6 +12,9 @@ electron.contextBridge.exposeInMainWorld("electron", {
       },
     );
   },
+  invokeSaveSong: (song: Song): Promise<void> => {
+    return electron.ipcRenderer.invoke("save-song", song) as Promise<void>
+  },
 
   /**
    * @param {number} index Display index
