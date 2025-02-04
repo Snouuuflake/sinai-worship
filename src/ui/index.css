@@ -21,19 +21,42 @@
   --gray-5: #484848ff;
   --gray-6: #505050ff;
 
-  --hi1: rgb(255,30,60);
-  --hi2: rgb(120,200,255);
+  --hi1: rgb(255, 30, 60);
+  --hi2: rgb(120, 200, 255);
 }
 
 * {
-   zoom: reset;
-   }
+  zoom: reset;
+}
 
 .inverse-title {
   background: white;
   color: black;
   padding-left: 5px;
   font-weight: bold;
+  flex-grow: 1;
 }
-
-
+.inverse-title-container {
+  display: flex;
+  gap: 7px;
+  height: 28px;
+}
+.inverse-title-button {
+  flex-shrink: 0;
+  border: none;
+  background-color: var(--gray-3);
+}
+.inverse-title-button:hover {
+  background-color: var(--gray-5);
+}
+.margin-bottom-7 {
+  margin-bottom: 7px;
+}
+.dark-material-input {
+  all: unset;
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  flex-grow: 1;
+  border-bottom: 3px solid white;
+  background-color: var(--gray-2);
+}

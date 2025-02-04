@@ -72,10 +72,10 @@ function SongControls({ song }: { song: Song }) {
   };
   return [
     <div className="section-controls" key="sectioncontrols">
-      <div className="section-controls-title-container margin-bottom-7">
-        <div className="section-controls-title inverse-title">Song Sections</div>
+      <div className="inverse-title-container margin-bottom-7">
+        <div className="inverse-title">Song Sections</div>
         <button
-          className="save-song-button"
+          className="inverse-title-button"
           onClick={() => {
             window.electron.invokeSaveSong(song).then(
               () => {
@@ -189,7 +189,7 @@ function SongControls({ song }: { song: Song }) {
       })}
       <div className="new-element-container">
         <input
-          className="new-element-input text-input"
+          className="dark-material-input text-input"
           type="text"
           onChange={(event) => {
             newElementText.current = event.target.value.trim();

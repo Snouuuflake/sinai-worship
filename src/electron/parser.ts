@@ -248,28 +248,26 @@ function sortSectionOrder(song: Song): void {
 
 function sectionContentToString(section: Section): string {
   return section.verses
-    .map<string>((v) => v.lines.reduce((p, c) => (p ? p + c + "\n" : p + "\n")))
+    .map<string>((v) => v.lines.reduce((p, c) => p + c + "\n", ""))
     .reduce((p, c) => (p ? p + "\n" + c : p));
 }
 
 function mssToString(song: Song): string {
   sortSectionOrder(song);
   try {
-    return (
-      `!-T ${song.properties.title}\n` +
-      (song.properties.author ? `!-A ${song.properties.author}\n` : "") +
-      song.sectionOrder
-        .map<string>((sei) =>
-          sei.type === "section"
-            ? `!-S ${sei.name}\n${sectionContentToString(song.sections.find((s) => s.name === sei.name)!)}`
-            : sei.type === "repeat"
-              ? `!-R ${sei.name}\n`
-              : sei.type === "note"
-                ? `!-N ${song.notes.find((n) => n.name === sei.name)!.text}\n\n`
-                : "",
-        )
-        .reduce((p, c) => (p ? p + c + "\n" : p + "\n"))
-    );
+    return [
+      `!-T ${song.properties.title}\n`,
+      song.properties.author ? `!-A ${song.properties.author}\n` : "",
+      ...song.sectionOrder.map<string>((sei) =>
+        sei.type === "section"
+          ? `!-S ${sei.name}\n${sectionContentToString(song.sections.find((s) => s.name === sei.name)!)}\n`
+          : sei.type === "repeat"
+            ? `!-R ${sei.name}\n`
+            : sei.type === "note"
+              ? `!-N ${song.notes.find((n) => n.name === sei.name)!.text}\n`
+              : "",
+      ),
+    ].reduce((p, c) => p + c + "\n", "");
   } catch (e) {
     throw e;
   }
