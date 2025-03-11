@@ -1,0 +1,10 @@
+{
+  "globalDisplay": {
+    "global": [
+
+    ],
+    "text": [
+      { "key": "Bold", "type": "boolean", "default": false, "value": true }
+    ]
+  }
+}

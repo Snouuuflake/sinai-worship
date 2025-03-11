@@ -1,5 +1,36 @@
 const electron = require("electron");
 
+/**
+ * Stupid function that returns a remove listener function for use with useEffect
+ * @param
+ */
+const useIpcListener = (
+  channel: string,
+  callback: (...args: any[]) => void,
+) => {
+  const listener = (_event: Electron.IpcRendererEvent, ...largs: any[]) => {
+    callback(...largs);
+  };
+  electron.ipcRenderer.on(channel, listener);
+  return () => {
+    electron.ipcRenderer.removeListener(channel, listener);
+  };
+};
+
+// LATEST
+const ipcInvokeJSON = (channel: string, obj: any) => {
+  return new Promise<any>((resolve) => {
+    electron.ipcRenderer
+      .invoke(channel, JSON.stringify(obj))
+      .then((jsonRes) => resolve(JSON.parse(jsonRes)));
+  });
+};
+
+const makeInvokeJSON = (channel: string) => {
+  return (obj: any) => ipcInvokeJSON(channel, obj)
+}
+
+
 electron.contextBridge.exposeInMainWorld("electron", {
   // for react
   invokeReadSong: (callback: (song: Song) => void) => {
@@ -13,7 +44,7 @@ electron.contextBridge.exposeInMainWorld("electron", {
     );
   },
   invokeSaveSong: (song: Song): Promise<void> => {
-    return electron.ipcRenderer.invoke("save-song", song) as Promise<void>
+    return electron.ipcRenderer.invoke("save-song", song) as Promise<void>;
   },
 
   /**
@@ -25,13 +56,26 @@ electron.contextBridge.exposeInMainWorld("electron", {
       liveElement: liveElement,
     });
   },
+
+  invokeReadDisplaySetting: makeInvokeJSON("read-display-settings"),
+
   // for display window
   testFunction: () => console.log("Hello, World!"),
   sendNewDisplayWindow: (index: number) => {
     electron.ipcRenderer.send("new-display-window", index);
   },
-  sendAlert: (message: string) => {electron.ipcRenderer.send("alert", message)},
+  sendAlert: (message: string) => {
+    electron.ipcRenderer.send("alert", message);
+  },
   invokeIndex: () => electron.ipcRenderer.invoke("invoke-index"),
+  sendReqCss: (index: number) => {
+    electron.ipcRenderer.send("req-css", index);
+  },
+  onResCss: (index: number, callback: (css: string) => void) => {
+    electron.ipcRenderer.on(`res-${index}-css`, (_event, data) =>
+      callback(data),
+    );
+  },
   onDisplayText: (index: number, callback: (text: string) => void) => {
     electron.ipcRenderer.on(`display-${index}-text`, (_event, data) => {
       callback(data);

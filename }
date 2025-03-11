@@ -59,7 +59,13 @@ class Song {
   }
 }
 
-type InvokeJSON = (obj: any) => Promise<any>;
+type testType = {
+  testProp: number;
+};
+
+type InvokeJSON = {
+
+}
 
 interface Window {
   electron: {
@@ -67,7 +73,7 @@ interface Window {
     invokeSaveSong: (song: Song) => Promise<void>;
     sendSetLiveElement: (index: number, liveElement: LiveElementType) => void;
 
-    invokeReadDisplaySetting: InvokeJSON;
+    onReadDisplaySetting: InvokeJSON;
     testFunction: () => string;
     sendNewDisplayWindow: (index: number) => void;
     sendAlert: (message: string) => void;
@@ -79,28 +85,15 @@ interface Window {
   };
 }
 
-type DisplayConfigEntryValueType = "boolean" | "csscolor" | "font" | "pnumber";
-
-type DisplayConfigEntryType = {
-  key: string;
-  type: DisplayConfigEntryValueType;
-  default: any;
-  value: any;
-};
-
-type DisplayConfigType = {
-  global: DisplayConfigEntryType[];
-  text: DisplayConfigEntryType[];
-};
-
-type FullDisplayConfigType = {
-  globalDisplay: DisplayConfigType;
-  specificDisplays: DisplayConfigType[];
-};
-
-type StateObject<T> = {
-  value: T;
-  set: (newValue: T) => void;
+type GlobalContextType = {
+  MAX_LIVE_ELEMENTS: number;
+  liveElementsState: LiveElementsState;
+  openElements: OpenElementsState;
+  viewElement: OpenElementState;
+  bodyContent: {
+    value: "main" | "display";
+    set: React.Dispatch<React.SetStateAction<"main" | "display">>;
+  };
 };
 
 /**
@@ -110,8 +103,16 @@ type OpenElementType = {
   type: "none" | "song";
   song: Song?;
 };
-type OpenElementState = StateObject<OpenElementType>;
-type OpenElementsState = StateObject<OpenElementType[]>;
+
+type OpenElementState = {
+  value: OpenElementType;
+  set: (newValue: OpenElementType) => void;
+};
+
+type OpenElementsState = {
+  value: OpenElementType[];
+  set: (newValue: OpenElementType[]) => void;
+};
 
 /**
  * type: "none" | "text" (for lyrics)
@@ -135,19 +136,3 @@ type LiveElementsState = {
   value: LiveElementType[];
   set: (IndexedLiveElementsObject) => void;
 };
-
-type NullFullDisplayConfigState = StateObject<FullDisplayConfigType | null>;
-
-type GlobalContextType = {
-  MAX_LIVE_ELEMENTS: number;
-  liveElementsState: LiveElementsState;
-  openElements: OpenElementsState;
-  viewElement: OpenElementState;
-  bodyContent: {
-    value: "main" | "display";
-    set: React.Dispatch<React.SetStateAction<"main" | "display">>;
-  };
-  displayConfig: NullFullDisplayConfigState;
-};
-
-//LATEST

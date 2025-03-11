@@ -30,10 +30,12 @@ function updateAllClasses(index) {
 }
 
 function overflows(element) {
-  return ((element.clientHeight < element.scrollHeight) || (element.clientWidth < element.scrollWidth));
+  return (
+    element.clientHeight < element.scrollHeight ||
+    element.clientWidth < element.scrollWidth
+  );
 }
 function fitText(textElement, parentElement, maxSize) {
-
   let i = 0;
   textElement.style.fontSize = i + "px";
 
@@ -57,6 +59,16 @@ window.addEventListener("load", () => {
       console.log(`Window index is ${index} :3`);
       document.title = `Window #${index + 1}`;
 
+      const styleTag = document.createElement("style");
+      styleTag.id = "style-tag";
+      document.body.insertBefore(styleTag, document.body.firstChild);
+
+      window.electron.onResCss(index, (css) => {
+        console.log(css);
+        styleTag.innerHTML = css;
+      });
+      window.electron.sendReqCss(index);
+
       // INFO: projection element event listeners
       window.electron.onDisplayText(index, (text) => {
         console.log(text);
@@ -77,9 +89,10 @@ window.addEventListener("load", () => {
         console.log(maxFontSize);
         fitText(textElement, textContainer, maxFontSize);
       });
+
       //window.electron.onDisplayImage()
     })
     .catch((e) => {
-      console.log(`Error getting window index!\n${e.message}`);
+      console.log(`Error post/on window index!\n${e.message}`);
     });
 });

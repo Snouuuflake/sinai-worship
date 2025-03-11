@@ -10,12 +10,14 @@ html, body {
 }
 body {
   background-color: black;
+  font-family: "Helvetica";
   color: white;
   align-items: center;
   justify-content: center;
 }
 
 .text-container {
+  all: unset;
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -26,6 +28,21 @@ body {
 
 .text {
   width: 100%;
-  padding-top: 60vh;
+  padding-top: 30vh;
+  padding-bottom: 30vh;
   font-size: 400px;
 }
+
+/*  fields:
+ *    global:
+ *      background (as css value)
+ *    text:
+ *      margin (as %)
+ *      font size (as number that we will turn into px)
+ *      font
+ *      color (as css value)
+ *      bold (bool)
+ *    images / video:
+ *      cover / fit (dropdown)
+ * 
+ */

@@ -1,0 +1,55 @@
+.display-controls {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.darken-hover:hover {
+  background-image: linear-gradient(rgba(0,0,0,0.2) 0 0 );
+}
+
+.boolean-input-button {
+  all: unset;
+  font-size: inherit;
+  padding: 0 7px;
+  border-radius: var(--br-small);
+}
+.boolean-input-active {
+  background-color: var(--hi1);
+}
+.boolean-input-inactive {
+  background-color: var(--gray-6);
+}
+
+.css-color-input-v-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.css-color-input-title {
+  font-size: 13px;
+  font-weight: bold;
+  padding-left: 2px;
+}
+
+.css-color-input-h-container {
+  display: flex;
+  gap: 5px;
+}
+
+.css-color-input-input {
+}
+
+.css-color-input-reset-button {
+  all: unset;
+  background: var(--hi1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 27px;
+  width: 27px;
+  border-radius: var(--br-small);
+
+}
+

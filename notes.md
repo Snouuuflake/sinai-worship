@@ -12,3 +12,10 @@
     - we could actually just put everything in a template string, since it skips a lot of function calls and only happens once
 - **!!Windows have index starting at 0 for everything react, and index starting at 1 for everything in electron and dist-display**
 
+
+# pt 2.
+### Style managment
+- settings schema saved in react ui
+- load property: load property from config.json - if it exists in the schema, change from default to this value
+- update property - write any updated property form ui to file
+
