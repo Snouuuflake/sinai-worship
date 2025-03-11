@@ -15,7 +15,7 @@ function BooleanInput({
   );
   return (
     <button
-      className={`boolean-input-button darken-hover ${active ? "boolean-input-active" : "boolean-input-inactive"}`}
+      className={`form-input-component boolean-input-button darken-hover ${active ? "boolean-input-active" : "boolean-input-inactive"}`}
       onClick={()=>{
         const newValue = !active;
         updateConfig(configEntry, newValue);

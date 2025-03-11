@@ -194,7 +194,7 @@ handleJSONAsync("read-display-settings", async (_) => {
             default: "Helvetica",
             value: null,
           },
-          { key: "Color", type: "csscolor", default: "white", value: null },
+          { key: "Color", type: "csscolor", default: "White", value: null },
           { key: "Bold", type: "boolean", default: false, value: null },
         ],
       },

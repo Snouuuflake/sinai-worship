@@ -1,7 +1,6 @@
 import { GlobalContext } from "../../GlobalContext";
 import { useState, useEffect, useContext } from "react";
 import FormInput from "./FormInput";
-import "./DisplayControls.css";
 function DisplayControls() {
   //class Settings {
   //  window: BrowserWindow;
@@ -17,7 +16,7 @@ function DisplayControls() {
   //      { key: "Margin Bottom", type: "pnumber", default: 0 },
   //      { key: "Font Size", type: "pnumber", default: 20 },
   //      { key: "Font Family", type: "string", default: "Helvetica" },
-  //      { key: "Color", type: "csscolor", default: "white" },
+  //      { key: "Color", type: "csscolor", default: "White" },
   //      { key: "Bold", type: "boolean", default: false },
   //    ];
   //  }

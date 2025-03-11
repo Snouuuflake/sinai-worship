@@ -5,8 +5,18 @@
   gap: 7px;
 }
 
+.form-input-component {
+  height: 27px !important;
+}
+
 .darken-hover:hover {
-  background-image: linear-gradient(rgba(0,0,0,0.2) 0 0 );
+  background-image: linear-gradient(rgba(0, 0, 0, 0.2) 0 0);
+}
+
+.no-spin::-webkit-outer-spin-button,
+.no-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .boolean-input-button {
@@ -22,34 +32,41 @@
   background-color: var(--gray-6);
 }
 
-.css-color-input-v-container {
+.text-input-v-container {
   display: flex;
+  gap: 2px;
   flex-direction: column;
 }
 
-.css-color-input-title {
+.text-input-title {
   font-size: 13px;
   font-weight: bold;
   padding-left: 2px;
 }
 
-.css-color-input-h-container {
+.text-input-h-container {
   display: flex;
   gap: 5px;
 }
 
-.css-color-input-input {
+.text-input-input {
 }
 
-.css-color-input-reset-button {
+.text-input-reset-button {
   all: unset;
-  background: var(--hi1);
+  background-color: var(--hi1);
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 27px;
-  width: 27px;
+  min-height: 27px;
+  min-width: 27px;
   border-radius: var(--br-small);
-
 }
 
+.int-input-input {
+  all: unset;
+  text-align: center;
+  border-radius: var(--br-small);
+  flex-grow: 1;
+  background-color: var(--gray-2);
+}

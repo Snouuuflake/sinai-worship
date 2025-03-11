@@ -22,12 +22,12 @@ function CssColorInput({
   const inputRef = useRef<any>(null);
 
   return (
-    <div className="css-color-input-v-container">
-      <div className="css-color-input-title">{configEntry.key}</div>
-      <div className="css-color-input-h-container">
+    <div className="text-input-v-container">
+      <div className="text-input-title">{configEntry.key + " (CSS)"}</div>
+      <div className="form-input-component text-input-h-container">
         <input
           ref={inputRef}
-          className="css-color-input-input dark-material-input"
+          className="text-input-input dark-material-input"
           contentEditable="true"
           style={{ borderColor: valid ? "green" : "darkred" }}
           onChange={(event) => {
@@ -39,11 +39,10 @@ function CssColorInput({
           value={initValue}
         ></input>
         <button
-          className="css-color-input-reset-button darken-hover"
+          className="text-input-reset-button darken-hover"
           onClick={() => {
             setValid(isColor(inputRef.current.value));
             updateConfig(configEntry, null);
-            console.log("A");
           }}
         >
           <Icon code="X" />

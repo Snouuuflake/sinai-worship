@@ -6,6 +6,8 @@ import "./FormInput.css";
 
 import BooleanInput from "./BooleanInput";
 import CssColorInput from "./CssColorInput";
+import TextInput from "./TextInput";
+import IntInput from "./IntInput";
 
 function FormInput({
   configEntry,
@@ -29,9 +31,11 @@ function FormInput({
     <BooleanInput configEntry={configEntry} updateConfig={updateConfig} />
   ) : configEntry.type === "csscolor" ? (
     <CssColorInput configEntry={configEntry} updateConfig={updateConfig} />
-  ) : (
-    <div>{configEntry.key}</div>
-  );
+  ) : configEntry.type === "font" ? (
+    <TextInput configEntry={configEntry} updateConfig={updateConfig} />
+  ) : configEntry.type === "pnumber" ? (
+    <IntInput configEntry={configEntry} updateConfig={updateConfig} />
+  ) : "";
 }
 
 export default FormInput;
