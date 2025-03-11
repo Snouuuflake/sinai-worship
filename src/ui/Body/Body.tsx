@@ -18,7 +18,7 @@ function Body() {
           <ControlSection />
         </div>
       ) : bodyContent.value === "display" ? (
-        <DisplayControls />
+      <DisplayControls />
       ) : (
         <></>
       )}

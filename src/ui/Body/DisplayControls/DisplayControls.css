@@ -1,0 +1,13 @@
+.display-controls {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex-grow: 1;
+  align-self: center;
+}
+
+.display-config-header {
+  font-weight: bold;
+  font-size: 18px;
+}

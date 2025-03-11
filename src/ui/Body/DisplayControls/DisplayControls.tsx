@@ -1,6 +1,7 @@
 import { GlobalContext } from "../../GlobalContext";
 import { useState, useEffect, useContext } from "react";
 import FormInput from "./FormInput";
+import "./DisplayControls.css";
 function DisplayControls() {
   //class Settings {
   //  window: BrowserWindow;
@@ -55,19 +56,33 @@ function DisplayControls() {
     });
   };
 
-  //return (<div>
-  //        {!Object.is(displayConfig.value, null) ? [
-  //          TMP_drawEntries(displayConfig.value!.globalDisplay.global),
-  //          TMP_drawEntries(displayConfig.value!.globalDisplay.text),
-  //        ] : ""}
-  //        </div>)
+  const drawDisplayConfig = (dc: DisplayConfigType) => {
+    return [
+      <div className="display-config-header">Global Options</div>,
+      dc.global.map((entry) => (
+        <FormInput configEntry={entry} configArray={dc.global} />
+      )),
+      <div className="display-config-header">Text Options</div>,
+      dc.text.map((entry) => (
+        <FormInput configEntry={entry} configArray={dc.text} />
+      )),
+    ];
+  };
+
   return (
     <div className="display-controls">
-      {displayConfig.value
-        ? displayConfig.value.globalDisplay.text.map((entry) => (
-            <FormInput configEntry={entry} configArray={displayConfig.value!.globalDisplay.text}/>
-          ))
-        : ""}
+      {
+        //displayConfig.value
+        //? displayConfig.value.globalDisplay.text.map((entry) => (
+        //    <FormInput configEntry={entry} configArray={displayConfig.value!.globalDisplay.text}/>
+        //  ))
+        //: ""
+        displayConfig.value === null
+          ? ""
+          : displayIndex == -1
+            ? drawDisplayConfig(displayConfig.value.globalDisplay)
+            : ""
+      }
     </div>
   );
 }
