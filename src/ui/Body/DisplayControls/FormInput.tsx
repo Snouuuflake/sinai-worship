@@ -12,29 +12,32 @@ import IntInput from "./IntInput";
 function FormInput({
   configEntry,
   configArray,
+  updateConfig,
 }: {
   configEntry: DisplayConfigEntryType;
   configArray: DisplayConfigEntryType[];
+  updateConfig: (newValue: any) => void;
 }) {
   let a: DisplayConfigEntryValueType;
 
-  const { MAX_LIVE_ELEMENTS, displayConfig } = useContext(
+  const { displayConfig } = useContext(
     GlobalContext,
   ) as GlobalContextType;
 
-  const updateConfig = (configEntry: DisplayConfigEntryType, newValue: any) => {
+  const updateConfigAndState = (configEntry: DisplayConfigEntryType, newValue: any) => {
+    updateConfig(newValue);
     configArray.find((x) => x.key === configEntry.key)!.value = newValue;
     displayConfig.set({ ...(displayConfig.value as FullDisplayConfigType) });
   };
 
   return configEntry.type === "boolean" ? (
-    <BooleanInput configEntry={configEntry} updateConfig={updateConfig} />
+    <BooleanInput configEntry={configEntry} updateConfig={updateConfigAndState} />
   ) : configEntry.type === "csscolor" ? (
-    <CssColorInput configEntry={configEntry} updateConfig={updateConfig} />
+    <CssColorInput configEntry={configEntry} updateConfig={updateConfigAndState} />
   ) : configEntry.type === "font" ? (
-    <TextInput configEntry={configEntry} updateConfig={updateConfig} />
+    <TextInput configEntry={configEntry} updateConfig={updateConfigAndState} />
   ) : configEntry.type === "pnumber" ? (
-    <IntInput configEntry={configEntry} updateConfig={updateConfig} />
+    <IntInput configEntry={configEntry} updateConfig={updateConfigAndState} />
   ) : "";
 }
 

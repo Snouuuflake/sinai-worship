@@ -56,21 +56,109 @@ function DisplayControls() {
     });
   };
 
-  const drawDisplayConfig = (dc: DisplayConfigType) => {
-    return [
-      <div className="display-config-header">Global Options</div>,
-      dc.global.map((entry) => (
-        <FormInput configEntry={entry} configArray={dc.global} />
-      )),
-      <div className="display-config-header">Text Options</div>,
-      dc.text.map((entry) => (
-        <FormInput configEntry={entry} configArray={dc.text} />
-      )),
-    ];
+  const sendConfigUpdateToMain = (
+    index: number,
+    arrayName: DisplayConfigArrayName,
+    key: string,
+    newValue: any,
+  ) => {
+    console.log("'Sending'", index, arrayName, key, newValue);
   };
 
+  // entry gets modified default such that null value works. this. should. work.
+  const makeFormInput = (
+    index: number,
+    entry: DisplayConfigEntryType,
+    configArray: DisplayConfigEntryType[],
+    arrayName: DisplayConfigArrayName,
+  ) => (
+    <FormInput
+      key={`${entry.key}${index}`}
+      configEntry={entry}
+      configArray={configArray}
+      updateConfig={(newValue) => {
+        sendConfigUpdateToMain(index, arrayName, entry.key, newValue);
+      }}
+    />
+  );
+
+  const getConfigArrayTitle = (key: DisplayConfigArrayName) => {
+    switch (key) {
+      case "global":
+        return "Global Settings";
+        break;
+
+      case "text":
+        return "Text Settings";
+        break;
+      default:
+        return "how did this happen?";
+        break;
+    }
+  };
+
+  const drawDefaultDisplayConfig = (defaultConfig: DisplayConfigType) => {
+    return (Object.keys(defaultConfig) as (keyof DisplayConfigType)[]).map(
+      (key) => (
+        <div className="display-controls-section" key={`si{-1}k${key}`}>
+          {[
+            <div className="display-config-header" key={`hi${-1}k${key}`}>
+              {getConfigArrayTitle(key)}
+            </div>,
+            defaultConfig[key].map((entry) =>
+              makeFormInput(-1, entry, defaultConfig[key], key),
+            ),
+          ]}
+        </div>
+      ),
+    );
+  };
+
+  const drawSpecificDisplayConfig = (
+    defaultConfig: DisplayConfigType,
+    specificConfig: DisplayConfigType,
+    index: number,
+  ) => {
+    return (Object.keys(specificConfig) as (keyof DisplayConfigType)[]).map(
+      (key) => (
+        <div className="display-controls-section" key={`si{-1}k${key}`}>
+          {[
+            <div className="display-config-header" key={`hi${index}k${key}`}>
+              {getConfigArrayTitle(key) + index}
+            </div>,
+            specificConfig[key].map((entry) => {
+              const defaultEntry = defaultConfig[key].find((x) => x.key === entry.key)!
+              const newDefault = defaultEntry.value === null ? defaultEntry.default : defaultEntry.value;
+              return makeFormInput(index, {...entry, default: newDefault}, specificConfig[key], key);
+            }),
+          ]}
+        </div>
+      ),
+    );
+  };
+
+  //const drawSpecificDisplayConfig = (dc: DisplayConfigType) => {
+  //  return [
+  //    <div className="display-config-header">Global Options</div>,
+  //    dc.global.map((entry) => (
+  //      <FormInput configEntry={entry} configArray={dc.global} />
+  //    )),
+  //    <div className="display-config-header">Text Options</div>,
+  //    dc.text.map((entry) => (
+  //      <FormInput configEntry={entry} configArray={dc.text} />
+  //    )),
+  //  ];
+  //};
+
+  console.log(displayConfig.value )
   return (
     <div className="display-controls">
+      <input type="number" value={displayIndex}
+        onChange={(event) => {
+          const newValue = parseInt((event.target as HTMLInputElement).value);
+          setDisplayIndex(newValue);
+        }}
+      ></input>
       {
         //displayConfig.value
         //? displayConfig.value.globalDisplay.text.map((entry) => (
@@ -80,8 +168,10 @@ function DisplayControls() {
         displayConfig.value === null
           ? ""
           : displayIndex == -1
-            ? drawDisplayConfig(displayConfig.value.globalDisplay)
-            : ""
+            ? drawDefaultDisplayConfig(displayConfig.value.globalDisplay)
+            : drawSpecificDisplayConfig(
+              displayConfig.value.globalDisplay, displayConfig.value.specificDisplays[displayIndex], displayIndex,
+            )
       }
     </div>
   );

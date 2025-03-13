@@ -88,10 +88,13 @@ type DisplayConfigEntryType = {
   value: any;
 };
 
+
 type DisplayConfigType = {
   global: DisplayConfigEntryType[];
   text: DisplayConfigEntryType[];
 };
+
+type DisplayConfigArrayName = "global" | "text";
 
 type FullDisplayConfigType = {
   globalDisplay: DisplayConfigType;

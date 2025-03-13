@@ -5,6 +5,8 @@ import { getPreloadPath } from "./pathResolver.js";
 import { readMSSFile, writeMSSFile } from "./parser.js";
 import { promises as fsp } from "fs";
 
+const MAX_LIVE_ELEMENTS = 4;
+
 /**
  * Compares the keys and types of all first children of any two objects
  */
@@ -170,43 +172,48 @@ app.on("window-all-closed", () => {
 
 //LATEST
 handleJSONAsync("read-display-settings", async (_) => {
-  const makeDefaultConfig = () =>
-    ({
-      globalDisplay: {
-        global: [
-          {
-            key: "background",
-            type: "csscolor",
-            default: "black",
-            value: null,
-          },
-        ],
-        text: [
-          { key: "Margin Left", type: "pnumber", default: 0, value: null },
-          { key: "Margin Right", type: "pnumber", default: 0, value: null },
-          { key: "Margin Top", type: "pnumber", default: 0, value: null },
-          { key: "Margin Bottom", type: "pnumber", default: 0, value: null },
-          { key: "Font Size", type: "pnumber", default: 20, value: null },
-          // TODO: proper font selector
-          {
-            key: "Font Family",
-            type: "font",
-            default: "Helvetica",
-            value: null,
-          },
-          { key: "Color", type: "csscolor", default: "White", value: null },
-          { key: "Bold", type: "boolean", default: false, value: null },
-        ],
-      },
-      specificDisplays: [],
-    }) as FullDisplayConfigType;
+  const makeDefaultFullConfig = () => {
+    const makeDefaultConfig = () => ({
+      global: [
+        {
+          key: "Background",
+          type: "csscolor",
+          default: "black",
+          value: null,
+        },
+      ],
+      text: [
+        { key: "Margin Left", type: "pnumber", default: 0, value: null },
+        { key: "Margin Right", type: "pnumber", default: 0, value: null },
+        { key: "Margin Top", type: "pnumber", default: 0, value: null },
+        { key: "Margin Bottom", type: "pnumber", default: 0, value: null },
+        { key: "Font Size", type: "pnumber", default: 20, value: null },
+        // TODO: proper font selector
+        {
+          key: "Font Family",
+          type: "font",
+          default: "Helvetica",
+          value: null,
+        },
+        { key: "Color", type: "csscolor", default: "White", value: null },
+        { key: "Bold", type: "boolean", default: false, value: null },
+      ],
+    });
+
+    return {
+      globalDisplay: makeDefaultConfig(),
+      specificDisplays: new Array(MAX_LIVE_ELEMENTS)
+        .fill(0)
+        .map((_) => makeDefaultConfig()),
+    } as FullDisplayConfigType;
+  };
 
   try {
-    const fConfig = JSON.parse(
+    const fConfig: FullDisplayConfigType = JSON.parse(
       await fsp.readFile(path.join(app.getAppPath(), "config.json"), "utf8"),
     );
 
-    const curConfig = makeDefaultConfig();
+    const curConfig = makeDefaultFullConfig();
 
     const updateDisplayField = (
       og: DisplayConfigEntryType[],
@@ -233,9 +240,13 @@ handleJSONAsync("read-display-settings", async (_) => {
     };
 
     updateDisplay(curConfig.globalDisplay, fConfig.globalDisplay);
+    for (let i = 0; i < MAX_LIVE_ELEMENTS; i++) {
+      updateDisplay(curConfig.specificDisplays[i], fConfig.specificDisplays[i]);
+    }
     return curConfig;
   } catch (err) {
-    return makeDefaultConfig();
+    await fsp.writeFile(path.join(app.getAppPath(), "config.json"), JSON.stringify(makeDefaultFullConfig()))
+    return makeDefaultFullConfig();
   }
 });
 

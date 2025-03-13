@@ -2,9 +2,18 @@
   width: 400px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 16px;
   flex-grow: 1;
   align-self: center;
+  align-items: center;
+  justify-content: center;
+}
+
+.display-controls-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 100%;
 }
 
 .display-config-header {
