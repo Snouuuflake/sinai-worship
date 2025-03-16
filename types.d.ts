@@ -72,6 +72,11 @@ interface Window {
     sendNewDisplayWindow: (index: number) => void;
     sendAlert: (message: string) => void;
     invokeIndex: () => Promise<any>;
+    sendUpdateCss: (
+      index: number,
+      arrayName: DisplayConfigArrayName,
+      entry: DisplayConfigEntryType,
+    ) => void;
     sendReqCss: (index: number) => void;
     onResCss: (index: number, callback: (css: string) => void) => void;
     onDisplayText: (index: number, callback: (text: string) => void) => void;
@@ -83,11 +88,12 @@ type DisplayConfigEntryValueType = "boolean" | "csscolor" | "font" | "pnumber";
 
 type DisplayConfigEntryType = {
   key: string;
+  special?: boolean;
+  css: string;
   type: DisplayConfigEntryValueType;
   default: any;
   value: any;
 };
-
 
 type DisplayConfigType = {
   global: DisplayConfigEntryType[];
@@ -99,6 +105,11 @@ type DisplayConfigArrayName = "global" | "text";
 type FullDisplayConfigType = {
   globalDisplay: DisplayConfigType;
   specificDisplays: DisplayConfigType[];
+};
+
+type CssTransmissionType = {
+  arrayName: DisplayConfigArrayName;
+  css: string;
 };
 
 type StateObject<T> = {

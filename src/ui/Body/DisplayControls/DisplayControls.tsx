@@ -59,10 +59,10 @@ function DisplayControls() {
   const sendConfigUpdateToMain = (
     index: number,
     arrayName: DisplayConfigArrayName,
-    key: string,
-    newValue: any,
+    newEntry: DisplayConfigEntryType,
   ) => {
-    console.log("'Sending'", index, arrayName, key, newValue);
+    console.log(newEntry);
+    window.electron.sendUpdateCss(index, arrayName, newEntry)
   };
 
   // entry gets modified default such that null value works. this. should. work.
@@ -77,7 +77,7 @@ function DisplayControls() {
       configEntry={entry}
       configArray={configArray}
       updateConfig={(newValue) => {
-        sendConfigUpdateToMain(index, arrayName, entry.key, newValue);
+        sendConfigUpdateToMain(index, arrayName, {...entry, value: newValue});
       }}
     />
   );
@@ -127,9 +127,19 @@ function DisplayControls() {
               {getConfigArrayTitle(key) + index}
             </div>,
             specificConfig[key].map((entry) => {
-              const defaultEntry = defaultConfig[key].find((x) => x.key === entry.key)!
-              const newDefault = defaultEntry.value === null ? defaultEntry.default : defaultEntry.value;
-              return makeFormInput(index, {...entry, default: newDefault}, specificConfig[key], key);
+              const defaultEntry = defaultConfig[key].find(
+                (x) => x.key === entry.key,
+              )!;
+              const newDefault =
+                defaultEntry.value === null
+                  ? defaultEntry.default
+                  : defaultEntry.value;
+              return makeFormInput(
+                index,
+                { ...entry, default: newDefault },
+                specificConfig[key],
+                key,
+              );
             }),
           ]}
         </div>
@@ -150,10 +160,12 @@ function DisplayControls() {
   //  ];
   //};
 
-  console.log(displayConfig.value )
+  console.log(displayConfig.value);
   return (
     <div className="display-controls">
-      <input type="number" value={displayIndex}
+      <input
+        type="number"
+        value={displayIndex}
         onChange={(event) => {
           const newValue = parseInt((event.target as HTMLInputElement).value);
           setDisplayIndex(newValue);
@@ -170,8 +182,10 @@ function DisplayControls() {
           : displayIndex == -1
             ? drawDefaultDisplayConfig(displayConfig.value.globalDisplay)
             : drawSpecificDisplayConfig(
-              displayConfig.value.globalDisplay, displayConfig.value.specificDisplays[displayIndex], displayIndex,
-            )
+                displayConfig.value.globalDisplay,
+                displayConfig.value.specificDisplays[displayIndex],
+                displayIndex,
+              )
       }
     </div>
   );

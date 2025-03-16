@@ -17,7 +17,6 @@ const useIpcListener = (
   };
 };
 
-// LATEST
 const ipcInvokeJSON = (channel: string, obj: any) => {
   return new Promise<any>((resolve) => {
     electron.ipcRenderer
@@ -29,6 +28,11 @@ const ipcInvokeJSON = (channel: string, obj: any) => {
 const makeInvokeJSON = (channel: string) => {
   return (obj: any) => ipcInvokeJSON(channel, obj)
 }
+
+const makeIpcSend = (channel: string) => {
+  return (...args: any[]) => electron.ipcRenderer.send(channel, ...args)
+}
+
 
 
 electron.contextBridge.exposeInMainWorld("electron", {
@@ -70,6 +74,13 @@ electron.contextBridge.exposeInMainWorld("electron", {
   invokeIndex: () => electron.ipcRenderer.invoke("invoke-index"),
   sendReqCss: (index: number) => {
     electron.ipcRenderer.send("req-css", index);
+  },
+  sendUpdateCss: (
+      index: number,
+      arrayName: DisplayConfigArrayName,
+      entry: DisplayConfigEntryType,
+  ) => {
+    electron.ipcRenderer.send("update-css", index, arrayName, entry)
   },
   onResCss: (index: number, callback: (css: string) => void) => {
     electron.ipcRenderer.on(`res-${index}-css`, (_event, data) =>
