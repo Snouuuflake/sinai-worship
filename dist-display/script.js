@@ -3,6 +3,36 @@ Elements that require display window-index-independent styles must have classes 
 */
 
 /**
+ * update-css event
+ */
+const updateCssEvent = new CustomEvent("update-css");
+let currentUpdateCssEventListener = null;
+function setCurrentUpdateCssEventListener(listener) {
+  currentUpdateCssEventListener = listener;
+  document.addEventListener("update-css", listener);
+}
+function removeCurrentUpdateCssEventListener() {
+  document.removeEventListener("update-css", currentUpdateCssEventListener);
+  currentUpdateCssEventListener = null;
+}
+
+/**
+ * @param css {string}
+ */
+const styleTag = document.getElementById("style-tag");
+//const styleObserver = new MutationObserver((mutations) => {
+//  mutations.forEach((mutation) => {
+//    console.log(mutation.type);
+//  });
+//});
+//styleObserver.observe(styleTag, { attributes: true });
+
+function updateStyleTag(css) {
+const styleTag = document.getElementById("style-tag");
+  styleTag.innerHTML = css;
+}
+
+/**
  * Updates classes for one element
  * @param {HTMLElement} element
  * @param {number} index Display index
@@ -59,35 +89,46 @@ window.addEventListener("load", () => {
       console.log(`Window index is ${index} :3`);
       document.title = `Window #${index + 1}`;
 
-      const styleTag = document.createElement("style");
-      styleTag.id = "style-tag";
-      document.body.insertBefore(styleTag, document.body.firstChild);
-
       window.electron.onResCss(index, (css) => {
-        console.log(css);
-        styleTag.innerHTML = css;
+        //console.log(css);
+        updateStyleTag(css);
       });
       window.electron.sendReqCss(index);
+      window.electron.onUpdateCss(index, (css) => {
+        console.log(css);
+        updateStyleTag(css);
+        document.dispatchEvent(updateCssEvent);
+      });
 
       // INFO: projection element event listeners
       window.electron.onDisplayText(index, (text) => {
-        console.log(text);
-        document.body.replaceChildren();
-        const textContainer = document.createElement("div");
-        textContainer.classList.add(`text-container`);
-        textContainer.classList.add(`d-${index}-text-container`);
-        const textElement = document.createElement("div");
-        textElement.classList.add(`text`);
-        textElement.classList.add(`d-${index}-text`);
+        function setDisplayText(text) {
+          console.log(text);
+          document.body.replaceChildren();
+          const textContainer = document.createElement("div");
+          textContainer.classList.add(`text-container`);
+          textContainer.classList.add(`d-${index}-text-container`);
+          const textElement = document.createElement("div");
+          textElement.classList.add(`text`);
+          textElement.classList.add(`d-${index}-text`);
 
-        textElement.innerText = text;
-        textContainer.appendChild(textElement);
+          textElement.innerText = text;
+          textContainer.appendChild(textElement);
 
-        document.body.appendChild(textContainer);
+          document.body.appendChild(textContainer);
 
-        const maxFontSize = parseInt(getComputedStyle(textElement).fontSize);
-        console.log(maxFontSize);
-        fitText(textElement, textContainer, maxFontSize);
+          const maxFontSize = parseInt(getComputedStyle(textElement).fontSize);
+          console.log(maxFontSize);
+          fitText(textElement, textContainer, maxFontSize);
+        }
+        setDisplayText(text);
+        console.log("!")
+        removeCurrentUpdateCssEventListener();
+        setCurrentUpdateCssEventListener(() => {
+          console.log("!!")
+          setDisplayText(text);
+          console.log("update css!")
+        });
       });
 
       //window.electron.onDisplayImage()

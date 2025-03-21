@@ -87,6 +87,11 @@ electron.contextBridge.exposeInMainWorld("electron", {
       callback(data),
     );
   },
+  onUpdateCss: (index: number, callback: (css: string) => void) => {
+    electron.ipcRenderer.on(`update-${index}-css`, (_event, data) =>
+      callback(data),
+    );
+  },
   onDisplayText: (index: number, callback: (text: string) => void) => {
     electron.ipcRenderer.on(`display-${index}-text`, (_event, data) => {
       callback(data);

@@ -136,7 +136,7 @@ const readFullConfig = () => {
       global: [
         {
           key: "Background",
-          css: "background",
+          css: "background-color",
           type: "csscolor",
           default: "black",
           value: null,
@@ -262,23 +262,27 @@ app.on("ready", () => {
 
   const getSpecificDisplayCss = (index: number) => {
     // copy activeConfig
-    const resConfig = { ...activeConfig!.globalDisplay };
+    const resConfig = 
+      JSON.parse(JSON.stringify(activeConfig!.globalDisplay)) as DisplayConfigType
+    ;
     // for all keys (global, text)
     (Object.keys(resConfig) as (keyof DisplayConfigType)[]).forEach((key) => {
       resConfig[key].forEach((entry) => {
-        // setting default to global.value ? global.value : global.default
-        const specificEntry = {...entry};
-        specificEntry.default = entry.value !== null ? entry.value : entry.default;
-        // setting value to specific value
+        entry.default =
+          entry.value !== null ? entry.value : entry.default;
         const activeSpecificFoundEntry = activeConfig!.specificDisplays[index][
           key
         ].find((x) => x.key === entry.key)!;
-        specificEntry.value = activeSpecificFoundEntry.value;
-        //if (activeSpecificFoundEntry.key === "Background") {
-        //  // LATEST: WHY??? I know now
-        //  console.log(specificEntry.value, specificEntry.default)
-        //}
+        entry.value = activeSpecificFoundEntry.value;
       });
+    });
+    
+    (Object.keys(resConfig) as (keyof DisplayConfigType)[]).forEach((key) => {
+      resConfig[key].forEach((entry)=>{
+        if (entry.key === "Background") {
+          console.log(entry.value, entry.default)
+        }
+      })
     });
 
     const getEntryCss = (entry: DisplayConfigEntryType) => {
@@ -286,17 +290,18 @@ app.on("ready", () => {
         return "";
       } else {
         const suffix = entry.type === "pnumber" ? "px" : "";
-        const value = entry.value ? entry.value : entry.default;
+        const value = entry.value !== null ? entry.value : entry.default;
         return `${entry.css}: ${value}${suffix};`;
       }
     };
 
     const newCss = (Object.keys(resConfig) as (keyof DisplayConfigType)[])
       .map((key) => {
-        return `d-${index}-${key} {
+        return `.d-${index}-${key} {
         ${resConfig[key]
           .map((entry) => {
-          return getEntryCss(entry)})
+            return getEntryCss(entry);
+          })
           .reduce((p, c) => p + "\n" + c)}
       }`;
       })
@@ -307,7 +312,11 @@ app.on("ready", () => {
   handleJSONAsync("read-display-settings", async (_) => activeConfig);
 
   ipcMain.on("req-css", (_event, index) => {
-    sendToAllDisplayWindows(`res-${index}-css`, activeConfig);
+    Array(MAX_LIVE_ELEMENTS)
+      .fill(0)
+      .map((_, i) => {
+        sendToAllDisplayWindows(`update-${i}-css`, getSpecificDisplayCss(i));
+      });
   });
 
   ipcMain.on(
@@ -329,13 +338,11 @@ app.on("ready", () => {
       //console.log(updateeArray.find((x) => x.key === entry.key)!)
       console.log("updated activeConfig");
 
-
-      Array(MAX_LIVE_ELEMENTS).fill(0).map((_,i)=> {
-      sendToAllDisplayWindows(`res-${i}-css`, {
-        arrayName: arrayName,
-        css: getSpecificDisplayCss(i),
-      });
-      })
+      Array(MAX_LIVE_ELEMENTS)
+        .fill(0)
+        .map((_, i) => {
+          sendToAllDisplayWindows(`update-${i}-css`, getSpecificDisplayCss(i));
+        });
     },
   );
 
