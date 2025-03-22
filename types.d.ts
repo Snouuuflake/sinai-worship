@@ -84,7 +84,7 @@ interface Window {
   };
 }
 
-type DisplayConfigEntryValueType = "boolean" | "csscolor" | "font" | "pnumber";
+type DisplayConfigEntryValueType = "boolean" | "csscolor" | "font" | "number";
 
 type DisplayConfigEntryType = {
   key: string;
@@ -93,6 +93,7 @@ type DisplayConfigEntryType = {
   type: DisplayConfigEntryValueType;
   default: any;
   value: any;
+  unit?: string;
 };
 
 type DisplayConfigType = {

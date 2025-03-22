@@ -146,7 +146,8 @@ const readFullConfig = () => {
         {
           key: "Margin Left",
           css: "margin-left",
-          type: "pnumber",
+          type: "number",
+          unit: "vw",
           default: 0,
           value: null,
         },
@@ -154,7 +155,8 @@ const readFullConfig = () => {
         {
           key: "Margin Right",
           css: "margin-right",
-          type: "pnumber",
+          type: "number",
+          unit: "vw",
           default: 0,
           value: null,
         },
@@ -162,15 +164,17 @@ const readFullConfig = () => {
         {
           key: "Margin Top",
           css: "margin-top",
-          type: "pnumber",
+          type: "number",
+          unit: "vh",
           default: 0,
           value: null,
         },
 
         {
           key: "Margin Bottom",
-          css: "margin-botton",
-          type: "pnumber",
+          css: "margin-bottom",
+          type: "number",
+          unit: "vh",
           default: 0,
           value: null,
         },
@@ -178,7 +182,8 @@ const readFullConfig = () => {
         {
           key: "Font Size",
           css: "font-size",
-          type: "pnumber",
+          type: "number",
+          unit: "px",
           default: 20,
           value: null,
         },
@@ -203,7 +208,7 @@ const readFullConfig = () => {
         {
           key: "Bold",
           special: true,
-          css: "bold",
+          css: "",
           type: "boolean",
           default: false,
           value: null,
@@ -262,34 +267,47 @@ app.on("ready", () => {
 
   const getSpecificDisplayCss = (index: number) => {
     // copy activeConfig
-    const resConfig = 
-      JSON.parse(JSON.stringify(activeConfig!.globalDisplay)) as DisplayConfigType
-    ;
+    const resConfig = JSON.parse(
+      JSON.stringify(activeConfig!.globalDisplay),
+    ) as DisplayConfigType;
     // for all keys (global, text)
     (Object.keys(resConfig) as (keyof DisplayConfigType)[]).forEach((key) => {
       resConfig[key].forEach((entry) => {
-        entry.default =
-          entry.value !== null ? entry.value : entry.default;
+        entry.default = entry.value !== null ? entry.value : entry.default;
         const activeSpecificFoundEntry = activeConfig!.specificDisplays[index][
           key
         ].find((x) => x.key === entry.key)!;
         entry.value = activeSpecificFoundEntry.value;
       });
     });
-    
+
     (Object.keys(resConfig) as (keyof DisplayConfigType)[]).forEach((key) => {
-      resConfig[key].forEach((entry)=>{
+      resConfig[key].forEach((entry) => {
         if (entry.key === "Background") {
-          console.log(entry.value, entry.default)
+          console.log(entry.value, entry.default);
         }
-      })
+      });
     });
 
     const getEntryCss = (entry: DisplayConfigEntryType) => {
       if (entry.special) {
+        switch (entry.key) {
+          case "Bold":
+            const value = entry.value !== null ? entry.value : entry.default;
+            if (value) {
+              return "font-weight: bold;";
+            } else {
+              return "";
+            }
+            break;
+
+          default:
+            return "";
+            break;
+        }
         return "";
       } else {
-        const suffix = entry.type === "pnumber" ? "px" : "";
+        const suffix = entry.unit ? entry.unit : "";
         const value = entry.value !== null ? entry.value : entry.default;
         return `${entry.css}: ${value}${suffix};`;
       }
@@ -384,19 +402,6 @@ ipcMain.on("alert", (_event, message: string) => {
   dialog.showMessageBox({ message: message });
 });
 
-//const makeCss = (dc: DisplayConfigType) => {
-//  return (Object.keys(dc) as (keyof DisplayConfigType)[]).map((key) =>
-//    ``+(dc[key].map((entry) => {
-//      if (entry.special) {
-//        return "";
-//      } else {
-//        const suffix = entry.type === "pnumber" ? "px" : "";
-//        return `${entry.css}: ${entry.value}${suffix};`;
-//      }
-//    })).join("\n")
-//  );
-//};
-
 ipcMain.handle("read-song", (_event) => {
   return new Promise((resolve, reject) => {
     dialog.showOpenDialog({ properties: ["openFile"] }).then((result) => {
@@ -414,23 +419,3 @@ ipcMain.handle("read-song", (_event) => {
     });
   });
 });
-
-//class Settings {
-//  window: BrowserWindow;
-//  global: ConfigEntryType[];
-//  text: ConfigEntryType[];
-//  constructor(mainWindow: BrowserWindow) {
-//    this.window = mainWindow;
-//    this.global = [{ key: "background", type: "csscolor", default: "black" }];
-//    this.text = [
-//      { key: "Margin Left", type: "pnumber", default: 0 },
-//      { key: "Margin Right", type: "pnumber", default: 0 },
-//      { key: "Margin Top", type: "pnumber", default: 0 },
-//      { key: "Margin Bottom", type: "pnumber", default: 0 },
-//      { key: "Font Size", type: "pnumber", default: 20 },
-//      { key: "Font Family", type: "string", default: "Helvetica" },
-//      { key: "Color", type: "csscolor", default: "white" },
-//      { key: "Bold", type: "boolean", default: false },
-//    ];
-//  }
-//}

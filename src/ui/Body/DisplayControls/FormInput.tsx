@@ -36,7 +36,7 @@ function FormInput({
     <CssColorInput configEntry={configEntry} updateConfig={updateConfigAndState} />
   ) : configEntry.type === "font" ? (
     <TextInput configEntry={configEntry} updateConfig={updateConfigAndState} />
-  ) : configEntry.type === "pnumber" ? (
+  ) : configEntry.type === "number" ? (
     <IntInput configEntry={configEntry} updateConfig={updateConfigAndState} />
   ) : "";
 }

@@ -172,11 +172,6 @@ function DisplayControls() {
         }}
       ></input>
       {
-        //displayConfig.value
-        //? displayConfig.value.globalDisplay.text.map((entry) => (
-        //    <FormInput configEntry={entry} configArray={displayConfig.value!.globalDisplay.text}/>
-        //  ))
-        //: ""
         displayConfig.value === null
           ? ""
           : displayIndex == -1
