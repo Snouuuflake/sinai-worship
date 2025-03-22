@@ -60,6 +60,9 @@ electron.contextBridge.exposeInMainWorld("electron", {
       liveElement: liveElement,
     });
   },
+  invokeImagePath: (): Promise<string> => {
+    return electron.ipcRenderer.invoke("read-image") as Promise<string>;
+  },
 
   invokeReadDisplaySetting: makeInvokeJSON("read-display-settings"),
 

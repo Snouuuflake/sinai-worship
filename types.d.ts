@@ -72,6 +72,7 @@ interface Window {
     sendNewDisplayWindow: (index: number) => void;
     sendAlert: (message: string) => void;
     invokeIndex: () => Promise<any>;
+    invokeImagePath: () => Promise<string>;
     sendUpdateCss: (
       index: number,
       arrayName: DisplayConfigArrayName,
@@ -84,7 +85,7 @@ interface Window {
   };
 }
 
-type DisplayConfigEntryValueType = "boolean" | "csscolor" | "font" | "number";
+type DisplayConfigEntryValueType = "boolean" | "csscolor" | "font" | "number" | "path";
 
 type DisplayConfigEntryType = {
   key: string;

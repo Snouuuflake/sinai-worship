@@ -151,14 +151,6 @@ function DisplayControls() {
     <div className="display-controls">
       <div className="display-index-buttons-container">
         {
-          //<input
-          //  type="number"
-          //  value={displayIndex}
-          //  onChange={(event) => {
-          //    const newValue = parseInt((event.target as HTMLInputElement).value);
-          //    setDisplayIndex(newValue);
-          //  }}
-          //></input>
           Array(MAX_LIVE_ELEMENTS + 1)
             .fill(0)
             .map((_, i) => {

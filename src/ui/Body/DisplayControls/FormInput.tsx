@@ -8,6 +8,7 @@ import BooleanInput from "./BooleanInput";
 import CssColorInput from "./CssColorInput";
 import TextInput from "./TextInput";
 import IntInput from "./IntInput";
+import PathInput from "./PathInput";
 
 function FormInput({
   configEntry,
@@ -38,7 +39,9 @@ function FormInput({
     <TextInput configEntry={configEntry} updateConfig={updateConfigAndState} />
   ) : configEntry.type === "number" ? (
     <IntInput configEntry={configEntry} updateConfig={updateConfigAndState} />
-  ) : "";
+  ) : configEntry.type === "path" ? (
+    <PathInput configEntry={configEntry} updateConfig={updateConfigAndState} />
+  ) : ""; 
 }
 
 export default FormInput;

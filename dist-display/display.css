@@ -30,6 +30,11 @@ body {
   width: 100%;
 }
 
+.global {
+  background-size: cover;
+  background-position: center;
+}
+
 /*  fields:
  *    global:
  *      background (as css value)

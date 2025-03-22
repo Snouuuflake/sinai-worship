@@ -10,24 +10,6 @@ import * as fs from "fs";
 const MAX_LIVE_ELEMENTS = 4;
 let activeConfig: FullDisplayConfigType | null = null;
 
-/**
- * Compares the keys and types of all first children of any two objects
- */
-function compareSurfaceSchema(obj1: any, obj2: any): boolean {
-  return (
-    JSON.stringify(
-      Object.keys(obj1)
-        .sort()
-        .flatMap((k) => [k, typeof (obj1 as any)[k]]),
-    ) ===
-    JSON.stringify(
-      Object.keys(obj2)
-        .sort()
-        .flatMap((k) => [k, typeof (obj2 as any)[k]]),
-    )
-  );
-}
-
 function handleJSON(channel: string, callback: (obj: any) => any) {
   ipcMain.handle(channel, (_event, data) => {
     return JSON.stringify(callback(JSON.parse(data)));
@@ -58,6 +40,7 @@ class DisplayWindow {
         additionalArguments: [`${index}`],
       },
     });
+    //this.window.setMenu(null);
 
     this.window.on("close", () => {
       windowArray.splice(windowArray.indexOf(this), 1);
@@ -74,7 +57,7 @@ class DisplayWindow {
 }
 
 ipcMain.handle("invoke-index", (event) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<number>((resolve, reject) => {
     const senderWindow = windowArray.find(
       (element: DisplayWindow) =>
         element.window.webContents.id == event.sender.id,
@@ -103,7 +86,7 @@ ipcMain.on("set-live-element", (_event, data) => {
   }
   //else if (data.liveElement.type === "image") {
   //  sendToAllDisplayWindows(
-  //    `display${data.index}-image`,
+  //    `display-${data.index}-image`,
   //    data.liveElement.value, // (path)
   //  );
   //}
@@ -134,10 +117,18 @@ const readFullConfig = () => {
     const makeDefaultConfig = (): DisplayConfigType => ({
       global: [
         {
-          key: "Background",
+          key: "Background Color",
           css: "background-color",
           type: "csscolor",
           default: "black",
+          value: null,
+        },
+        {
+          key: "Background Image",
+          css: "background-image",
+          special: true,
+          type: "path",
+          default: null,
           value: null,
         },
       ],
@@ -249,6 +240,8 @@ app.on("ready", () => {
   //loading settings **blocking**
 
   const mainWindow = new BrowserWindow({
+    minWidth: 400,
+    minHeight: 400,
     webPreferences: {
       preload: getPreloadPath(),
     },
@@ -290,9 +283,11 @@ app.on("ready", () => {
 
     const getEntryCss = (entry: DisplayConfigEntryType) => {
       if (entry.special) {
+        console.log(entry)
+        let value: any;
         switch (entry.key) {
           case "Bold":
-            const value = entry.value !== null ? entry.value : entry.default;
+            value = entry.value !== null ? entry.value : entry.default;
             if (value) {
               return "font-weight: bold;";
             } else {
@@ -300,6 +295,14 @@ app.on("ready", () => {
             }
             break;
 
+          case "Background Image":
+            value = entry.value !== null ? entry.value : entry.default;
+            value = value !== null ? value : "";
+            value = (value as string).replace(/\\/g, "/")
+            value = "file:///" + value
+          console.log("value:",entry.value, value)
+            return `${entry.css}: url("${value}")`;
+            break;
           default:
             return "";
             break;
@@ -353,7 +356,7 @@ app.on("ready", () => {
       //console.log(updateeArray.find((x) => x.key === entry.key)!)
       updateeArray.find((x) => x.key === entry.key)!.value = entry.value;
       //console.log(updateeArray.find((x) => x.key === entry.key)!)
-      console.log("updated activeConfig", "wrote:", entry.value);
+      console.log("updated activeConfig", "wrote:", entry.key, entry.value);
 
       fs.writeFile(
         path.join(app.getAppPath(), "config.json"),
@@ -424,5 +427,20 @@ ipcMain.handle("read-song", (_event) => {
         );
       }
     });
+  });
+});
+
+ipcMain.handle("read-image", (_event) => {
+  return new Promise((resolve, reject) => {
+    dialog
+      .showOpenDialog({
+        properties: ["openFile"],
+        filters: [{ name: "Images", extensions: ["jpg", "png", "gif"] }],
+      })
+      .then((result) => {
+        if (!result.canceled) {
+          resolve(result.filePaths[0])
+        }
+      });
   });
 });

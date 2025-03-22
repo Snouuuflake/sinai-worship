@@ -63,3 +63,8 @@
   flex-grow: 1;
   background-color: var(--gray-2);
 }
+
+.path-input-button {
+  overflow: hidden;
+  white-space: nowrap;
+}
