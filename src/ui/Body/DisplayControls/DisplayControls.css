@@ -20,3 +20,24 @@
   font-weight: bold;
   font-size: 18px;
 }
+
+.display-index-button {
+  all: unset;
+  background-color: var(--gray-3);
+  color: white;
+  flex: 40px 0 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.display-index-button-active  {
+  background-color: var(--hi1)
+}
+
+.display-index-buttons-container {
+  display: flex;
+  height: 40px;
+  width: 100%;
+  justify-content: center;
+}

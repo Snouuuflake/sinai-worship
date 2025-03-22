@@ -44,7 +44,7 @@ function DisplayControls() {
   ) as GlobalContextType;
 
   // INFO: -1 means *
-  const [displayIndex, setDisplayIndex] = useState(-1);
+  const [displayIndex, setDisplayIndex] = useState<number>(-1);
 
   const TMP_drawEntries = (field: DisplayConfigEntryType[]) => {
     return field.map((entry) => {
@@ -62,7 +62,7 @@ function DisplayControls() {
     newEntry: DisplayConfigEntryType,
   ) => {
     console.log(newEntry);
-    window.electron.sendUpdateCss(index, arrayName, newEntry)
+    window.electron.sendUpdateCss(index, arrayName, newEntry);
   };
 
   // entry gets modified default such that null value works. this. should. work.
@@ -77,7 +77,7 @@ function DisplayControls() {
       configEntry={entry}
       configArray={configArray}
       updateConfig={(newValue) => {
-        sendConfigUpdateToMain(index, arrayName, {...entry, value: newValue});
+        sendConfigUpdateToMain(index, arrayName, { ...entry, value: newValue });
       }}
     />
   );
@@ -147,41 +147,43 @@ function DisplayControls() {
     );
   };
 
-  //const drawSpecificDisplayConfig = (dc: DisplayConfigType) => {
-  //  return [
-  //    <div className="display-config-header">Global Options</div>,
-  //    dc.global.map((entry) => (
-  //      <FormInput configEntry={entry} configArray={dc.global} />
-  //    )),
-  //    <div className="display-config-header">Text Options</div>,
-  //    dc.text.map((entry) => (
-  //      <FormInput configEntry={entry} configArray={dc.text} />
-  //    )),
-  //  ];
-  //};
-
-  console.log(displayConfig.value);
   return (
     <div className="display-controls">
-      <input
-        type="number"
-        value={displayIndex}
-        onChange={(event) => {
-          const newValue = parseInt((event.target as HTMLInputElement).value);
-          setDisplayIndex(newValue);
-        }}
-      ></input>
-      {
-        displayConfig.value === null
-          ? ""
-          : displayIndex == -1
-            ? drawDefaultDisplayConfig(displayConfig.value.globalDisplay)
-            : drawSpecificDisplayConfig(
-                displayConfig.value.globalDisplay,
-                displayConfig.value.specificDisplays[displayIndex],
-                displayIndex,
-              )
-      }
+      <div className="display-index-buttons-container">
+        {
+          //<input
+          //  type="number"
+          //  value={displayIndex}
+          //  onChange={(event) => {
+          //    const newValue = parseInt((event.target as HTMLInputElement).value);
+          //    setDisplayIndex(newValue);
+          //  }}
+          //></input>
+          Array(MAX_LIVE_ELEMENTS + 1)
+            .fill(0)
+            .map((_, i) => {
+              const index = i - 1;
+              const highlight = index == displayIndex;
+              return (
+                <button
+                  className={`display-index-button darken-hover ${highlight ? "display-index-button-active" : ""}`}
+                  onClick={() => setDisplayIndex(index)}
+                >
+                  {index >= 0 ? index + 1 : "D"}
+                </button>
+              );
+            })
+        }
+      </div>
+      {displayConfig.value === null
+        ? ""
+        : displayIndex == -1
+          ? drawDefaultDisplayConfig(displayConfig.value.globalDisplay)
+          : drawSpecificDisplayConfig(
+              displayConfig.value.globalDisplay,
+              displayConfig.value.specificDisplays[displayIndex],
+              displayIndex,
+            )}
     </div>
   );
 }

@@ -354,7 +354,15 @@ app.on("ready", () => {
       //console.log(updateeArray.find((x) => x.key === entry.key)!)
       updateeArray.find((x) => x.key === entry.key)!.value = entry.value;
       //console.log(updateeArray.find((x) => x.key === entry.key)!)
-      console.log("updated activeConfig");
+      console.log("updated activeConfig", "wrote:", entry.value);
+
+      fs.writeFile(
+        path.join(app.getAppPath(), "config.json"),
+        JSON.stringify(activeConfig),
+        (err) => {
+          console.log("wrote config.json", err);
+        },
+      );
 
       Array(MAX_LIVE_ELEMENTS)
         .fill(0)
