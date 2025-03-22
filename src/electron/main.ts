@@ -95,7 +95,6 @@ function sendToAllDisplayWindows(channel: string, data: any) {
 
 ipcMain.on("set-live-element", (_event, data) => {
   console.log(data);
-  sendToAllDisplayWindows(`display-${0}-text`, data.liveElement.value);
   if (data.liveElement.type === "text") {
     sendToAllDisplayWindows(
       `display-${data.index}-text`,
