@@ -3,11 +3,11 @@
 */
 
 /**@type HTMLElement*/
-const root = document.querySelector(":root");
+//const root = document.querySelector(":root");
 // TEST:
-root.style.setProperty("--default-animation-duration", 500)
+//root.style.setProperty("--default-animation-length", 500)
 const AnimationFunctions = {
-  getDefaultDuartion: () => parseInt(getComputedStyle(root).getPropertyValue("--default-animation-duration")),
+  getDefaultDuartion: () => parseInt(getComputedStyle(document.getElementsByClassName("global")[0]).getPropertyValue("--default-animation-length")),
   /** @param  {HTMLElement} element */
   startFadeOut: (element) => {
     const animation = element.animate([{ opacity: element.style.opacity }, { opacity: 0 }], {

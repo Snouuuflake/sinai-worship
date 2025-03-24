@@ -131,7 +131,7 @@ const readFullConfig = () => {
       //root: [
       //  {
       //    key: "Transition length (ms)",
-      //    css: "--default-animation-time",
+      //    css: "--default-animation-length",
       //    type: "number",
       //    default: 0,
       //    value: null,
@@ -151,6 +151,13 @@ const readFullConfig = () => {
           special: true,
           type: "path",
           default: null,
+          value: null,
+        },
+        {
+          key: "Transition length (ms)",
+          css: "--default-animation-length",
+          type: "number",
+          default: 0,
           value: null,
         },
       ],
@@ -323,7 +330,7 @@ app.on("ready", () => {
             value = (value as string).replace(/\\/g, "/");
             value = "file:///" + value;
             console.log("value:", entry.value, value);
-            return `${entry.css}: url("${value}")`;
+            return `${entry.css}: url("${value}");`;
             break;
           default:
             return "";
@@ -339,6 +346,7 @@ app.on("ready", () => {
 
     const newCss = (Object.keys(resConfig) as (keyof DisplayConfigType)[])
       .map((key) => {
+        //return `${key === "root" ? ":root" : `.d-${index}-${key}`} {
         return `.d-${index}-${key} {
         ${resConfig[key]
           .map((entry) => {

@@ -91,6 +91,7 @@ function DisplayControls() {
       case "text":
         return "Text Settings";
         break;
+
       default:
         return "how did this happen?";
         break;
