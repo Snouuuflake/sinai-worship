@@ -1,6 +1,27 @@
 /** INFO:
-Elements that require display window-index-independent styles must have classes with an # in their name; when the window is loaded, all #'s will be replaced by the appropriate window index.'
+    Elements that require display window-index-independent styles must have classes with an # in their name; when the window is loaded, all #'s will be replaced by the appropriate window index.'
 */
+
+/**@type HTMLElement*/
+const root = document.querySelector(":root");
+// TEST:
+root.style.setProperty("--default-animation-duration", 500)
+const AnimationFunctions = {
+  getDefaultDuartion: () => parseInt(getComputedStyle(root).getPropertyValue("--default-animation-duration")),
+  /** @param  {HTMLElement} element */
+  startFadeOut: (element) => {
+    const animation = element.animate([{ opacity: element.style.opacity }, { opacity: 0 }], {
+      duration: AnimationFunctions.getDefaultDuartion()
+    })
+    animation.onfinish = _e => {
+      element.remove();
+    }
+  }
+}
+
+const ContentFunctions = {
+  removeAllElementsNicely: () => [...document.body.querySelectorAll("*")].forEach(AnimationFunctions.startFadeOut),
+}
 
 /**
  * update-css event
@@ -16,19 +37,14 @@ function removeCurrentUpdateCssEventListener() {
   currentUpdateCssEventListener = null;
 }
 
+const styleTag = document.getElementById("style-tag");
+
 /**
+ * Updates the everything-style-tag
  * @param css {string}
  */
-const styleTag = document.getElementById("style-tag");
-//const styleObserver = new MutationObserver((mutations) => {
-//  mutations.forEach((mutation) => {
-//    console.log(mutation.type);
-//  });
-//});
-//styleObserver.observe(styleTag, { attributes: true });
-
 function updateStyleTag(css) {
-const styleTag = document.getElementById("style-tag");
+  const styleTag = document.getElementById("style-tag");
   styleTag.innerHTML = css;
 }
 
@@ -59,13 +75,14 @@ function updateAllClasses(index) {
   }
 }
 
-function overflows(element) {
-  return (
-    element.clientHeight < element.scrollHeight ||
-    element.clientWidth < element.scrollWidth
-  );
-}
 function fitText(textElement, parentElement, maxSize) {
+  function overflows(element) {
+    return (
+      element.clientHeight < element.scrollHeight ||
+      element.clientWidth < element.scrollWidth
+    );
+  }
+
   let i = 0;
   textElement.style.fontSize = i + "px";
 
@@ -80,6 +97,7 @@ function fitText(textElement, parentElement, maxSize) {
   }
 }
 
+
 /** main code: */
 window.addEventListener("load", () => {
   window.electron
@@ -90,24 +108,32 @@ window.addEventListener("load", () => {
       document.title = `Window #${index + 1}`;
 
       window.electron.onResCss(index, (css) => {
-        //console.log(css);
         updateStyleTag(css);
       });
       window.electron.sendReqCss(index);
       window.electron.onUpdateCss(index, (css) => {
-        console.log(css);
         updateStyleTag(css);
         document.dispatchEvent(updateCssEvent);
       });
 
       // INFO: projection element event listeners
       window.electron.onDisplayText(index, (text) => {
+        ContentFunctions.removeAllElementsNicely();
+        const textContainer = document.createElement("div");
+        textContainer.classList.add(`text-container`);
+        textContainer.classList.add(`d-${index}-text-container`);
+        document.body.appendChild(textContainer);
+        // TODO: add support for more animations than this fade
+        textContainer.animate([
+          { opacity: 0 },
+          { opacity: 1 }
+        ],
+          {
+            duration: AnimationFunctions.getDefaultDuartion()
+          }
+        );
         function setDisplayText(text) {
-          console.log(text);
-          document.body.replaceChildren();
-          const textContainer = document.createElement("div");
-          textContainer.classList.add(`text-container`);
-          textContainer.classList.add(`d-${index}-text-container`);
+          textContainer.replaceChildren();
           const textElement = document.createElement("div");
           textElement.classList.add(`text`);
           textElement.classList.add(`d-${index}-text`);
@@ -115,23 +141,20 @@ window.addEventListener("load", () => {
           textElement.innerText = text;
           textContainer.appendChild(textElement);
 
-          document.body.appendChild(textContainer);
-
           const maxFontSize = parseInt(getComputedStyle(textElement).fontSize);
           console.log(maxFontSize);
           fitText(textElement, textContainer, maxFontSize);
         }
         setDisplayText(text);
-        console.log("!")
         removeCurrentUpdateCssEventListener();
         setCurrentUpdateCssEventListener(() => {
-          console.log("!!")
           setDisplayText(text);
-          console.log("update css!")
         });
+
       });
 
       //window.electron.onDisplayImage()
+      window.electron.sendGetLiveElement(index);
     })
     .catch((e) => {
       console.log(`Error post/on window index!\n${e.message}`);

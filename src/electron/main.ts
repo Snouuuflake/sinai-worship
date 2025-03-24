@@ -3,11 +3,13 @@ import path from "path";
 import { isDev } from "./util.js";
 import { getPreloadPath } from "./pathResolver.js";
 import { readMSSFile, writeMSSFile } from "./parser.js";
-import { promises as fsp } from "fs";
+//import { promises as fsp } from "fs";
 import * as fs from "fs";
 
 // TODO: make this one variable for electron and react
 const MAX_LIVE_ELEMENTS = 4;
+const liveElements: any[] = [];
+
 let activeConfig: FullDisplayConfigType | null = null;
 
 function handleJSON(channel: string, callback: (obj: any) => any) {
@@ -76,13 +78,9 @@ function sendToAllDisplayWindows(channel: string, data: any) {
   });
 }
 
-ipcMain.on("set-live-element", (_event, data) => {
-  console.log(data);
-  if (data.liveElement.type === "text") {
-    sendToAllDisplayWindows(
-      `display-${data.index}-text`,
-      data.liveElement.value,
-    );
+const sendLiveElement = (index: number, liveElement: LiveElementType) => {
+  if (liveElement.type === "text") {
+    sendToAllDisplayWindows(`display-${index}-text`, liveElement.value);
   }
   //else if (data.liveElement.type === "image") {
   //  sendToAllDisplayWindows(
@@ -90,6 +88,21 @@ ipcMain.on("set-live-element", (_event, data) => {
   //    data.liveElement.value, // (path)
   //  );
   //}
+};
+
+ipcMain.on(
+  "set-live-element",
+  (_event, data: { index: number; liveElement: LiveElementType }) => {
+    console.log(data);
+    liveElements[data.index] = data.liveElement;
+    sendLiveElement(data.index, data.liveElement);
+  },
+);
+
+ipcMain.on("get-live-element", (_event, index: number) => {
+  if (liveElements[index]) {
+    sendLiveElement(index, liveElements[index]);
+  }
 });
 
 const updateDisplay = (og: DisplayConfigType, updater: DisplayConfigType) => {
@@ -115,6 +128,15 @@ const updateDisplay = (og: DisplayConfigType, updater: DisplayConfigType) => {
 const readFullConfig = () => {
   const makeDefaultFullConfig = (): FullDisplayConfigType => {
     const makeDefaultConfig = (): DisplayConfigType => ({
+      //root: [
+      //  {
+      //    key: "Transition length (ms)",
+      //    css: "--default-animation-time",
+      //    type: "number",
+      //    default: 0,
+      //    value: null,
+      //  },
+      //],
       global: [
         {
           key: "Background Color",
@@ -283,7 +305,7 @@ app.on("ready", () => {
 
     const getEntryCss = (entry: DisplayConfigEntryType) => {
       if (entry.special) {
-        console.log(entry)
+        console.log(entry);
         let value: any;
         switch (entry.key) {
           case "Bold":
@@ -298,9 +320,9 @@ app.on("ready", () => {
           case "Background Image":
             value = entry.value !== null ? entry.value : entry.default;
             value = value !== null ? value : "";
-            value = (value as string).replace(/\\/g, "/")
-            value = "file:///" + value
-          console.log("value:",entry.value, value)
+            value = (value as string).replace(/\\/g, "/");
+            value = "file:///" + value;
+            console.log("value:", entry.value, value);
             return `${entry.css}: url("${value}")`;
             break;
           default:
@@ -439,7 +461,7 @@ ipcMain.handle("read-image", (_event) => {
       })
       .then((result) => {
         if (!result.canceled) {
-          resolve(result.filePaths[0])
+          resolve(result.filePaths[0]);
         }
       });
   });

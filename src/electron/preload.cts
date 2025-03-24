@@ -26,14 +26,12 @@ const ipcInvokeJSON = (channel: string, obj: any) => {
 };
 
 const makeInvokeJSON = (channel: string) => {
-  return (obj: any) => ipcInvokeJSON(channel, obj)
-}
+  return (obj: any) => ipcInvokeJSON(channel, obj);
+};
 
 const makeIpcSend = (channel: string) => {
-  return (...args: any[]) => electron.ipcRenderer.send(channel, ...args)
-}
-
-
+  return (...args: any[]) => electron.ipcRenderer.send(channel, ...args);
+};
 
 electron.contextBridge.exposeInMainWorld("electron", {
   // for react
@@ -64,9 +62,8 @@ electron.contextBridge.exposeInMainWorld("electron", {
     return electron.ipcRenderer.invoke("read-image") as Promise<string>;
   },
 
-  invokeReadDisplaySetting: makeInvokeJSON("read-display-settings"),
-
   // for display window
+  invokeReadDisplaySetting: makeInvokeJSON("read-display-settings"),
   testFunction: () => console.log("Hello, World!"),
   sendNewDisplayWindow: (index: number) => {
     electron.ipcRenderer.send("new-display-window", index);
@@ -75,15 +72,18 @@ electron.contextBridge.exposeInMainWorld("electron", {
     electron.ipcRenderer.send("alert", message);
   },
   invokeIndex: () => electron.ipcRenderer.invoke("invoke-index"),
+  sendGetLiveElement: (index: number) => {
+    electron.ipcRenderer.send("get-live-element", index);
+  },
   sendReqCss: (index: number) => {
     electron.ipcRenderer.send("req-css", index);
   },
   sendUpdateCss: (
-      index: number,
-      arrayName: DisplayConfigArrayName,
-      entry: DisplayConfigEntryType,
+    index: number,
+    arrayName: DisplayConfigArrayName,
+    entry: DisplayConfigEntryType,
   ) => {
-    electron.ipcRenderer.send("update-css", index, arrayName, entry)
+    electron.ipcRenderer.send("update-css", index, arrayName, entry);
   },
   onResCss: (index: number, callback: (css: string) => void) => {
     electron.ipcRenderer.on(`res-${index}-css`, (_event, data) =>

@@ -78,6 +78,7 @@ interface Window {
       arrayName: DisplayConfigArrayName,
       entry: DisplayConfigEntryType,
     ) => void;
+    sendGetLiveElement: (index: number) => void;
     sendReqCss: (index: number) => void;
     onResCss: (index: number, callback: (css: string) => void) => void;
     onDisplayText: (index: number, callback: (text: string) => void) => void;
@@ -98,6 +99,7 @@ type DisplayConfigEntryType = {
 };
 
 type DisplayConfigType = {
+  //root: DisplayConfigEntryType[];
   global: DisplayConfigEntryType[];
   text: DisplayConfigEntryType[];
 };
