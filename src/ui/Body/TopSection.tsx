@@ -1,15 +1,17 @@
 import "./TopSection.css"
 import DisplayButton from "./TopSectionButtons/DisplayButton"
-import OpenSongButton from "./TopSectionButtons/OpenSongButton"
+import OpenFileButton from "./TopSectionButtons/OpenFileButton" 
 import DisplaySettingsButton from "./TopSectionButtons/DisplaySettingsButton"
+import ClearButton from "./TopSectionButtons/ClearButton"
 
 function TopSection() {
   // NOTE: it should request window types from body eventually
   return (
     <div className="top-section">
     <DisplayButton/>
-    <OpenSongButton/>
+    <OpenFileButton/>
     <DisplaySettingsButton/>
+    <ClearButton/>
     </div>
   )
 }

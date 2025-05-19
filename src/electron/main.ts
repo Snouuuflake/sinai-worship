@@ -1,4 +1,5 @@
-import { app, BrowserWindow, ipcMain, dialog } from "electron";
+import { app, protocol, net, BrowserWindow, ipcMain, dialog } from "electron";
+import url from "node:url";
 import path from "path";
 import { isDev } from "./util.js";
 import { getPreloadPath } from "./pathResolver.js";
@@ -42,7 +43,13 @@ class DisplayWindow {
         additionalArguments: [`${index}`],
       },
     });
-    //this.window.setMenu(null);
+
+    this.window.webContents.on("before-input-event", (event, input) => {
+      if (input.key.toLowerCase() === "i") {
+        this.window.webContents.openDevTools();
+      }
+    });
+    this.window.setMenu(null);
 
     this.window.on("close", () => {
       windowArray.splice(windowArray.indexOf(this), 1);
@@ -82,12 +89,9 @@ const sendLiveElement = (index: number, liveElement: LiveElementType) => {
   if (liveElement.type === "text") {
     sendToAllDisplayWindows(`display-${index}-text`, liveElement.value);
   }
-  //else if (data.liveElement.type === "image") {
-  //  sendToAllDisplayWindows(
-  //    `display-${data.index}-image`,
-  //    data.liveElement.value, // (path)
-  //  );
-  //}
+  if (liveElement.type === "none") {
+    sendToAllDisplayWindows(`display-${index}-none`, undefined);
+  }
 };
 
 ipcMain.on(
@@ -265,7 +269,26 @@ const readFullConfig = () => {
   }
 };
 
+/* FIXME: chatgpt code. beware */
+protocol.registerSchemesAsPrivileged([
+    { scheme: 'mssf', privileges: { secure: true, standard: true, supportFetchAPI: true } }
+]);
+
 app.on("ready", () => {
+    /* FIXME: chatgpt code. beware */
+    protocol.handle('mssf', async (request) => {
+        const url = new URL(request.url);
+        const filePath = path.resolve(path.normalize(decodeURIComponent(url.pathname)));
+        
+        try {
+            await fs.promises.access(filePath, fs.constants.R_OK);
+            const fileBuffer = await fs.promises.readFile(filePath);
+            return new Response(fileBuffer, { status: 200 });
+        } catch {
+            return new Response('File Not Found', { status: 404 });
+        }
+    });
+
   //loading settings **blocking**
 
   const mainWindow = new BrowserWindow({
@@ -349,10 +372,10 @@ app.on("ready", () => {
         //return `${key === "root" ? ":root" : `.d-${index}-${key}`} {
         return `.d-${index}-${key} {
         ${resConfig[key]
-          .map((entry) => {
-            return getEntryCss(entry);
-          })
-          .reduce((p, c) => p + "\n" + c)}
+            .map((entry) => {
+              return getEntryCss(entry);
+            })
+            .reduce((p, c) => p + "\n" + c)}
       }`;
       })
       .reduce((p, c) => p + "\n" + c);
@@ -442,19 +465,30 @@ ipcMain.on("alert", (_event, message: string) => {
   dialog.showMessageBox({ message: message });
 });
 
-ipcMain.handle("read-song", (_event) => {
+ipcMain.handle("read-element", (_event) => {
   return new Promise((resolve, reject) => {
     dialog.showOpenDialog({ properties: ["openFile"] }).then((result) => {
       if (!result.canceled) {
-        readMSSFile(result.filePaths[0]).then(
-          (s) => {
-            resolve(s);
-          },
-          (e) => {
-            dialog.showErrorBox("Error reading song", e.message);
-            reject();
-          },
-        );
+        const fp = result.filePaths[0];
+        const bn = path.basename(fp);
+        if (bn.match(/\.(txt|mss)$/)) {
+          readMSSFile(fp).then(
+            (s) => {
+              resolve({ type: "song", song: s });
+            },
+            (e) => {
+              dialog.showErrorBox(`Error reading song ${bn}.`, e.message);
+              reject();
+            },
+          );
+        } else if (
+          bn.match(/\.(apng|png|avif|gif|jpg|jpeg|jfif|pjpeg|pjp|svg|webp)$/)
+        ) {
+          resolve({ type: "image", image: { path: fp.replace(/\\/g, "/"), title: bn } });
+        } else {
+          dialog.showErrorBox("Error reading file: ", bn);
+          reject();
+        }
       }
     });
   });

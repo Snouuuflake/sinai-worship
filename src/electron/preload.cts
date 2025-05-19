@@ -2,7 +2,6 @@ const electron = require("electron");
 
 /**
  * Stupid function that returns a remove listener function for use with useEffect
- * @param
  */
 const useIpcListener = (
   channel: string,
@@ -35,10 +34,10 @@ const makeIpcSend = (channel: string) => {
 
 electron.contextBridge.exposeInMainWorld("electron", {
   // for react
-  invokeReadSong: (callback: (song: Song) => void) => {
-    electron.ipcRenderer.invoke("read-song").then(
-      (s) => {
-        callback(s);
+  invokeReadElement: (callback: (newElement: OpenElementType) => void) => {
+    electron.ipcRenderer.invoke("read-element").then(
+      (res: OpenElementType) => {
+        callback(res);
       },
       (e) => {
         console.error(e);
@@ -99,6 +98,11 @@ electron.contextBridge.exposeInMainWorld("electron", {
     electron.ipcRenderer.on(`display-${index}-text`, (_event, data) => {
       callback(data);
     });
+  },
+  onDisplayNone: (index: number, callback: () => void) => {
+    electron.ipcRenderer.on(`display-${index}-none`, (_event, data) => {
+      callback()
+    })
   },
   onDisplayImage: (index: number, callback: (path: string) => void) => {
     electron.ipcRenderer.on(`display-${index}text`, (_event, data) => {

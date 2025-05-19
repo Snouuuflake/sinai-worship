@@ -63,7 +63,9 @@ type InvokeJSON = (obj: any) => Promise<any>;
 
 interface Window {
   electron: {
-    invokeReadSong: (callback: (song: Song) => void) => void;
+    invokeReadElement: (
+      callback: (newElement: OpenElementType) => void,
+    ) => void;
     invokeSaveSong: (song: Song) => Promise<void>;
     sendSetLiveElement: (index: number, liveElement: LiveElementType) => void;
 
@@ -82,11 +84,17 @@ interface Window {
     sendReqCss: (index: number) => void;
     onResCss: (index: number, callback: (css: string) => void) => void;
     onDisplayText: (index: number, callback: (text: string) => void) => void;
+    onDisplayNone: (index: number, callback: () => void) => void;
     onDisplayImage: (index: number, callback: (path: string) => void) => void;
   };
 }
 
-type DisplayConfigEntryValueType = "boolean" | "csscolor" | "font" | "number" | "path";
+type DisplayConfigEntryValueType =
+  | "boolean"
+  | "csscolor"
+  | "font"
+  | "number"
+  | "path";
 
 type DisplayConfigEntryType = {
   key: string;
@@ -121,12 +129,18 @@ type StateObject<T> = {
   set: (newValue: T) => void;
 };
 
+type Image = {
+  path: string;
+  title: string;
+};
+
 /**
  * type: "none" | "song"
  */
 type OpenElementType = {
-  type: "none" | "song";
-  song: Song?;
+  type: "none" | "song" | "image";
+  song?: Song;
+  image?: Image;
 };
 type OpenElementState = StateObject<OpenElementType>;
 type OpenElementsState = StateObject<OpenElementType[]>;
@@ -138,7 +152,7 @@ type OpenElementsState = StateObject<OpenElementType[]>;
  * object: literal reference to the song or whatever object in react
  */
 type LiveElementType = {
-  type: string;
+  type: "text" | "image" | "none";
   value: string;
   buttonID: number;
   object: any;

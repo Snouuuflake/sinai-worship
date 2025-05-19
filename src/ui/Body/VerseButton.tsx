@@ -29,7 +29,7 @@ function VerseButton({
     le.buttonID == buttonID && le.object == object ? [i] : [],
   );
 
-  /** [1,2,...,MAX_LIVE_ELEMENTS-1] */
+  /** [0,1,...,MAX_LIVE_ELEMENTS-1] */
   const liveIndexesRange = Array.from(
     { length: MAX_LIVE_ELEMENTS },
     (_, i) => i,
@@ -145,19 +145,33 @@ function VerseButton({
               }}
               onClick={(e) => {
                 e.preventDefault();
-                liveElementsState.set([
-                  {
-                    index: i,
-                    liveElement: {
-                      type: "text",
-                      value: section.verses[verseIndex].lines
-                        .reduce((p, c) => p + "\n" + c, "")
-                        .trim(),
-                      buttonID: buttonID,
-                      object: object,
+                if (typeof matchingLiveIndexes.find((j) => j == i) !== "undefined") {
+                  liveElementsState.set([
+                    {
+                      index: i,
+                      liveElement: {
+                        type: "none",
+                        value: "",
+                        buttonID: -1,
+                        object: null,
+                      },
                     },
-                  },
-                ]);
+                  ]);
+                } else {
+                  liveElementsState.set([
+                    {
+                      index: i,
+                      liveElement: {
+                        type: "text",
+                        value: section.verses[verseIndex].lines
+                          .reduce((p, c) => p + "\n" + c, "")
+                          .trim(),
+                        buttonID: buttonID,
+                        object: object,
+                      },
+                    },
+                  ]);
+                }
               }}
             >
               {i + 1}

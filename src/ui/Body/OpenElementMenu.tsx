@@ -68,7 +68,7 @@ function OpenElementMenu() {
                       : "",
                 }}
               >
-                {oe.type === "song" ? oe.song!.properties.title : "not a song"}{" "}
+                {oe.type === "song" ? oe.song!.properties.title : oe.type === "image" ? oe.image!.title : ""}{" "}
               </div>
             </button>
             <div className="open-element-action-button-container">
@@ -80,7 +80,7 @@ function OpenElementMenu() {
                     oe.type === viewElement.value.type &&
                     oe[oe.type] === viewElement.value[oe.type]
                   ) {
-                    viewElement.set({ type: "none", song: null });
+                    viewElement.set({ type: "none" });
                   }
                   openElements.set(
                     openElements.value.toSpliced(

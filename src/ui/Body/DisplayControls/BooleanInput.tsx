@@ -20,7 +20,6 @@ function BooleanInput({
         const newValue = !active;
         updateConfig(configEntry, newValue);
         setActive(newValue);
-        // LATEST
         updateConfig(configEntry, newValue);
       }}
     >

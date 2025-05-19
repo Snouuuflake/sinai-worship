@@ -7,21 +7,32 @@
 // TEST:
 //root.style.setProperty("--default-animation-length", 500)
 const AnimationFunctions = {
-  getDefaultDuartion: () => parseInt(getComputedStyle(document.getElementsByClassName("global")[0]).getPropertyValue("--default-animation-length")),
+  getDefaultDuartion: () =>
+    parseInt(
+      getComputedStyle(
+        document.getElementsByClassName("global")[0],
+      ).getPropertyValue("--default-animation-length"),
+    ),
   /** @param  {HTMLElement} element */
   startFadeOut: (element) => {
-    const animation = element.animate([{ opacity: element.style.opacity }, { opacity: 0 }], {
-      duration: AnimationFunctions.getDefaultDuartion()
-    })
-    animation.onfinish = _e => {
+    const animation = element.animate(
+      [{ opacity: element.style.opacity }, { opacity: 0 }],
+      {
+        duration: AnimationFunctions.getDefaultDuartion(),
+      },
+    );
+    animation.onfinish = (_e) => {
       element.remove();
-    }
-  }
-}
+    };
+  },
+};
 
 const ContentFunctions = {
-  removeAllElementsNicely: () => [...document.body.querySelectorAll("*")].forEach(AnimationFunctions.startFadeOut),
-}
+  removeAllElementsNicely: () =>
+    [...document.body.querySelectorAll("*")].forEach(
+      AnimationFunctions.startFadeOut,
+    ),
+};
 
 /**
  * update-css event
@@ -97,7 +108,6 @@ function fitText(textElement, parentElement, maxSize) {
   }
 }
 
-
 /** main code: */
 window.addEventListener("load", () => {
   window.electron
@@ -124,14 +134,9 @@ window.addEventListener("load", () => {
         textContainer.classList.add(`d-${index}-text-container`);
         document.body.appendChild(textContainer);
         // TODO: add support for more animations than this fade
-        textContainer.animate([
-          { opacity: 0 },
-          { opacity: 1 }
-        ],
-          {
-            duration: AnimationFunctions.getDefaultDuartion()
-          }
-        );
+        textContainer.animate([{ opacity: 0 }, { opacity: 1 }], {
+          duration: AnimationFunctions.getDefaultDuartion(),
+        });
         function setDisplayText(text) {
           textContainer.replaceChildren();
           const textElement = document.createElement("div");
@@ -150,10 +155,13 @@ window.addEventListener("load", () => {
         setCurrentUpdateCssEventListener(() => {
           setDisplayText(text);
         });
-
       });
 
       //window.electron.onDisplayImage()
+      window.electron.onDisplayNone(index, () => {
+        ContentFunctions.removeAllElementsNicely();
+        console.log("none")
+      });
       window.electron.sendGetLiveElement(index);
     })
     .catch((e) => {
