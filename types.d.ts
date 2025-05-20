@@ -110,7 +110,6 @@ type DisplayConfigEntryType = {
 };
 
 type DisplayConfigType = {
-  //root: DisplayConfigEntryType[];
   global: DisplayConfigEntryType[];
   text: DisplayConfigEntryType[];
 };

@@ -7,132 +7,166 @@
 // TEST:
 //root.style.setProperty("--default-animation-length", 500)
 
-/**@type object*/
-const AnimationFunctions = {
-  getDefaultDuartion: () =>
-    parseInt(
-      getComputedStyle(
-        document.getElementsByClassName("global")[0],
-      ).getPropertyValue("--default-animation-length"),
-    ),
-  /** @param  {HTMLElement} element */
-  startFadeIn: (element) => {
-    element.animate([{ opacity: 0 }, { opacity: 1 }], {
-      duration: AnimationFunctions.getDefaultDuartion(),
-    });
-  },
-  startFadeOut: (element) => {
-    const animation = element.animate(
-      [{ opacity: element.style.opacity }, { opacity: 0 }],
-      {
-        duration: AnimationFunctions.getDefaultDuartion(),
-      },
-    );
-    animation.onfinish = (_e) => {
-      element.remove();
-    };
-  },
-};
-
-const ContentFunctions = {
-  removeAllElementsNicely: () =>
-    [...document.body.querySelectorAll("*")].forEach(
-      AnimationFunctions.startFadeOut,
-    ),
-};
-
-/**
- * update-css event
- */
-const updateCssEvent = new CustomEvent("update-css");
-let currentUpdateCssEventListener = null;
-function setCurrentUpdateCssEventListener(listener) {
-  currentUpdateCssEventListener = listener;
-  document.addEventListener("update-css", listener);
-}
-function removeCurrentUpdateCssEventListener() {
-  document.removeEventListener("update-css", currentUpdateCssEventListener);
-  currentUpdateCssEventListener = null;
-}
-
-const styleTag = document.getElementById("style-tag");
-
-/**
- * Updates the everything-style-tag
- * @param css {string}
- */
-function updateStyleTag(css) {
-  const styleTag = document.getElementById("style-tag");
-  styleTag.innerHTML = css;
-}
-
-/**
- * Updates classes for one element
- * @param {HTMLElement} element
- * @param {number} index Display index
- */
-function updateElementClasses(element, index) {
-  const templateClassArray = [...element.classList].filter((c) =>
-    c.includes("#"),
-  );
-  if (templateClassArray.length != 0) {
-    templateClassArray.forEach((c) => {
-      element.classList.remove(c);
-      element.classList.add(c.replace("#", index));
-    });
-  }
-}
-/**
- * changes all template classes to the appropriate window-id-numbered classes
- * @param {number} id (obtained from main process)
- */
-function updateAllClasses(index) {
-  const everyElement = document.getElementsByTagName("*");
-  for (const element of everyElement) {
-    updateElementClasses(element, index);
-  }
-}
-
-function fitText(textElement, parentElement, maxSize) {
-  function overflows(element) {
-    return (
-      element.clientHeight < element.scrollHeight ||
-      element.clientWidth < element.scrollWidth
-    );
-  }
-
-  let i = 0;
-  textElement.style.fontSize = i + "px";
-
-  for (i = 0; !overflows(parentElement) && i != maxSize; i++) {
-    textElement.style.fontSize = i + "px";
-    console.log(i);
-  }
-
-  if (overflows(parentElement)) {
-    textElement.style.fontSize = i - 2 + "px";
-    console.log(i);
-  }
-}
-
 /** main code: */
 window.addEventListener("load", () => {
+  /**@type object*/
+  const AnimationFunctions = {
+    getDefaultDuartion: () => {
+      const res = parseInt(
+        getComputedStyle(
+          document.getElementsByClassName("global")[0],
+        ).getPropertyValue("--default-animation-length"),
+      );
+      console.log(
+        getComputedStyle(
+          document.getElementsByClassName("global")[0],
+        ).getPropertyValue("--default-animation-length"),
+      );
+      console.log(res);
+      return res;
+    },
+    /** @param  {HTMLElement} element */
+    startFadeIn: (element) => {
+      element.animate([{ opacity: 0 }, { opacity: 1 }], {
+        duration: AnimationFunctions.getDefaultDuartion(),
+      });
+    },
+    startFadeOut: (element) => {
+      const animation = element.animate(
+        [{ opacity: element.style.opacity }, { opacity: 0 }],
+        {
+          duration: AnimationFunctions.getDefaultDuartion(),
+        },
+      );
+      animation.onfinish = (_e) => {
+        element.remove();
+      };
+    },
+  };
+
+  const mainContainer = document.getElementById("main-container");
+
+  const ContentFunctions = {
+    removeAllElementsNicely: () => {
+      console.log(mainContainer);
+      [...mainContainer.getElementsByTagName("*")].forEach(
+        AnimationFunctions.startFadeOut,
+      );
+    },
+  };
+
+  /**
+   * update-css event
+   */
+  const updateCssEvent = new CustomEvent("update-css");
+  let currentUpdateCssEventListener = null;
+  function setCurrentUpdateCssEventListener(listener) {
+    currentUpdateCssEventListener = listener;
+    document.addEventListener("update-css", listener);
+  }
+  function removeCurrentUpdateCssEventListener() {
+    document.removeEventListener("update-css", currentUpdateCssEventListener);
+    currentUpdateCssEventListener = null;
+  }
+
+  const styleTag = document.getElementById("style-tag");
+
+  /**
+   * Updates the everything-style-tag
+   * @param css {string}
+   */
+  function updateStyleTag(css) {
+    const styleTag = document.getElementById("style-tag");
+    styleTag.innerHTML = css;
+  }
+
+  /**
+   * Updates classes for one element
+   * @param {HTMLElement} element
+   * @param {number} index Display index
+   */
+  function updateElementClasses(element, index) {
+    const templateClassArray = [...element.classList].filter((c) =>
+      c.includes("#"),
+    );
+    if (templateClassArray.length != 0) {
+      templateClassArray.forEach((c) => {
+        element.classList.remove(c);
+        element.classList.add(c.replace("#", index));
+      });
+    }
+  }
+  /**
+   * changes all template classes to the appropriate window-id-numbered classes
+   * @param {number} id (obtained from main process)
+   */
+  function updateAllClasses(index) {
+    const everyElement = document.getElementsByTagName("*");
+    for (const element of everyElement) {
+      updateElementClasses(element, index);
+    }
+  }
+
+  function fitText(textElement, parentElement, maxSize) {
+    function overflows(element) {
+      return (
+        element.clientHeight < element.scrollHeight ||
+        element.clientWidth < element.scrollWidth
+      );
+    }
+
+    let i = 0;
+    textElement.style.fontSize = i + "px";
+
+    for (i = 0; !overflows(parentElement) && i != maxSize; i++) {
+      textElement.style.fontSize = i + "px";
+      console.log(i);
+    }
+
+    if (overflows(parentElement)) {
+      textElement.style.fontSize = i - 2 + "px";
+      console.log(i);
+    }
+  }
+
   window.electron
     .invokeIndex()
     .then((index) => {
+      updateAllClasses(index);
+
+      console.log(`Window index is ${index} :3`);
+      document.title = `Window #${index + 1}`;
+
       function logoHandler(logo) {
+        if (logo) {
+          if (!document.getElementById("logo-container")) {
+            const logoContainer = document.createElement("div");
+            logoContainer.id = "logo-container";
+            logoContainer.classList.add(`d-${index}-global`);
+            //logoContainer.style.backgroundImage = getComputedStyle(
+            //  document.getElementsByClassName("global")[0],
+            //).getPropertyValue("--logo-image");
+            AnimationFunctions.startFadeIn(logoContainer);
+            document.body.appendChild(logoContainer);
+          }
+        } else {
+          const logoContainer = document.getElementById("logo-container");
+          if (logoContainer) {
+            AnimationFunctions.startFadeOut(logoContainer);
+          }
+        }
+
         console.log(`Logo: ${logo}`);
       }
 
       window.electron.onDisplayLogo(logoHandler);
-      window.electron.invokeGetLogo(logoHandler);
 
-      updateAllClasses(index);
-      console.log(`Window index is ${index} :3`);
-      document.title = `Window #${index + 1}`;
-
+      /** INFO: this fucker only happens once
+       *        should be a promise but
+       */
       window.electron.onResCss(index, (css) => {
         updateStyleTag(css);
+        window.electron.invokeGetLogo(logoHandler);
       });
       window.electron.sendReqCss(index);
       window.electron.onUpdateCss(index, (css) => {
@@ -146,7 +180,7 @@ window.addEventListener("load", () => {
         const textContainer = document.createElement("div");
         textContainer.classList.add(`text-container`);
         textContainer.classList.add(`d-${index}-text-container`);
-        document.body.appendChild(textContainer);
+        mainContainer.appendChild(textContainer);
         // TODO: add support for more animations than this fade
         textContainer.animate([{ opacity: 0 }, { opacity: 1 }], {
           duration: AnimationFunctions.getDefaultDuartion(),
@@ -172,12 +206,12 @@ window.addEventListener("load", () => {
       });
 
       window.electron.onDisplayImage(index, (path) => {
-        console.log("hi")
+        console.log("hi");
         ContentFunctions.removeAllElementsNicely();
         const imageContainer = document.createElement("div");
         imageContainer.classList.add(`image-container`);
         imageContainer.classList.add(`d-${index}-image-container`);
-        document.body.appendChild(imageContainer);
+        mainContainer.appendChild(imageContainer);
         // TODO: add support for more animations than this fade
 
         const image = document.createElement("img");

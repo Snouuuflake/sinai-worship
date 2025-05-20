@@ -4,7 +4,7 @@ export const GlobalContext = createContext<GlobalContextType | null>(null);
 const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({ 
   children,
 }) => {
-  const MAX_LIVE_ELEMENTS = 4;
+  const MAX_LIVE_ELEMENTS = 5;
   // --- live element --------------------------------------------------------- 
   const makeLiveElementsState = (): LiveElementsState => {
     const [v, s] = useState<LiveElementType[]>(

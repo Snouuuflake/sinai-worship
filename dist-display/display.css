@@ -3,17 +3,43 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   min-height: 100vh;
   min-width: 100vw;
   overflow: clip;
 }
+
 body {
   background-color: black;
   font-family: "Helvetica";
   color: white;
   align-items: center;
   justify-content: center;
+}
+
+#main-container {
+  min-height: 100vh;
+  min-width: 100vw;
+  overflow: clip;
+}
+
+#logo-container {
+  /*all: unset;*/
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: var(--logo-image);
+  background-size: var(--logo-scale);
 }
 
 .text-container {
@@ -32,7 +58,6 @@ body {
 .text {
   width: 100%;
 }
-
 
 .image-container {
   all: unset;

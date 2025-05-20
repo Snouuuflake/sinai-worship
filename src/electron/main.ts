@@ -101,11 +101,11 @@ const sendLiveElement = (index: number, liveElement: LiveElementType) => {
 ipcMain.on("set-logo", (_event, value) => {
   logo = value;
   sendToAllDisplayWindows("display-logo", value);
-})
+});
 
 ipcMain.handle("get-logo", (_event, index: number) => {
   return logo;
-})
+});
 
 ipcMain.on(
   "set-live-element",
@@ -145,16 +145,24 @@ const updateDisplay = (og: DisplayConfigType, updater: DisplayConfigType) => {
 const readFullConfig = () => {
   const makeDefaultFullConfig = (): FullDisplayConfigType => {
     const makeDefaultConfig = (): DisplayConfigType => ({
-      //root: [
-      //  {
-      //    key: "Transition length (ms)",
-      //    css: "--default-animation-length",
-      //    type: "number",
-      //    default: 0,
-      //    value: null,
-      //  },
-      //],
       global: [
+        {
+          key: "Logo Image",
+          css: "--logo-image",
+          special: true,
+          type: "path",
+          default: null,
+          value: null,
+        },
+        {
+          key: "Logo Scale",
+          css: "--logo-scale",
+          special: false,
+          type: "number",
+          default: 50,
+          unit: "%",
+          value: null,
+        },
         {
           key: "Background Color",
           css: "background-color",
@@ -284,23 +292,28 @@ const readFullConfig = () => {
 
 /* FIXME: chatgpt code. beware */
 protocol.registerSchemesAsPrivileged([
-    { scheme: 'mssf', privileges: { secure: true, standard: true, supportFetchAPI: true } }
+  {
+    scheme: "mssf",
+    privileges: { secure: true, standard: true, supportFetchAPI: true },
+  },
 ]);
 
 app.on("ready", () => {
-    /* FIXME: chatgpt code. beware */
-    protocol.handle('mssf', async (request) => {
-        const url = new URL(request.url);
-        const filePath = path.resolve(path.normalize(decodeURIComponent(url.pathname)));
-        
-        try {
-            await fs.promises.access(filePath, fs.constants.R_OK);
-            const fileBuffer = await fs.promises.readFile(filePath);
-            return new Response(fileBuffer, { status: 200 });
-        } catch {
-            return new Response('File Not Found', { status: 404 });
-        }
-    });
+  /* FIXME: chatgpt code. beware */
+  protocol.handle("mssf", async (request) => {
+    const url = new URL(request.url);
+    const filePath = path.resolve(
+      path.normalize(decodeURIComponent(url.pathname)),
+    );
+
+    try {
+      await fs.promises.access(filePath, fs.constants.R_OK);
+      const fileBuffer = await fs.promises.readFile(filePath);
+      return new Response(fileBuffer, { status: 200 });
+    } catch {
+      return new Response("File Not Found", { status: 404 });
+    }
+  });
 
   //loading settings **blocking**
 
@@ -368,6 +381,15 @@ app.on("ready", () => {
             console.log("value:", entry.value, value);
             return `${entry.css}: url("${value}");`;
             break;
+
+          case "Logo Image":
+            value = entry.value !== null ? entry.value : entry.default;
+            value = value !== null ? value : "";
+            value = (value as string).replace(/\\/g, "/");
+            value = "file:///" + value;
+            console.log("value:", entry.value, value);
+            return `${entry.css}: url("${value}");`;
+            break;
           default:
             return "";
             break;
@@ -385,10 +407,10 @@ app.on("ready", () => {
         //return `${key === "root" ? ":root" : `.d-${index}-${key}`} {
         return `.d-${index}-${key} {
         ${resConfig[key]
-            .map((entry) => {
-              return getEntryCss(entry);
-            })
-            .reduce((p, c) => p + "\n" + c)}
+          .map((entry) => {
+            return getEntryCss(entry);
+          })
+          .reduce((p, c) => p + "\n" + c)}
       }`;
       })
       .reduce((p, c) => p + "\n" + c);
@@ -401,7 +423,7 @@ app.on("ready", () => {
     Array(MAX_LIVE_ELEMENTS)
       .fill(0)
       .map((_, i) => {
-        sendToAllDisplayWindows(`update-${i}-css`, getSpecificDisplayCss(i));
+        sendToAllDisplayWindows(`res-${i}-css`, getSpecificDisplayCss(i));
       });
   });
 
@@ -495,7 +517,10 @@ ipcMain.handle("read-element", (_event) => {
         } else if (
           bn.match(/\.(apng|png|avif|gif|jpg|jpeg|jfif|pjpeg|pjp|svg|webp)$/)
         ) {
-          resolve({ type: "image", image: { path: fp.replace(/\\/g, "/"), title: bn } });
+          resolve({
+            type: "image",
+            image: { path: fp.replace(/\\/g, "/"), title: bn },
+          });
         } else {
           dialog.showErrorBox("Error reading file: ", bn);
           reject();
