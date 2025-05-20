@@ -10,6 +10,7 @@ import * as fs from "fs";
 // TODO: make this one variable for electron and react
 const MAX_LIVE_ELEMENTS = 4;
 const liveElements: any[] = [];
+let logo: boolean = false; // FIXME: hardcoded to start at false. how do i do this better?
 
 let activeConfig: FullDisplayConfigType | null = null;
 
@@ -89,10 +90,22 @@ const sendLiveElement = (index: number, liveElement: LiveElementType) => {
   if (liveElement.type === "text") {
     sendToAllDisplayWindows(`display-${index}-text`, liveElement.value);
   }
+  if (liveElement.type === "image") {
+    sendToAllDisplayWindows(`display-${index}-image`, liveElement.value);
+  }
   if (liveElement.type === "none") {
     sendToAllDisplayWindows(`display-${index}-none`, undefined);
   }
 };
+
+ipcMain.on("set-logo", (_event, value) => {
+  logo = value;
+  sendToAllDisplayWindows("display-logo", value);
+})
+
+ipcMain.handle("get-logo", (_event, index: number) => {
+  return logo;
+})
 
 ipcMain.on(
   "set-live-element",
@@ -406,9 +419,7 @@ app.on("ready", () => {
           : activeConfig!.specificDisplays[index]
       )[arrayName];
 
-      //console.log(updateeArray.find((x) => x.key === entry.key)!)
       updateeArray.find((x) => x.key === entry.key)!.value = entry.value;
-      //console.log(updateeArray.find((x) => x.key === entry.key)!)
       console.log("updated activeConfig", "wrote:", entry.key, entry.value);
 
       fs.writeFile(
@@ -495,7 +506,7 @@ ipcMain.handle("read-element", (_event) => {
 });
 
 ipcMain.handle("read-image", (_event) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     dialog
       .showOpenDialog({
         properties: ["openFile"],

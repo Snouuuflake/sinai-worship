@@ -1,4 +1,4 @@
-import "./VerseButton.css";
+import "./ControlSection.css";
 import "./general-icon-button.css";
 import Icon from "../Icon";
 import { useContext, useRef, useEffect, useState } from "react";
@@ -145,7 +145,9 @@ function VerseButton({
               }}
               onClick={(e) => {
                 e.preventDefault();
-                if (typeof matchingLiveIndexes.find((j) => j == i) !== "undefined") {
+                if (
+                  typeof matchingLiveIndexes.find((j) => j == i) !== "undefined"
+                ) {
                   liveElementsState.set([
                     {
                       index: i,

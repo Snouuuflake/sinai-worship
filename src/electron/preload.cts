@@ -57,6 +57,13 @@ electron.contextBridge.exposeInMainWorld("electron", {
       liveElement: liveElement,
     });
   },
+  sendSetLogo: (value: boolean) => {
+    electron.ipcRenderer.send("set-logo", value);
+  },
+  invokeGetLogo: (callback: (logo: boolean) => void) => {
+    electron.ipcRenderer.invoke("get-logo").then(value => { callback(value) })
+  },
+
   invokeImagePath: (): Promise<string> => {
     return electron.ipcRenderer.invoke("read-image") as Promise<string>;
   },
@@ -94,6 +101,11 @@ electron.contextBridge.exposeInMainWorld("electron", {
       callback(data),
     );
   },
+  onDisplayLogo: (callback: (logo: boolean) => void) => {
+    electron.ipcRenderer.on("display-logo", (_event, value) => {
+      callback(value);
+    })
+  },
   onDisplayText: (index: number, callback: (text: string) => void) => {
     electron.ipcRenderer.on(`display-${index}-text`, (_event, data) => {
       callback(data);
@@ -105,7 +117,7 @@ electron.contextBridge.exposeInMainWorld("electron", {
     })
   },
   onDisplayImage: (index: number, callback: (path: string) => void) => {
-    electron.ipcRenderer.on(`display-${index}text`, (_event, data) => {
+    electron.ipcRenderer.on(`display-${index}-image`, (_event, data) => {
       callback(data);
     });
   },

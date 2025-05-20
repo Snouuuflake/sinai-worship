@@ -33,6 +33,29 @@ body {
   width: 100%;
 }
 
+
+.image-container {
+  all: unset;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.image {
+  flex-grow: 1;
+  object-fit: contain;
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
+  max-width: 100%;
+}
+
 .global {
   background-size: cover;
   background-position: center;

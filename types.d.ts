@@ -68,7 +68,8 @@ interface Window {
     ) => void;
     invokeSaveSong: (song: Song) => Promise<void>;
     sendSetLiveElement: (index: number, liveElement: LiveElementType) => void;
-
+    sendSetLogo: (value: boolean) => void;
+    invokeGetLogo: (index: number, callback: (logo: boolean) => void) => void;
     invokeReadDisplaySetting: InvokeJSON;
     testFunction: () => string;
     sendNewDisplayWindow: (index: number) => void;
@@ -81,8 +82,10 @@ interface Window {
       entry: DisplayConfigEntryType,
     ) => void;
     sendGetLiveElement: (index: number) => void;
+
     sendReqCss: (index: number) => void;
     onResCss: (index: number, callback: (css: string) => void) => void;
+    onDisplayLogo: (callback: (logo: boolean) => void) => void;
     onDisplayText: (index: number, callback: (text: string) => void) => void;
     onDisplayNone: (index: number, callback: () => void) => void;
     onDisplayImage: (index: number, callback: (path: string) => void) => void;
@@ -175,6 +178,7 @@ type GlobalContextType = {
   liveElementsState: LiveElementsState;
   openElements: OpenElementsState;
   viewElement: OpenElementState;
+  logoState: StateObject<boolean>;
   bodyContent: {
     value: "main" | "display";
     set: React.Dispatch<React.SetStateAction<"main" | "display">>;

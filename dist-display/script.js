@@ -6,6 +6,8 @@
 //const root = document.querySelector(":root");
 // TEST:
 //root.style.setProperty("--default-animation-length", 500)
+
+/**@type object*/
 const AnimationFunctions = {
   getDefaultDuartion: () =>
     parseInt(
@@ -14,6 +16,11 @@ const AnimationFunctions = {
       ).getPropertyValue("--default-animation-length"),
     ),
   /** @param  {HTMLElement} element */
+  startFadeIn: (element) => {
+    element.animate([{ opacity: 0 }, { opacity: 1 }], {
+      duration: AnimationFunctions.getDefaultDuartion(),
+    });
+  },
   startFadeOut: (element) => {
     const animation = element.animate(
       [{ opacity: element.style.opacity }, { opacity: 0 }],
@@ -113,6 +120,13 @@ window.addEventListener("load", () => {
   window.electron
     .invokeIndex()
     .then((index) => {
+      function logoHandler(logo) {
+        console.log(`Logo: ${logo}`);
+      }
+
+      window.electron.onDisplayLogo(logoHandler);
+      window.electron.invokeGetLogo(logoHandler);
+
       updateAllClasses(index);
       console.log(`Window index is ${index} :3`);
       document.title = `Window #${index + 1}`;
@@ -157,10 +171,39 @@ window.addEventListener("load", () => {
         });
       });
 
-      //window.electron.onDisplayImage()
+      window.electron.onDisplayImage(index, (path) => {
+        console.log("hi")
+        ContentFunctions.removeAllElementsNicely();
+        const imageContainer = document.createElement("div");
+        imageContainer.classList.add(`image-container`);
+        imageContainer.classList.add(`d-${index}-image-container`);
+        document.body.appendChild(imageContainer);
+        // TODO: add support for more animations than this fade
+
+        const image = document.createElement("img");
+        image.classList.add(`image`);
+        image.classList.add(`d-${index}-image`);
+        image.src = `mssf://${path}`;
+        imageContainer.appendChild(image);
+
+        AnimationFunctions.startFadeIn(imageContainer);
+        //function setDisplayImage(path) {
+        //  imageContainer.replaceChildren();
+        //  const img = document.createElement("img");
+        //  img.classList.add(`img`);
+        //  img.classList.add(`d-${index}-img`);
+        //  img.src = `mssf://${path}`;
+        //  imageContainer.appendChild(img);
+        //}
+        //setDisplayText(path);
+        //removeCurrentUpdateCssEventListener();
+        //setCurrentUpdateCssEventListener(() => {
+        //  setDisplayText(text);
+        //});
+      });
       window.electron.onDisplayNone(index, () => {
         ContentFunctions.removeAllElementsNicely();
-        console.log("none")
+        console.log("none");
       });
       window.electron.sendGetLiveElement(index);
     })

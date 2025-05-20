@@ -44,6 +44,13 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const [configC, configS] = useState<FullDisplayConfigType | null>(null);
   const displayConfig = { value: configC, set: configS };
 
+  const [logo, setLogo] = useState<boolean>(false);
+  function superSetLogo(v: boolean) {
+    setLogo(v);
+    window.electron.sendSetLogo(v);
+  }
+  const logoState = {value: logo, set: superSetLogo};
+
   useLayoutEffect(() => {
     window.electron
       .invokeReadDisplaySetting({})
@@ -60,6 +67,7 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
         liveElementsState: makeLiveElementsState(),
         openElements,
         viewElement,
+        logoState,
         bodyContent,
         displayConfig,
       }}
