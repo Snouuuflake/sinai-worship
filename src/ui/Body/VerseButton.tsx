@@ -96,7 +96,7 @@ function VerseButton({
                 if (editorOpen) {
                   if (editorContentRef.current.trim() !== "") {
                     section.verses[verseIndex].lines = editorContentRef.current
-                      .replace(/[\n\r]/, "\n")
+                      .replace(/[\n\r]/, "\n").replace(/\s*$(\n\s*$){2,}/gm,"")
                       .split("\n")
                       .map((l) => l.trim());
                   } else {
@@ -222,10 +222,6 @@ function VerseButton({
               .reduce((p, c) => p + "\n" + c, "")
               .slice(1)}
             style={{
-              width: "100%",
-              height: `${section.verses[verseIndex].lines.length + 1}em`,
-              minHeight: "100%",
-              resize: "none",
             }}
             onChange={(event) => {
               editorContentRef.current = event.target.value;
