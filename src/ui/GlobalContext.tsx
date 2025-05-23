@@ -1,40 +1,40 @@
-import { createContext, useState, useLayoutEffect } from "react";
+import { createContext, useState, useEffect, useLayoutEffect } from "react";
 
 export const GlobalContext = createContext<GlobalContextType | null>(null);
-const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({ 
+const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const MAX_LIVE_ELEMENTS = 5;
-  // --- live element --------------------------------------------------------- 
-  const makeLiveElementsState = (): LiveElementsState => {
-    const [v, s] = useState<LiveElementType[]>(
-      Array.from({ length: MAX_LIVE_ELEMENTS }, (_) => ({
-        type: "none",
-        value: "",
-        buttonID: -1,
-        object: null, 
-      })),
-    ); 
+  const MAX_LIVE_ELEMENTS = 4;
+  // --- live element ---------------------------------------------------------
+  //const makeLiveElementsState = (): LiveElementsState => {
+  const [v, s] = useState<LiveElementType[]>(
+    Array.from({ length: MAX_LIVE_ELEMENTS }, (_) => ({
+      type: "none",
+      value: "",
+      buttonID: -1,
+      object: null,
+    })),
+  );
 
-    /** wrapper for other stuff to be done when updating live element */
-    const setLiveElementsState = (
-      newLiveElements: IndexedLiveElementsObject[],
-    ) => {
-      const newV: LiveElementType[] = [...v];
-      newLiveElements.forEach((item) => {
-        newV[item.index] = item.liveElement;
-        window.electron.sendSetLiveElement(item.index, item.liveElement);
-      });
-      s(newV);
-    };
-
-    return { value: v, set: setLiveElementsState };
+  /** wrapper for other stuff to be done when updating live element */
+  const setLiveElementsState = (
+    newLiveElements: IndexedLiveElementsObject[],
+  ) => {
+    const newV: LiveElementType[] = [...v];
+    newLiveElements.forEach((item) => {
+      newV[item.index] = item.liveElement;
+      window.electron.sendSetLiveElement(item.index, item.liveElement);
+    });
+    s(newV);
   };
+
+  const liveElementsState = { value: v, set: setLiveElementsState };
+  //};
 
   const [openV, openS] = useState<OpenElementType[]>([]);
   const [viewV, viewS] = useState<OpenElementType>({
     type: "none",
-  }); 
+  });
   const [bcV, bcS] = useState<"main" | "display">("main");
 
   const openElements = { value: openV, set: openS };
@@ -49,13 +49,13 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
     setLogo(v);
     window.electron.sendSetLogo(v);
   }
-  const logoState = {value: logo, set: superSetLogo};
+  const logoState = { value: logo, set: superSetLogo };
 
   useLayoutEffect(() => {
     window.electron
       .invokeReadDisplaySetting({})
       .then((data: FullDisplayConfigType) => {
-        console.log(data)
+        console.log(data);
         displayConfig.set(data);
       });
   }, []);
@@ -64,7 +64,7 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
     <GlobalContext.Provider
       value={{
         MAX_LIVE_ELEMENTS,
-        liveElementsState: makeLiveElementsState(),
+        liveElementsState,
         openElements,
         viewElement,
         logoState,

@@ -7,12 +7,14 @@ const useIpcListener = (
   channel: string,
   callback: (...args: any[]) => void,
 ) => {
-  const listener = (_event: Electron.IpcRendererEvent, ...largs: any[]) => {
-    callback(...largs);
-  };
-  electron.ipcRenderer.on(channel, listener);
   return () => {
-    electron.ipcRenderer.removeListener(channel, listener);
+    const listener = (_event: Electron.IpcRendererEvent, ...largs: any[]) => {
+      callback(...largs);
+    };
+    electron.ipcRenderer.on(channel, listener);
+    return () => {
+      electron.ipcRenderer.removeListener(channel, listener);
+    };
   };
 };
 
@@ -34,6 +36,7 @@ const makeIpcSend = (channel: string) => {
 
 electron.contextBridge.exposeInMainWorld("electron", {
   // for react
+  useIpcListener: useIpcListener,
   invokeReadElement: (callback: (newElement: OpenElementType) => void) => {
     electron.ipcRenderer.invoke("read-element").then(
       (res: OpenElementType) => {
@@ -61,7 +64,9 @@ electron.contextBridge.exposeInMainWorld("electron", {
     electron.ipcRenderer.send("set-logo", value);
   },
   invokeGetLogo: (callback: (logo: boolean) => void) => {
-    electron.ipcRenderer.invoke("get-logo").then(value => { callback(value) })
+    electron.ipcRenderer.invoke("get-logo").then((value) => {
+      callback(value);
+    });
   },
 
   invokeImagePath: (): Promise<string> => {
@@ -104,7 +109,7 @@ electron.contextBridge.exposeInMainWorld("electron", {
   onDisplayLogo: (callback: (logo: boolean) => void) => {
     electron.ipcRenderer.on("display-logo", (_event, value) => {
       callback(value);
-    })
+    });
   },
   onDisplayText: (index: number, callback: (text: string) => void) => {
     electron.ipcRenderer.on(`display-${index}-text`, (_event, data) => {
@@ -113,8 +118,8 @@ electron.contextBridge.exposeInMainWorld("electron", {
   },
   onDisplayNone: (index: number, callback: () => void) => {
     electron.ipcRenderer.on(`display-${index}-none`, (_event, data) => {
-      callback()
-    })
+      callback();
+    });
   },
   onDisplayImage: (index: number, callback: (path: string) => void) => {
     electron.ipcRenderer.on(`display-${index}-image`, (_event, data) => {

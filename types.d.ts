@@ -63,6 +63,10 @@ type InvokeJSON = (obj: any) => Promise<any>;
 
 interface Window {
   electron: {
+    useIpcListener: (
+      channel: string,
+      callback: (...args: any[]) => void,
+    ) => () => () => void;
     invokeReadElement: (
       callback: (newElement: OpenElementType) => void,
     ) => void;

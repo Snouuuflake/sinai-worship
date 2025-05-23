@@ -1,8 +1,8 @@
 {
-  "appId": "mss-worship",
+  "appId": "sinai-worship",
   "files": ["dist-electron", "dist-react", "dist-display"],
   "extraResources": ["dist-electron/preload.cjs", "config.json"],
   "win": {
-    "target":[ "portable", "msi" ]
+    "target":[ "msi" ]
   }
 }

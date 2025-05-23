@@ -2,7 +2,7 @@ import { app, protocol, net, BrowserWindow, ipcMain, dialog } from "electron";
 import url from "node:url";
 import path from "path";
 import { isDev } from "./util.js";
-import { getPreloadPath } from "./pathResolver.js";
+import { getConfigPath, getPreloadPath } from "./pathResolver.js";
 import { readMSSFile, writeMSSFile } from "./parser.js";
 //import { promises as fsp } from "fs";
 import * as fs from "fs";
@@ -270,7 +270,7 @@ const readFullConfig = () => {
 
   try {
     const fConfig: FullDisplayConfigType = JSON.parse(
-      fs.readFileSync(path.join(app.getAppPath(), "config.json"), "utf8"),
+      fs.readFileSync(getConfigPath(), "utf8"),
     );
 
     const curConfig = makeDefaultFullConfig();
@@ -283,7 +283,7 @@ const readFullConfig = () => {
     return curConfig;
   } catch (err) {
     fs.writeFileSync(
-      path.join(app.getAppPath(), "config.json"),
+      getConfigPath(),
       JSON.stringify(makeDefaultFullConfig()),
     );
     return makeDefaultFullConfig();
@@ -445,7 +445,7 @@ app.on("ready", () => {
       console.log("updated activeConfig", "wrote:", entry.key, entry.value);
 
       fs.writeFile(
-        path.join(app.getAppPath(), "config.json"),
+        getConfigPath(),
         JSON.stringify(activeConfig),
         (err) => {
           console.log("wrote config.json", err);
