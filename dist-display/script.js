@@ -2,13 +2,9 @@
     Elements that require display window-index-independent styles must have classes with an # in their name; when the window is loaded, all #'s will be replaced by the appropriate window index.'
 */
 
+
 /** main code: */
 window.addEventListener("load", () => {
-  /**@type {{
-   * getDefaultDuration: () => number,
-   * startFadeIn: (element: HTMLElement) => void,
-   * startFadeOut: (element: HTMLElement) => void
-   * }}*/
   const AnimationFunctions = {
     getDefaultDuartion: () => {
       const res = parseInt(
@@ -16,12 +12,6 @@ window.addEventListener("load", () => {
           document.getElementsByClassName("global")[0],
         ).getPropertyValue("--default-animation-length"),
       );
-      console.log(
-        getComputedStyle(
-          document.getElementsByClassName("global")[0],
-        ).getPropertyValue("--default-animation-length"),
-      );
-      console.log(res);
       return res;
     },
     /** @param  {HTMLElement} element */
@@ -30,6 +20,7 @@ window.addEventListener("load", () => {
         duration: AnimationFunctions.getDefaultDuartion(),
       });
     },
+    /** @param  {HTMLElement} element */
     startFadeOut: (element) => {
       const animation = element.animate(
         [{ opacity: element.style.opacity }, { opacity: 0 }],
@@ -47,7 +38,6 @@ window.addEventListener("load", () => {
 
   const ContentFunctions = {
     removeAllElementsNicely: () => {
-      console.log(mainContainer);
       [...mainContainer.getElementsByTagName("*")].forEach(
         AnimationFunctions.startFadeOut,
       );
@@ -113,29 +103,54 @@ window.addEventListener("load", () => {
    * @param {number} maxSize Maximum font size in px
    */
   function fitText(textElement, parentElement, maxSize) {
-    function overflows(element) {
+    function overflows() {
       return (
-        element.clientHeight < element.scrollHeight ||
-        element.clientWidth < element.scrollWidth
+        parentElement.clientHeight < parentElement.scrollHeight ||
+        parentElement.clientWidth < parentElement.scrollWidth
       );
     }
-
-    let i = 0;
-    textElement.style.fontSize = i + "px";
-
-    for (i = 0; !overflows(parentElement) && i <= maxSize; i++) {
-      textElement.style.fontSize = i + "px";
-      console.log(i);
+    /**
+     * @param {number} size
+     */
+    function setFontSize(size) {
+      textElement.style.fontSize = size + "px";
     }
 
-    if (overflows(parentElement)) {
-      if (i > 2) {
-        textElement.style.fontSize = i - 2 + "px";
+    /** @type {number}*/
+    let size = maxSize;
+    /** @type {number}*/
+    let dsize = maxSize;
+    /** @type {number}*/
+    let lastOverflowSize = maxSize;
+
+    setFontSize(size);
+
+    // INFO: iteration limit because i fear "recursion"
+    //       (also for debugging)
+    let i = 0 /** @type {number}*/
+    const MAX_ITERATIONS = 500;
+
+    while (size >= 1) {
+      dsize = Math.floor(dsize / 2) | 1;
+      if (overflows()) {
+        lastOverflowSize = size;
+        size -= dsize;
       } else {
-        textElement.style.fontSize = 1 + "px";
+        if (lastOverflowSize - size < 2) {
+          return;
+        }
+        size += dsize;
       }
-      console.log(i);
+
+      setFontSize(size);
+      console.log(size, lastOverflowSize, dsize, overflows());
+      if (i >= MAX_ITERATIONS) {
+        console.error("fitText(): MAX_ITERATIONS reached")
+        return;
+      }
+      i++;
     }
+
   }
 
   window.electron
@@ -201,7 +216,7 @@ window.addEventListener("load", () => {
           textContainer.appendChild(textElement);
 
           const maxFontSize = parseInt(getComputedStyle(textElement).fontSize);
-          console.log(maxFontSize);
+          console.log("maxFontSize: ", maxFontSize);
           fitText(textElement, textContainer, maxFontSize);
         }
         setDisplayText(text);
