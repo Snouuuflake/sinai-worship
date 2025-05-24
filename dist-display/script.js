@@ -2,14 +2,13 @@
     Elements that require display window-index-independent styles must have classes with an # in their name; when the window is loaded, all #'s will be replaced by the appropriate window index.'
 */
 
-/**@type HTMLElement*/
-//const root = document.querySelector(":root");
-// TEST:
-//root.style.setProperty("--default-animation-length", 500)
-
 /** main code: */
 window.addEventListener("load", () => {
-  /**@type object*/
+  /**@type {{
+   * getDefaultDuration: () => number,
+   * startFadeIn: (element: HTMLElement) => void,
+   * startFadeOut: (element: HTMLElement) => void
+   * }}*/
   const AnimationFunctions = {
     getDefaultDuartion: () => {
       const res = parseInt(
@@ -107,6 +106,12 @@ window.addEventListener("load", () => {
     }
   }
 
+  /**
+   * Sets textElement.style.fontSize
+   * @param {HTMLElement} textElement Element containing the text
+   * @param {HTMLElement} parentElement Parent of textElement (overflow: clip requiered i think)
+   * @param {number} maxSize Maximum font size in px
+   */
   function fitText(textElement, parentElement, maxSize) {
     function overflows(element) {
       return (
@@ -118,7 +123,7 @@ window.addEventListener("load", () => {
     let i = 0;
     textElement.style.fontSize = i + "px";
 
-    for (i = 0; !overflows(parentElement) && i != maxSize; i++) {
+    for (i = 0; !overflows(parentElement) && i <= maxSize; i++) {
       textElement.style.fontSize = i + "px";
       console.log(i);
     }
