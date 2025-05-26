@@ -164,14 +164,14 @@ type LiveElementType = {
   object: any;
 };
 
-type IndexedLiveElementsObject = {
+type IndexedLiveElementObject = {
   index: number;
   liveElement: LiveElementType;
 };
 
 type LiveElementsState = {
   value: LiveElementType[];
-  set: (IndexedLiveElementsObject) => void;
+  set: (IndexedLiveElementObject, send: boolean) => void;
 };
 
 type NullFullDisplayConfigState = StateObject<FullDisplayConfigType | null>;

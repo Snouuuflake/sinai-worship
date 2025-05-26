@@ -97,13 +97,15 @@ function SongControls({ song }: { song: Song }) {
             <div className="section-row-text">
               {sei.type === "section" || sei.type === "repeat"
                 ? sei.name
-                : (()=>{console.log(song.notes);return makeNoteTitle(
-                  song.notes.find((n) => n.name === sei.name)!.text,
-                )})()}
+                : (() => {
+                  console.log(song.notes);
+                  return makeNoteTitle(
+                    song.notes.find((n) => n.name === sei.name)!.text,
+                  );
+                })()}
             </div>
-            {
-              sei.type !== "note" ? 
-            (<button
+            {sei.type !== "note" ? (
+              <button
                 className="general-icon-button"
                 onClick={() => {
                   song.sectionOrder.splice(seiIndex + 1, 0, {
@@ -116,9 +118,9 @@ function SongControls({ song }: { song: Song }) {
               >
                 <Icon code="C" />
               </button>
-              )
-              : ""
-            }
+            ) : (
+              ""
+            )}
             <ConfirmKillButton
               callback={() => {
                 if (sei.type === "repeat") {
@@ -150,7 +152,7 @@ function SongControls({ song }: { song: Song }) {
                     song.notes.indexOf(
                       song.notes.find((n) => n.name === sei.name)!,
                     ),
-                      1
+                    1,
                   );
                 }
                 updateState();
@@ -270,7 +272,7 @@ function SongControls({ song }: { song: Song }) {
                 buttonID={buttonIDCounter}
                 object={song}
                 selected={selected == buttonIDCounter}
-                setSelected={setSelected}
+                selectedState={{ value: selected, set: setSelected }}
                 updateState={updateState}
               ></VerseButton>
             );

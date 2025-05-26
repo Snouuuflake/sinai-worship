@@ -21,6 +21,7 @@ function ClearButton() {
               },
             };
           }),
+          true,
         );
       }}
     >

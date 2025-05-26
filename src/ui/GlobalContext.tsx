@@ -18,12 +18,15 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
 
   /** wrapper for other stuff to be done when updating live element */
   const setLiveElementsState = (
-    newLiveElements: IndexedLiveElementsObject[],
+    newLiveElements: IndexedLiveElementObject[],
+    send: boolean,
   ) => {
     const newV: LiveElementType[] = [...v];
     newLiveElements.forEach((item) => {
       newV[item.index] = item.liveElement;
-      window.electron.sendSetLiveElement(item.index, item.liveElement);
+      if (send) {
+        window.electron.sendSetLiveElement(item.index, item.liveElement);
+      }
     });
     s(newV);
   };

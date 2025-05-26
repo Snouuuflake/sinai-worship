@@ -9,5 +9,8 @@
 - [ ] show null not default when null in individual display settings
 - [ ] fix selected (make open-element-specific) (stop reset when leaving displaysettings)
 - [ ] re-do button indexes when deleting verse (some pointer garbage)
+- [ ] fix indexes, completely revamp system so that it automatically changes index when anything gets moved
+    - maybe it can be some more abstract object so that liveElement doesnt use buttonID but some pointer
+    - [ ] disallow moving when not convenient
 
 

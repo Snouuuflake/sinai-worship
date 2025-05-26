@@ -73,7 +73,7 @@ function ImageControls({ image }: { image: Image }) {
                 style={{
                   color:
                     typeof matchingLiveIndexes.find((j) => j == i) !=
-                    "undefined"
+                      "undefined"
                       ? "var(--hi1)"
                       : "gray",
                 }}
@@ -83,29 +83,35 @@ function ImageControls({ image }: { image: Image }) {
                     typeof matchingLiveIndexes.find((j) => j == i) !==
                     "undefined"
                   ) {
-                    liveElementsState.set([
-                      {
-                        index: i,
-                        liveElement: {
-                          type: "none",
-                          value: "",
-                          buttonID: -1,
-                          object: null,
+                    liveElementsState.set(
+                      [
+                        {
+                          index: i,
+                          liveElement: {
+                            type: "none",
+                            value: "",
+                            buttonID: -1,
+                            object: null,
+                          },
                         },
-                      },
-                    ]);
+                      ],
+                      true,
+                    );
                   } else {
-                    liveElementsState.set([
-                      {
-                        index: i,
-                        liveElement: {
-                          type: "image",
-                          value: image.path,
-                          buttonID: -1,
-                          object: image,
+                    liveElementsState.set(
+                      [
+                        {
+                          index: i,
+                          liveElement: {
+                            type: "image",
+                            value: image.path,
+                            buttonID: -1,
+                            object: image,
+                          },
                         },
-                      },
-                    ]);
+                      ],
+                      true,
+                    );
                   }
                 }}
               >
@@ -129,6 +135,7 @@ function ImageControls({ image }: { image: Image }) {
                     },
                   };
                 }),
+                true,
               );
             }}
           >

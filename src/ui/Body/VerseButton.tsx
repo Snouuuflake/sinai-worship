@@ -10,7 +10,7 @@ function VerseButton({
   buttonID,
   object,
   selected,
-  setSelected,
+  selectedState,
   updateState,
 }: {
   section: Section;
@@ -18,7 +18,7 @@ function VerseButton({
   buttonID: number;
   object: any;
   selected: boolean;
-  setSelected: (value: React.SetStateAction<number>) => void;
+  selectedState: StateObject<number>;
   updateState: () => void;
 }) {
   const { MAX_LIVE_ELEMENTS, liveElementsState } = useContext(
@@ -96,11 +96,36 @@ function VerseButton({
                 if (editorOpen) {
                   if (editorContentRef.current.trim() !== "") {
                     section.verses[verseIndex].lines = editorContentRef.current
-                      .replace(/[\n\r]/, "\n").replace(/\s*$(\n\s*$){2,}/gm,"")
+                      .trim()
+                      .replace(/[\n\r]/, "\n")
+                      .replace(/\s*$(\n\s*$){2,}/gm, "")
                       .split("\n")
                       .map((l) => l.trim());
                   } else {
+                    // deleting verse!
                     section.verses.splice(verseIndex, 1);
+                    liveElementsState.set(
+                      liveElementsState.value.map((le, i) => {
+                        return {
+                          index: i,
+                          liveElement: {
+                            ...le,
+                            buttonID:
+                              le.object === object && le.buttonID >= 0
+                                ? le.buttonID == buttonID
+                                  ? -1
+                                  : le.buttonID > buttonID
+                                    ? le.buttonID - 1
+                                    : le.buttonID
+                                : le.buttonID,
+                          },
+                        };
+                      }),
+                      false,
+                    );
+                    if (selectedState.value >= buttonID) {
+                      selectedState.set(selectedState.value - 1);
+                    }
                   }
                   setEditorOpen(false);
                   updateState();
@@ -148,31 +173,37 @@ function VerseButton({
                 if (
                   typeof matchingLiveIndexes.find((j) => j == i) !== "undefined"
                 ) {
-                  liveElementsState.set([
-                    {
-                      index: i,
-                      liveElement: {
-                        type: "none",
-                        value: "",
-                        buttonID: -1,
-                        object: null,
+                  liveElementsState.set(
+                    [
+                      {
+                        index: i,
+                        liveElement: {
+                          type: "none",
+                          value: "",
+                          buttonID: -1,
+                          object: null,
+                        },
                       },
-                    },
-                  ]);
+                    ],
+                    true,
+                  );
                 } else {
-                  liveElementsState.set([
-                    {
-                      index: i,
-                      liveElement: {
-                        type: "text",
-                        value: section.verses[verseIndex].lines
-                          .reduce((p, c) => p + "\n" + c, "")
-                          .trim(),
-                        buttonID: buttonID,
-                        object: object,
+                  liveElementsState.set(
+                    [
+                      {
+                        index: i,
+                        liveElement: {
+                          type: "text",
+                          value: section.verses[verseIndex].lines
+                            .reduce((p, c) => p + "\n" + c, "")
+                            .trim(),
+                          buttonID: buttonID,
+                          object: object,
+                        },
                       },
-                    },
-                  ]);
+                    ],
+                    true,
+                  );
                 }
               }}
             >
@@ -183,13 +214,28 @@ function VerseButton({
             <button
               className="general-icon-button"
               onClick={() => {
-                if (verseIndex > 0) {
+                if (!editorOpen && verseIndex > 0) {
                   [section.verses[verseIndex], section.verses[verseIndex - 1]] =
                     [
                       section.verses[verseIndex - 1],
                       section.verses[verseIndex],
                     ];
 
+                  liveElementsState.set(
+                    liveElementsState.value.map((le, i) => {
+                      return {
+                        index: i,
+                        liveElement: {
+                          ...le,
+                          buttonID:
+                            le.object === object && le.buttonID == buttonID
+                              ? le.buttonID - 1
+                              : le.buttonID,
+                        },
+                      };
+                    }),
+                    false,
+                  );
                   updateState();
                 }
               }}
@@ -199,12 +245,27 @@ function VerseButton({
             <button
               className="general-icon-button"
               onClick={() => {
-                if (verseIndex < section.verses.length - 1) {
+                if (!editorOpen && verseIndex < section.verses.length - 1) {
                   [section.verses[verseIndex], section.verses[verseIndex + 1]] =
                     [
                       section.verses[verseIndex + 1],
                       section.verses[verseIndex],
                     ];
+                  liveElementsState.set(
+                    liveElementsState.value.map((le, i) => {
+                      return {
+                        index: i,
+                        liveElement: {
+                          ...le,
+                          buttonID:
+                            le.object === object && le.buttonID == buttonID
+                              ? le.buttonID + 1
+                              : le.buttonID,
+                        },
+                      };
+                    }),
+                    false,
+                  );
 
                   updateState();
                 }
@@ -221,8 +282,7 @@ function VerseButton({
             defaultValue={section.verses[verseIndex].lines
               .reduce((p, c) => p + "\n" + c, "")
               .slice(1)}
-            style={{
-            }}
+            style={{}}
             onChange={(event) => {
               editorContentRef.current = event.target.value;
             }}
@@ -234,7 +294,7 @@ function VerseButton({
             key={`b${buttonID}`}
             id={`verse-button-${buttonID}`}
             onClick={() => {
-              setSelected(buttonID);
+              selectedState.set(buttonID);
               liveElementsState.set(
                 Array.from({ length: MAX_LIVE_ELEMENTS }).map((_, i) => {
                   return {
@@ -249,6 +309,7 @@ function VerseButton({
                     },
                   };
                 }),
+                true,
               );
             }}
           >

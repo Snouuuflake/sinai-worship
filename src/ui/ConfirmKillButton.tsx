@@ -7,11 +7,11 @@ function ConfirmKillButton({ callback }: { callback: () => void }) {
   useEffect(() => {
     const callback = (event: MouseEvent) => {
       if (thisRef.current && !thisRef.current.contains(event.target as Node)) {
-        console.log(event.target, thisRef.current)
-      console.log("condition")
+      //  console.log(event.target, thisRef.current)
+      //console.log("condition")
         setGonnaKill(false);
       }
-      console.log("happened")
+      //console.log("happened")
     };
 
     document.body.addEventListener("click", callback);
