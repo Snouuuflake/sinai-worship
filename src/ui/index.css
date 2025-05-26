@@ -27,10 +27,21 @@
   --br-small: 3px;
 }
 
+body {
+  margin: 0;
+  padding: 8px;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+#root {
+  height: 100%;
+}
 
 * {
   zoom: reset;
 }
+
 
 .inverse-title {
   background: white;

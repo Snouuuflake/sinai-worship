@@ -97,23 +97,28 @@ function SongControls({ song }: { song: Song }) {
             <div className="section-row-text">
               {sei.type === "section" || sei.type === "repeat"
                 ? sei.name
-                : makeNoteTitle(
+                : (()=>{console.log(song.notes);return makeNoteTitle(
                   song.notes.find((n) => n.name === sei.name)!.text,
-                )}
+                )})()}
             </div>
-            <button
-              className="general-icon-button"
-              onClick={() => {
-                song.sectionOrder.splice(seiIndex + 1, 0, {
-                  type: "repeat",
-                  name: sei.name,
-                });
-                // !! for deleting, we need to check if we're deleting the definition, if so, take the nearest repetition and make it definition, or, if none, ask the user if theyre sure
-                updateState();
-              }}
-            >
-              <Icon code="C" />
-            </button>
+            {
+              sei.type !== "note" ? 
+            (<button
+                className="general-icon-button"
+                onClick={() => {
+                  song.sectionOrder.splice(seiIndex + 1, 0, {
+                    type: "repeat",
+                    name: sei.name,
+                  });
+                  // !! for deleting, we need to check if we're deleting the definition, if so, take the nearest repetition and make it definition, or, if none, ask the user if theyre sure
+                  updateState();
+                }}
+              >
+                <Icon code="C" />
+              </button>
+              )
+              : ""
+            }
             <ConfirmKillButton
               callback={() => {
                 if (sei.type === "repeat") {
@@ -145,6 +150,7 @@ function SongControls({ song }: { song: Song }) {
                     song.notes.indexOf(
                       song.notes.find((n) => n.name === sei.name)!,
                     ),
+                      1
                   );
                 }
                 updateState();
