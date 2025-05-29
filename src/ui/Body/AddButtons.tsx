@@ -10,9 +10,7 @@ function AddButtons({
   section: Section;
   sectionOrderIndex: number;
 }) {
-  // TODO: IT DOESNT UPDATE??
-  const { MAX_LIVE_ELEMENTS, liveElementsState, openElements, viewElement } =
-    useContext(GlobalContext) as GlobalContextType;
+  const { openElements } = useContext(GlobalContext) as GlobalContextType;
 
   return (
     <div style={{ display: "flex" }}>

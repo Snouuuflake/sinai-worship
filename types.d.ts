@@ -157,28 +157,55 @@ type OpenElementsState = StateObject<OpenElementType[]>;
  * buttonID: ui button that was selected (if applicable). if -1 -> none.
  * object: literal reference to the song or whatever object in react
  */
-type LiveElementType = {
-  type: "text" | "image" | "none";
+type LiveSongReference = {
+  object: object;
+  sectionID: number;
+  verseID: number;
+}
+type LiveTextType = {
+  type: "text";
   value: string;
-  buttonID: number;
-  object: any;
-};
+  reference: LiveSongReference;
+}
 
-type IndexedLiveElementObject = {
+type LiveImageReference = {
+  object: object;
+}
+type LiveImageType = {
+  type: "image";
+  value: string;
+  reference: LiveImageReference;
+}
+
+type LiveNoneReference = {
+  object: null;
+}
+
+type LiveNoneType = {
+  type: "none";
+  value: string;
+  reference: LiveNoneReference;
+}
+
+type LiveElementType = LiveTextType | LiveImageType | LiveNoneType;
+
+type IndexedLiveElement = {
   index: number;
   liveElement: LiveElementType;
 };
 
 type LiveElementsState = {
   value: LiveElementType[];
-  set: (IndexedLiveElementObject, send: boolean) => void;
+  set: (newLiveElements: IndexedLiveElement[]) => void;
+  send: (newLiveElements: IndexedLiveElement[]) => void;
+  map: (callback: (item: LiveElementType, i?: number) => LiveElementType) => void;
 };
 
 type NullFullDisplayConfigState = StateObject<FullDisplayConfigType | null>;
 
 type GlobalContextType = {
   MAX_LIVE_ELEMENTS: number;
-  liveElementsState: LiveElementsState;
+  liveElements: LiveElementsState;
   openElements: OpenElementsState;
   viewElement: OpenElementState;
   logoState: StateObject<boolean>;

@@ -25,7 +25,7 @@ function ImageControls({ image }: { image: Image }) {
     };
   }, []);
 
-  const { MAX_LIVE_ELEMENTS, liveElementsState } = useContext(
+  const { MAX_LIVE_ELEMENTS, liveElements } = useContext(
     GlobalContext,
   ) as GlobalContextType;
   const liveIndexesRange = Array.from(
@@ -33,8 +33,8 @@ function ImageControls({ image }: { image: Image }) {
     (_, i) => i,
   );
 
-  const matchingLiveIndexes = liveElementsState.value.flatMap((le, i) =>
-    le.object == image ? [i] : [],
+  const matchingLiveIndexes = liveElements.value.flatMap((le, i) =>
+    le.reference.object == image ? [i] : [],
   );
 
   const someMatching = !!matchingLiveIndexes.length;
@@ -73,7 +73,7 @@ function ImageControls({ image }: { image: Image }) {
                 style={{
                   color:
                     typeof matchingLiveIndexes.find((j) => j == i) !=
-                      "undefined"
+                    "undefined"
                       ? "var(--hi1)"
                       : "gray",
                 }}
@@ -83,35 +83,29 @@ function ImageControls({ image }: { image: Image }) {
                     typeof matchingLiveIndexes.find((j) => j == i) !==
                     "undefined"
                   ) {
-                    liveElementsState.set(
-                      [
-                        {
-                          index: i,
-                          liveElement: {
-                            type: "none",
-                            value: "",
-                            buttonID: -1,
-                            object: null,
-                          },
+                    liveElements.send([
+                      {
+                        index: i,
+                        liveElement: {
+                          type: "none",
+                          value: "",
+                          reference: { object: null },
                         },
-                      ],
-                      true,
-                    );
+                      },
+                    ]);
                   } else {
-                    liveElementsState.set(
-                      [
-                        {
-                          index: i,
-                          liveElement: {
-                            type: "image",
-                            value: image.path,
-                            buttonID: -1,
+                    liveElements.send([
+                      {
+                        index: i,
+                        liveElement: {
+                          type: "image",
+                          value: image.path,
+                          reference: {
                             object: image,
                           },
                         },
-                      ],
-                      true,
-                    );
+                      },
+                    ]);
                   }
                 }}
               >
@@ -123,19 +117,17 @@ function ImageControls({ image }: { image: Image }) {
             className="image-button"
             ref={imageButtonRef}
             onClick={() => {
-              liveElementsState.set(
+              liveElements.send(
                 Array.from({ length: MAX_LIVE_ELEMENTS }).map((_, i) => {
                   return {
                     index: i,
                     liveElement: {
                       type: "image",
                       value: image.path,
-                      buttonID: -1,
-                      object: image,
+                      reference: { object: image },
                     },
                   };
                 }),
-                true,
               );
             }}
           >

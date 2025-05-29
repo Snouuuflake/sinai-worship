@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useLayoutEffect } from "react";
+import { createContext, useState, useLayoutEffect } from "react";
 
 export const GlobalContext = createContext<GlobalContextType | null>(null);
 const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -7,31 +7,51 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
   const MAX_LIVE_ELEMENTS = 4;
   // --- live element ---------------------------------------------------------
   //const makeLiveElementsState = (): LiveElementsState => {
-  const [v, s] = useState<LiveElementType[]>(
+  const [liveElementsValue, setLiveElements] = useState<LiveElementType[]>(
     Array.from({ length: MAX_LIVE_ELEMENTS }, (_) => ({
       type: "none",
       value: "",
-      buttonID: -1,
-      object: null,
+      reference: { object: null },
     })),
   );
 
-  /** wrapper for other stuff to be done when updating live element */
-  const setLiveElementsState = (
-    newLiveElements: IndexedLiveElementObject[],
-    send: boolean,
-  ) => {
-    const newV: LiveElementType[] = [...v];
+  /** sets liveElements according to each new element's given index */
+  const superSetLiveElements = (newLiveElements: IndexedLiveElement[]) => {
+    const newValue: LiveElementType[] = [...liveElementsValue];
     newLiveElements.forEach((item) => {
-      newV[item.index] = item.liveElement;
-      if (send) {
-        window.electron.sendSetLiveElement(item.index, item.liveElement);
-      }
+      newValue[item.index] = item.liveElement;
     });
-    s(newV);
+    setLiveElements(newValue);
   };
 
-  const liveElementsState = { value: v, set: setLiveElementsState };
+  /** sets and sends new elements */
+  const sendLiveElements = (newLiveElements: IndexedLiveElement[]) => {
+    newLiveElements.forEach((item) => {
+      window.electron.sendSetLiveElement(item.index, item.liveElement);
+    });
+    superSetLiveElements(newLiveElements);
+  };
+
+  /** maps and sets liveElements to callback
+   *  !! does not send !!
+   */
+  const mapLiveElements = (
+    callback: (item: LiveElementType, i?: number) => LiveElementType,
+  ) => {
+    superSetLiveElements(
+      liveElementsValue.map((le, i) => ({
+        index: i,
+        liveElement: callback(le, i),
+      })),
+    );
+  };
+
+  const liveElements: LiveElementsState = {
+    value: liveElementsValue,
+    set: superSetLiveElements,
+    send: sendLiveElements,
+    map: mapLiveElements,
+  };
   //};
 
   const [openV, openS] = useState<OpenElementType[]>([]);
@@ -67,7 +87,7 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
     <GlobalContext.Provider
       value={{
         MAX_LIVE_ELEMENTS,
-        liveElementsState,
+        liveElements,
         openElements,
         viewElement,
         logoState,
