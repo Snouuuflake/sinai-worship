@@ -145,59 +145,59 @@ type Image = {
  */
 
 type OpenNoneType = {
-  type: "none"
-}
+  type: "none";
+};
 type OpenSongType = {
   type: "song";
-  song: Song
+  song: Song;
   selected: LiveSongReference;
-}
+};
 type OpenImageType = {
   type: "image";
   image: Image;
-}
+};
 type OpenElementType = OpenNoneType | OpenSongType | OpenImageType;
 
 type OpenElementState = StateObject<OpenElementType>;
 type OpenElementsState = StateObject<OpenElementType[]>;
 
 /**
- * type: "none" | "text" (for lyrics)
- * value: text or path to be projected
- * buttonID: ui button that was selected (if applicable). if -1 -> none.
- * object: literal reference to the song or whatever object in react
+ * sectionID is an index in song.sectionOrder.filter(sei => sei.type === "section" | sei.type === "repeat")
  */
 type LiveSongReference = {
   object: any;
   sectionID: number;
   verseID: number;
-}
+};
 
 type LiveTextType = {
   type: "text";
   value: string;
   reference: LiveSongReference;
-}
+};
 
 type LiveImageReference = {
   object: object;
-}
+};
 type LiveImageType = {
   type: "image";
   value: string;
   reference: LiveImageReference;
-}
+};
 
 type LiveNoneReference = {
   object: null;
-}
+};
 
 type LiveNoneType = {
   type: "none";
   value: string;
   reference: LiveNoneReference;
-}
+};
 
+/**
+ * type: "none" | "text" (for lyrics) | "image"
+ */
 type LiveElementType = LiveTextType | LiveImageType | LiveNoneType;
 
 type IndexedLiveElement = {
@@ -209,7 +209,9 @@ type LiveElementsState = {
   value: LiveElementType[];
   set: (newLiveElements: IndexedLiveElement[]) => void;
   send: (newLiveElements: IndexedLiveElement[]) => void;
-  map: (callback: (item: LiveElementType, i?: number) => LiveElementType) => void;
+  map: (
+    callback: (item: LiveElementType, i?: number) => LiveElementType,
+  ) => void;
 };
 
 type NullFullDisplayConfigState = StateObject<FullDisplayConfigType | null>;
