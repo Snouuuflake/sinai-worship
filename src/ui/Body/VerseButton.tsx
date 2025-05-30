@@ -1,20 +1,25 @@
 import "./ControlSection.css";
 import "./general-icon-button.css";
 import Icon from "../Icon";
-import { useContext, useRef, useEffect, useState } from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useContext,
+  useRef,
+  useEffect,
+  useState,
+} from "react";
 import { GlobalContext } from "../GlobalContext";
 
-function VerseButton({
-  section,
-  reference,
-  selectedState,
-  updateState,
-}: {
-  section: Section;
-  reference: LiveSongReference;
-  selectedState: StateObject<LiveSongReference>;
-  updateState: () => void;
-}) {
+const VerseButton = forwardRef<
+  { enterHandler: () => void; reference: LiveSongReference },
+  {
+    section: Section;
+    reference: LiveSongReference;
+    selectedState: StateObject<LiveSongReference>;
+    updateState: () => void;
+  }
+>(({ section, reference, selectedState, updateState }, ref) => {
   const { MAX_LIVE_ELEMENTS, liveElements } = useContext(
     GlobalContext,
   ) as GlobalContextType;
@@ -45,6 +50,32 @@ function VerseButton({
       thisRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [selected]);
+
+  const bigButtonClickHandler = () => {
+    selectedState.set(reference);
+    liveElements.send(
+      Array.from({ length: MAX_LIVE_ELEMENTS }).map((_, i) => {
+        return {
+          index: i,
+          liveElement: {
+            type: "text",
+            value: section.verses[reference.verseID].lines
+              .reduce((p, c) => p + "\n" + c, "")
+              .trim(),
+            reference: reference,
+          },
+        };
+      }),
+    );
+  };
+  useImperativeHandle(ref, () => ({
+    enterHandler: () => {
+      if (selected) {
+        bigButtonClickHandler();
+      }
+    },
+    reference: reference,
+  }));
 
   const [editorOpen, setEditorOpen] = useState<boolean>(false);
   const editorContentRef = useRef<string>(
@@ -308,8 +339,7 @@ function VerseButton({
             className="inline-verse-editor text-input"
             defaultValue={section.verses[reference.verseID].lines
               .reduce((p, c) => p + "\n" + c, "")
-              .trim()
-              .slice(1)}
+              .trim()}
             style={{}}
             onChange={(event) => {
               editorContentRef.current = event.target.value;
@@ -369,6 +399,6 @@ function VerseButton({
       </div>
     </div>
   );
-}
+});
 
 export default VerseButton;

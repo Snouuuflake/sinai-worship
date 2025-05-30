@@ -7,7 +7,7 @@ import { GlobalContext } from "../GlobalContext";
 import "./SongControls.css";
 import "./VerseButton.css";
 
-import { useContext, useEffect, useState, useRef } from "react";
+import { useContext, useEffect, useState, useRef, useCallback } from "react";
 
 function makeNoteTitle(text: string) {
   return (
@@ -31,6 +31,14 @@ function SongControls({ song }: { song: Song }) {
   const lyricSectionOrder = song.sectionOrder.filter(
     (sei) => sei.type === "section" || sei.type === "repeat",
   );
+
+  type VerseButtonHandle = { enterHandler: () => void; reference: LiveSongReference }
+  const verseButtonRefs = useRef<VerseButtonHandle[]>([]);
+  const setVerseButtonRef = useCallback((index: number) => {
+    return (vb: VerseButtonHandle) => {
+      verseButtonRefs.current[index] = vb;
+    }
+  },[])
 
   useEffect(() => {
     function keyHandler(event: KeyboardEvent) {
@@ -61,7 +69,7 @@ function SongControls({ song }: { song: Song }) {
               song.sections.find(
                 (s) => s.name === lyricSectionOrder[selected.sectionID].name,
               )!.verses.length -
-                1
+              1
             ) {
               setSelected({ ...selected, verseID: selected.verseID + 1 });
             } else if (selected.sectionID < lyricSectionOrder.length - 1) {
@@ -76,12 +84,10 @@ function SongControls({ song }: { song: Song }) {
           case " ":
           case "Enter":
             event.preventDefault();
-            const buttonToPress = document.getElementById(
-              `verse-button-${selected}`,
-            );
-            if (buttonToPress) {
-              buttonToPress.click();
-            }
+            verseButtonRefs.current.forEach((vb, i) => {
+              //console.log(i,vb.reference.sectionID, vb.reference.verseID, vb.enterHandler)
+              vb.enterHandler();
+            });
           default:
             break;
         }
@@ -128,12 +134,9 @@ function SongControls({ song }: { song: Song }) {
             <div className="section-row-text">
               {sei.type === "section" || sei.type === "repeat"
                 ? sei.name
-                : (() => {
-                    console.log(song.notes);
-                    return makeNoteTitle(
-                      song.notes.find((n) => n.name === sei.name)!.text,
-                    );
-                  })()}
+                : makeNoteTitle(
+                  song.notes.find((n) => n.name === sei.name)!.text,
+                )}
             </div>
             {sei.type !== "note" ? (
               <button
@@ -142,6 +145,26 @@ function SongControls({ song }: { song: Song }) {
                   song.sectionOrder.splice(seiIndex + 1, 0, {
                     type: "repeat",
                     name: sei.name,
+                  });
+                  if (selected.sectionID > seiIndex) {
+                    setSelected({
+                      ...selected,
+                      sectionID: selected.sectionID + 1,
+                    });
+                  }
+                  liveElements.map((le, _i) => {
+                    if (le.type !== "text") return le;
+                    if (le.reference.object != song) return le;
+                    if (le.reference.sectionID > seiIndex) {
+                      return {
+                        ...le,
+                        reference: {
+                          ...le.reference,
+                          sectionID: le.reference.sectionID + 1,
+                        },
+                      };
+                    }
+                    return le;
                   });
                   // !! for deleting, we need to check if we're deleting the definition, if so, take the nearest repetition and make it definition, or, if none, ask the user if theyre sure
                   updateState();
@@ -201,10 +224,11 @@ function SongControls({ song }: { song: Song }) {
                           },
                         };
                       }
-                    } 
+                    }
                     return le;
                   });
                 }
+
                 if (sei.type === "repeat") {
                   song.sectionOrder.splice(seiIndex, 1);
                 } else if (sei.type === "section") {
@@ -248,12 +272,14 @@ function SongControls({ song }: { song: Song }) {
                     song.sectionOrder[seiIndex - 1],
                     song.sectionOrder[seiIndex],
                   ] = [
-                    song.sectionOrder[seiIndex],
-                    song.sectionOrder[seiIndex - 1],
-                  ];
+                      song.sectionOrder[seiIndex],
+                      song.sectionOrder[seiIndex - 1],
+                    ];
                   if (
-                    song.sectionOrder[seiIndex - 1].type === "section" ||
-                    song.sectionOrder[seiIndex - 1].type === "repeat"
+                    (song.sectionOrder[seiIndex - 1].type === "section" ||
+                    song.sectionOrder[seiIndex - 1].type === "repeat") &&
+                    (song.sectionOrder[seiIndex ].type === "section" ||
+                    song.sectionOrder[seiIndex ].type === "repeat")
                   ) {
                     // swapping selected
                     if (selected.sectionID == seiIndex) {
@@ -272,20 +298,20 @@ function SongControls({ song }: { song: Song }) {
                       le.type === "text" && le.reference.object === song
                         ? le.reference.sectionID == seiIndex
                           ? {
+                            ...le,
+                            reference: {
+                              ...le.reference,
+                              sectionID: le.reference.sectionID - 1,
+                            },
+                          }
+                          : le.reference.sectionID == seiIndex - 1
+                            ? {
                               ...le,
                               reference: {
                                 ...le.reference,
-                                sectionID: le.reference.sectionID - 1,
+                                sectionID: le.reference.sectionID + 1,
                               },
                             }
-                          : le.reference.sectionID == seiIndex - 1
-                            ? {
-                                ...le,
-                                reference: {
-                                  ...le.reference,
-                                  sectionID: le.reference.sectionID + 1,
-                                },
-                              }
                             : le
                         : le,
                     );
@@ -304,12 +330,14 @@ function SongControls({ song }: { song: Song }) {
                     song.sectionOrder[seiIndex + 1],
                     song.sectionOrder[seiIndex],
                   ] = [
-                    song.sectionOrder[seiIndex],
-                    song.sectionOrder[seiIndex + 1],
-                  ];
+                      song.sectionOrder[seiIndex],
+                      song.sectionOrder[seiIndex + 1],
+                    ];
                   if (
-                    song.sectionOrder[seiIndex + 1].type === "section" ||
-                    song.sectionOrder[seiIndex + 1].type === "repeat"
+                    (song.sectionOrder[seiIndex + 1].type === "section" ||
+                    song.sectionOrder[seiIndex + 1].type === "repeat") &&
+                    (song.sectionOrder[seiIndex ].type === "section" ||
+                    song.sectionOrder[seiIndex ].type === "repeat")
                   ) {
                     // swapping selected
                     if (selected.sectionID == seiIndex) {
@@ -328,20 +356,20 @@ function SongControls({ song }: { song: Song }) {
                       le.type === "text" && le.reference.object == song
                         ? le.reference.sectionID == seiIndex
                           ? {
+                            ...le,
+                            reference: {
+                              ...le.reference,
+                              sectionID: le.reference.sectionID + 1,
+                            },
+                          }
+                          : le.reference.sectionID == seiIndex + 1
+                            ? {
                               ...le,
                               reference: {
                                 ...le.reference,
-                                sectionID: le.reference.sectionID + 1,
+                                sectionID: le.reference.sectionID - 1,
                               },
                             }
-                          : le.reference.sectionID == seiIndex + 1
-                            ? {
-                                ...le,
-                                reference: {
-                                  ...le.reference,
-                                  sectionID: le.reference.sectionID - 1,
-                                },
-                              }
                             : le
                         : le,
                     );
@@ -370,7 +398,7 @@ function SongControls({ song }: { song: Song }) {
               return;
             }
 
-            let noteID: number = 1;
+            let noteID: number = 0;
             while (song.notes.find((n) => n.name === `note${noteID}`)) {
               noteID++;
               if (noteID >= Number.MAX_SAFE_INTEGER) {
@@ -402,6 +430,7 @@ function SongControls({ song }: { song: Song }) {
                 name: newElementText.current,
                 type: "section",
               });
+
               updateState();
             }
           }}
@@ -424,7 +453,6 @@ function SongControls({ song }: { song: Song }) {
           </h3>,
 
           currentSection.verses.map((_v, vIndex) => {
-            buttonIDCounter += 1;
             return (
               <VerseButton
                 key={`s${seiIndex}v${vIndex}`}
@@ -436,6 +464,11 @@ function SongControls({ song }: { song: Song }) {
                 }}
                 selectedState={{ value: selected, set: setSelected }}
                 updateState={updateState}
+                ref={setVerseButtonRef((() => {
+                  const x = ++buttonIDCounter
+                  console.log(x)
+                  return x
+                })())}
               ></VerseButton>
             );
           }),
