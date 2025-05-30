@@ -6,27 +6,26 @@ import { GlobalContext } from "../GlobalContext";
 
 function VerseButton({
   section,
-  verseIndex,
-  buttonID,
-  object,
-  selected,
+  reference,
   selectedState,
   updateState,
 }: {
   section: Section;
-  verseIndex: number;
-  buttonID: number;
-  object: any;
-  selected: boolean;
-  selectedState: StateObject<number>;
+  reference: LiveSongReference;
+  selectedState: StateObject<LiveSongReference>;
   updateState: () => void;
 }) {
-  const { MAX_LIVE_ELEMENTS, liveElementsState } = useContext(
+  const { MAX_LIVE_ELEMENTS, liveElements } = useContext(
     GlobalContext,
   ) as GlobalContextType;
 
-  const matchingLiveIndexes = liveElementsState.value.flatMap((le, i) =>
-    le.buttonID == buttonID && le.object == object ? [i] : [],
+  const compareReferences = (r1: LiveSongReference, r2: LiveSongReference) =>
+    (Object.keys(r1) as (keyof LiveSongReference)[]).every(
+      (k) => r1[k] === r2[k],
+    );
+
+  const matchingLiveIndexes = liveElements.value.flatMap((le, i) =>
+    le.type === "text" && compareReferences(reference, le.reference) ? [i] : [],
   );
 
   /** [0,1,...,MAX_LIVE_ELEMENTS-1] */
@@ -39,6 +38,7 @@ function VerseButton({
   const allMatching = matchingLiveIndexes.length == MAX_LIVE_ELEMENTS;
 
   const thisRef = useRef<HTMLDivElement | null>(null);
+  const selected = compareReferences(selectedState.value, reference)
 
   useEffect(() => {
     if (selected && thisRef.current) {
@@ -48,7 +48,7 @@ function VerseButton({
 
   const [editorOpen, setEditorOpen] = useState<boolean>(false);
   const editorContentRef = useRef<string>(
-    section.verses[verseIndex].lines.reduce((p, c) => p + "\n" + c, ""),
+    section.verses[reference.verseID].lines.reduce((p, c) => p + "\n" + c, ""),
   );
 
   return (
@@ -95,36 +95,32 @@ function VerseButton({
               onClick={() => {
                 if (editorOpen) {
                   if (editorContentRef.current.trim() !== "") {
-                    section.verses[verseIndex].lines = editorContentRef.current
-                      .trim()
-                      .replace(/[\n\r]/, "\n")
-                      .replace(/\s*$(\n\s*$){2,}/gm, "")
-                      .split("\n")
-                      .map((l) => l.trim());
+                    section.verses[reference.verseID].lines =
+                      editorContentRef.current
+                        .trim()
+                        .replace(/[\n\r]/, "\n")
+                        .replace(/\s*$(\n\s*$){2,}/gm, "")
+                        .split("\n")
+                        .map((l) => l.trim());
                   } else {
-                    // deleting verse!
-                    section.verses.splice(verseIndex, 1);
-                    liveElementsState.set(
-                      liveElementsState.value.map((le, i) => {
-                        return {
-                          index: i,
-                          liveElement: {
-                            ...le,
-                            buttonID:
-                              le.object === object && le.buttonID >= 0
-                                ? le.buttonID == buttonID
-                                  ? -1
-                                  : le.buttonID > buttonID
-                                    ? le.buttonID - 1
-                                    : le.buttonID
-                                : le.buttonID,
+                    // deleting verse from section
+                    section.verses.splice(reference.verseID, 1);
+                    // stops projecting this button
+                    liveElements.send(
+                      matchingLiveIndexes.map((mli) => ({
+                        index: mli,
+                        liveElement: {
+                          type: "none",
+                          value: "",
+                          reference: {
+                            object: null,
                           },
-                        };
-                      }),
-                      false,
+                        },
+                      })),
                     );
-                    if (selectedState.value >= buttonID) {
-                      selectedState.set(selectedState.value - 1);
+                    // keeps selected in section
+                    if (section.verses.length - 1 == reference.verseID && compareReferences(reference, selectedState.value)) {
+                      selectedState.set({...selectedState.value, verseID: selectedState.value.verseID - 1 });
                     }
                   }
                   setEditorOpen(false);
@@ -157,6 +153,7 @@ function VerseButton({
       </div>
       <div className="verse-button-container-col">
         <div className="display-indexes-container">
+        <div>s: {reference.sectionID}</div>
           {liveIndexesRange.map((i) => (
             <button
               tabIndex={-1}
@@ -173,37 +170,31 @@ function VerseButton({
                 if (
                   typeof matchingLiveIndexes.find((j) => j == i) !== "undefined"
                 ) {
-                  liveElementsState.set(
-                    [
-                      {
-                        index: i,
-                        liveElement: {
-                          type: "none",
-                          value: "",
-                          buttonID: -1,
+                  liveElements.send([
+                    {
+                      index: i,
+                      liveElement: {
+                        type: "none",
+                        value: "",
+                        reference: {
                           object: null,
                         },
                       },
-                    ],
-                    true,
-                  );
+                    },
+                  ]);
                 } else {
-                  liveElementsState.set(
-                    [
-                      {
-                        index: i,
-                        liveElement: {
-                          type: "text",
-                          value: section.verses[verseIndex].lines
-                            .reduce((p, c) => p + "\n" + c, "")
-                            .trim(),
-                          buttonID: buttonID,
-                          object: object,
-                        },
+                  liveElements.send([
+                    {
+                      index: i,
+                      liveElement: {
+                        type: "text",
+                        value: section.verses[reference.verseID].lines
+                          .reduce((p, c) => p + "\n" + c, "")
+                          .trim(),
+                        reference: reference,
                       },
-                    ],
-                    true,
-                  );
+                    },
+                  ]);
                 }
               }}
             >
@@ -214,29 +205,43 @@ function VerseButton({
             <button
               className="general-icon-button"
               onClick={() => {
-                if (!editorOpen && verseIndex > 0) {
-                  [section.verses[verseIndex], section.verses[verseIndex - 1]] =
-                    [
-                      section.verses[verseIndex - 1],
-                      section.verses[verseIndex],
-                    ];
-
-                  liveElementsState.set(
-                    liveElementsState.value.map((le, i) => {
-                      return {
-                        index: i,
-                        liveElement: {
+                if (!editorOpen && reference.verseID > 0) {
+                  // swapping inside section object
+                  [
+                    section.verses[reference.verseID],
+                    section.verses[reference.verseID - 1],
+                  ] = [
+                    section.verses[reference.verseID - 1],
+                    section.verses[reference.verseID],
+                  ];
+                  // updating id of liveElements
+                  // adds -1 to ones with to verse id == this verse id
+                  // adds 1 to ones with to verse id == this verse id - 1
+                  // (verse id - 1 is guarenteed to exist cause the if)
+                  liveElements.map((le, _i): LiveElementType => {
+                    return le.type === "text" &&
+                      compareReferences(reference, le.reference)
+                      ? {
                           ...le,
-                          buttonID:
-                            le.object === object && le.buttonID == buttonID
-                              ? le.buttonID - 1
-                              : le.buttonID,
-                        },
-                      };
-                    }),
-                    false,
-                  );
-                  updateState();
+                          reference: {
+                            ...le.reference,
+                            verseID: le.reference.verseID - 1,
+                          },
+                        }
+                      : le.type === "text" &&
+                          compareReferences(
+                            { ...reference, verseID: reference.verseID - 1 },
+                            le.reference,
+                          )
+                        ? {
+                            ...le,
+                            reference: {
+                              ...le.reference,
+                              verseID: le.reference.verseID + 1,
+                            },
+                          }
+                        : le;
+                  });
                 }
               }}
             >
@@ -245,29 +250,46 @@ function VerseButton({
             <button
               className="general-icon-button"
               onClick={() => {
-                if (!editorOpen && verseIndex < section.verses.length - 1) {
-                  [section.verses[verseIndex], section.verses[verseIndex + 1]] =
-                    [
-                      section.verses[verseIndex + 1],
-                      section.verses[verseIndex],
-                    ];
-                  liveElementsState.set(
-                    liveElementsState.value.map((le, i) => {
-                      return {
-                        index: i,
-                        liveElement: {
+                if (
+                  !editorOpen &&
+                  reference.verseID < section.verses.length - 1
+                ) {
+                  // swapping verses in section object
+                  [
+                    section.verses[reference.verseID],
+                    section.verses[reference.verseID + 1],
+                  ] = [
+                    section.verses[reference.verseID + 1],
+                    section.verses[reference.verseID],
+                  ];
+                  // updating id of liveElements
+                  // adds 1 to ones with to verse id == this verse id
+                  // adds -1 to ones with to verse id == this verse id + 1
+                  // (verse id + 1 is guarenteed to exist cause the if)
+                  liveElements.map((le, _i): LiveElementType => {
+                    return le.type === "text" &&
+                      compareReferences(reference, le.reference)
+                      ? {
                           ...le,
-                          buttonID:
-                            le.object === object && le.buttonID == buttonID
-                              ? le.buttonID + 1
-                              : le.buttonID,
-                        },
-                      };
-                    }),
-                    false,
-                  );
-
-                  updateState();
+                          reference: {
+                            ...le.reference,
+                            verseID: le.reference.verseID + 1,
+                          },
+                        }
+                      : le.type === "text" &&
+                          compareReferences(
+                            { ...reference, verseID: reference.verseID + 1 },
+                            le.reference,
+                          )
+                        ? {
+                            ...le,
+                            reference: {
+                              ...le.reference,
+                              verseID: le.reference.verseID - 1,
+                            },
+                          }
+                        : le;
+                  });
                 }
               }}
             >
@@ -279,8 +301,8 @@ function VerseButton({
         {editorOpen ? (
           <textarea
             className="inline-verse-editor text-input"
-            defaultValue={section.verses[verseIndex].lines
-              .reduce((p, c) => p + "\n" + c, "")
+            defaultValue={section.verses[reference.verseID].lines
+              .reduce((p, c) => p + "\n" + c, "").trim()
               .slice(1)}
             style={{}}
             onChange={(event) => {
@@ -291,30 +313,28 @@ function VerseButton({
           <button
             tabIndex={-1}
             className="verse-button"
-            key={`b${buttonID}`}
-            id={`verse-button-${buttonID}`}
+            key={`b${reference.verseID}`}
+            id={`verse-button-${reference.verseID}`}
             onClick={() => {
-              selectedState.set(buttonID);
-              liveElementsState.set(
+              selectedState.set(reference);
+              liveElements.send(
                 Array.from({ length: MAX_LIVE_ELEMENTS }).map((_, i) => {
                   return {
                     index: i,
                     liveElement: {
                       type: "text",
-                      value: section.verses[verseIndex].lines
+                      value: section.verses[reference.verseID].lines
                         .reduce((p, c) => p + "\n" + c, "")
                         .trim(),
-                      buttonID: buttonID,
-                      object: object,
+                        reference: reference,
                     },
                   };
                 }),
-                true,
               );
             }}
           >
             <div className="verse-button-content">
-              {section.verses[verseIndex].lines
+              {section.verses[reference.verseID].lines
                 .flatMap((l, lIndex) => [
                   <hr className="verse-button-hr" key={`hr${lIndex}`} />,
                   <div key={`l${lIndex}`} className="line">

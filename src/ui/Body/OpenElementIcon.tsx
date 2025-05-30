@@ -3,13 +3,13 @@ import { useContext } from "react";
 import { GlobalContext } from "../GlobalContext";
 
 function OpenElementIcon({ openElement }: { openElement: OpenElementType }) {
-  const { liveElementsState, MAX_LIVE_ELEMENTS } = useContext(
+  const { liveElements, MAX_LIVE_ELEMENTS } = useContext(
     GlobalContext,
   ) as GlobalContextType;
 
-  const filtered = liveElementsState.value.filter(
+  const filtered = liveElements.value.filter(
     (le) =>
-      openElement.type !== "none" && openElement[openElement.type] == le.object,
+      openElement.type !== "none" && openElement.type === le.type && openElement[openElement.type] == le.reference.object,
   );
   const allLive = filtered.length == MAX_LIVE_ELEMENTS;
   const someLive = filtered.length != 0;

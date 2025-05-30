@@ -18,14 +18,17 @@ function makeNoteTitle(text: string) {
 }
 
 function SongControls({ song }: { song: Song }) {
-  const [selected, setSelected] = useState<number>(0);
+  const [selected, setSelected] = useState<LiveSongReference>({
+    object: song,
+    verseID: 0,
+    sectionID: 0,
+  });
   const newElementText = useRef<string>("");
-  const maxSelected = song.sectionOrder.flatMap((sei) =>
-    sei.type === "section" || sei.type === "repeat"
-      ? song.sections.find((s) => s.name === sei.name)!.verses
-      : [],
-  ).length;
   const { openElements } = useContext(GlobalContext) as GlobalContextType;
+
+  const lyricSectionOrder = song.sectionOrder.filter(
+    (sei) => sei.type === "section" || sei.type === "repeat",
+  );
 
   useEffect(() => {
     function keyHandler(event: KeyboardEvent) {
@@ -34,15 +37,39 @@ function SongControls({ song }: { song: Song }) {
         switch (event.key) {
           case "ArrowUp":
             event.preventDefault();
-            if (selected > 0) {
-              setSelected(selected - 1);
+            if (selected.verseID > 0) {
+              setSelected({ ...selected, verseID: selected.verseID - 1 });
+            } else if (selected.sectionID > 0) {
+              setSelected({
+                ...selected,
+                sectionID: selected.sectionID - 1,
+                verseID:
+                  song.sections.find(
+                    (s) =>
+                      s.name === lyricSectionOrder[selected.sectionID - 1].name,
+                  )!.verses.length - 1,
+              });
             }
             break;
           case "ArrowDown":
             event.preventDefault();
-            if (selected < maxSelected - 1) {
-              setSelected(selected + 1);
+
+            if (
+              selected.verseID <
+              song.sections.find(
+                (s) => s.name === lyricSectionOrder[selected.sectionID].name,
+              )!.verses.length -
+                1
+            ) {
+              setSelected({ ...selected, verseID: selected.verseID + 1 });
+            } else if (selected.sectionID < lyricSectionOrder.length - 1) {
+              setSelected({
+                ...selected,
+                sectionID: selected.sectionID + 1,
+                verseID: 0,
+              });
             }
+
             break;
           case " ":
           case "Enter":
@@ -98,11 +125,11 @@ function SongControls({ song }: { song: Song }) {
               {sei.type === "section" || sei.type === "repeat"
                 ? sei.name
                 : (() => {
-                  console.log(song.notes);
-                  return makeNoteTitle(
-                    song.notes.find((n) => n.name === sei.name)!.text,
-                  );
-                })()}
+                    console.log(song.notes);
+                    return makeNoteTitle(
+                      song.notes.find((n) => n.name === sei.name)!.text,
+                    );
+                  })()}
             </div>
             {sei.type !== "note" ? (
               <button
@@ -166,9 +193,9 @@ function SongControls({ song }: { song: Song }) {
                     song.sectionOrder[seiIndex - 1],
                     song.sectionOrder[seiIndex],
                   ] = [
-                      song.sectionOrder[seiIndex],
-                      song.sectionOrder[seiIndex - 1],
-                    ];
+                    song.sectionOrder[seiIndex],
+                    song.sectionOrder[seiIndex - 1],
+                  ];
                   updateState();
                 }
               }}
@@ -183,9 +210,9 @@ function SongControls({ song }: { song: Song }) {
                     song.sectionOrder[seiIndex + 1],
                     song.sectionOrder[seiIndex],
                   ] = [
-                      song.sectionOrder[seiIndex],
-                      song.sectionOrder[seiIndex + 1],
-                    ];
+                    song.sectionOrder[seiIndex],
+                    song.sectionOrder[seiIndex + 1],
+                  ];
                   updateState();
                 }
               }}
@@ -250,50 +277,55 @@ function SongControls({ song }: { song: Song }) {
         </button>
       </div>
     </div>,
-    ...song.sectionOrder.flatMap((sei, seiIndex) => {
-      if (sei.type === "section" || sei.type === "repeat") {
-        const currentSection = song.sections.find((s) => s.name == sei.name)!;
-        return [
-          <h3
-            key={`s${seiIndex}`}
-            className="section-title"
-            style={{ marginTop: seiIndex == 0 ? 0 : "" }}
-          >
-            {sei.name}
-          </h3>,
+    ...(() => {
+      let sIndex: number = -1;
+      return song.sectionOrder.flatMap((sei, seiIndex) => {
+        if (sei.type === "section" || sei.type === "repeat") {
+          const currentSection = song.sections.find((s) => s.name == sei.name)!;
+          sIndex++;
+          return [
+            <h3
+              key={`s${seiIndex}`}
+              className="section-title"
+              style={{ marginTop: seiIndex == 0 ? 0 : "" }}
+            >
+              {sei.name}
+            </h3>,
 
-          currentSection.verses.map((_v, vIndex) => {
-            buttonIDCounter += 1;
-            return (
-              <VerseButton
-                key={`s${seiIndex}v${vIndex}`}
-                section={currentSection}
-                verseIndex={vIndex}
-                buttonID={buttonIDCounter}
-                object={song}
-                selected={selected == buttonIDCounter}
-                selectedState={{ value: selected, set: setSelected }}
-                updateState={updateState}
-              ></VerseButton>
-            );
-          }),
+            currentSection.verses.map((_v, vIndex) => {
+              buttonIDCounter += 1;
+              return (
+                <VerseButton
+                  key={`s${seiIndex}v${vIndex}`}
+                  section={currentSection}
+                  reference={{
+                    object: song,
+                    verseID: vIndex,
+                    sectionID: sIndex,
+                  }}
+                  selectedState={{ value: selected, set: setSelected }}
+                  updateState={updateState}
+                ></VerseButton>
+              );
+            }),
 
-          <AddButtons
-            song={song}
-            key={`ab${seiIndex}`}
-            section={currentSection}
-            sectionOrderIndex={seiIndex}
-          />,
-        ];
-      } else if (sei.type === "note") {
-        return (
-          <div key={sei.name} className="note">
-            <b>Note: </b>
-            {song.notes.find((n) => n.name === sei.name)!.text}{" "}
-          </div>
-        );
-      }
-    }),
+            <AddButtons
+              song={song}
+              key={`ab${seiIndex}`}
+              section={currentSection}
+              sectionOrderIndex={seiIndex}
+            />,
+          ];
+        } else if (sei.type === "note") {
+          return (
+            <div key={sei.name} className="note">
+              <b>Note: </b>
+              {song.notes.find((n) => n.name === sei.name)!.text}{" "}
+            </div>
+          );
+        }
+      });
+    })(),
   ];
   //} catch (err) {
   //  // NOTE: this is here because of the song.sections.find type assertion. could be undefined.

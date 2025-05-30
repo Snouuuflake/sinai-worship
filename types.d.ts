@@ -143,11 +143,17 @@ type Image = {
 /**
  * type: "none" | "song"
  */
+
 type OpenElementType = {
-  type: "none" | "song" | "image";
-  song?: Song;
-  image?: Image;
-};
+  type: "none"
+} | {
+  type: "song";
+  song: Song
+} | {
+  type: "image";
+  image: Image;
+}
+
 type OpenElementState = StateObject<OpenElementType>;
 type OpenElementsState = StateObject<OpenElementType[]>;
 
@@ -162,6 +168,7 @@ type LiveSongReference = {
   sectionID: number;
   verseID: number;
 }
+
 type LiveTextType = {
   type: "text";
   value: string;
