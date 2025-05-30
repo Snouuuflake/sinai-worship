@@ -17,28 +17,40 @@ function makeNoteTitle(text: string) {
   );
 }
 
-function SongControls({ song }: { song: Song }) {
-  const [selected, setSelected] = useState<LiveSongReference>({
-    object: song,
-    verseID: 0,
-    sectionID: 0,
-  });
+function SongControls({ openSong }: { openSong: OpenSongType }) {
+  const [selected, setSelected] = useState<LiveSongReference>(
+    openSong.selected,
+  );
+  const superSetSelected = (value: LiveSongReference) => {
+    openSong.selected = value;
+    setSelected(value);
+  };
+  const selectedState = { value: selected, set: superSetSelected };
+
+  // useState is lazy somehow..
+  useEffect(()=>{
+    selectedState.set(openSong.selected)
+  },[openSong])
+
   const newElementText = useRef<string>("");
   const { openElements, liveElements } = useContext(
     GlobalContext,
   ) as GlobalContextType;
 
-  const lyricSectionOrder = song.sectionOrder.filter(
+  const lyricSectionOrder = openSong.song.sectionOrder.filter(
     (sei) => sei.type === "section" || sei.type === "repeat",
   );
 
-  type VerseButtonHandle = { enterHandler: () => void; reference: LiveSongReference }
+  type VerseButtonHandle = {
+    enterHandler: () => void;
+    reference: LiveSongReference;
+  };
   const verseButtonRefs = useRef<VerseButtonHandle[]>([]);
   const setVerseButtonRef = useCallback((index: number) => {
     return (vb: VerseButtonHandle) => {
       verseButtonRefs.current[index] = vb;
-    }
-  },[])
+    };
+  }, []);
 
   useEffect(() => {
     function keyHandler(event: KeyboardEvent) {
@@ -47,16 +59,20 @@ function SongControls({ song }: { song: Song }) {
         switch (event.key) {
           case "ArrowUp":
             event.preventDefault();
-            if (selected.verseID > 0) {
-              setSelected({ ...selected, verseID: selected.verseID - 1 });
-            } else if (selected.sectionID > 0) {
-              setSelected({
-                ...selected,
-                sectionID: selected.sectionID - 1,
+            if (selectedState.value.verseID > 0) {
+              selectedState.set({
+                ...selectedState.value,
+                verseID: selectedState.value.verseID - 1,
+              });
+            } else if (selectedState.value.sectionID > 0) {
+              selectedState.set({
+                ...selectedState.value,
+                sectionID: selectedState.value.sectionID - 1,
                 verseID:
-                  song.sections.find(
+                  openSong.song.sections.find(
                     (s) =>
-                      s.name === lyricSectionOrder[selected.sectionID - 1].name,
+                      s.name ===
+                      lyricSectionOrder[selectedState.value.sectionID - 1].name,
                   )!.verses.length - 1,
               });
             }
@@ -65,17 +81,25 @@ function SongControls({ song }: { song: Song }) {
             event.preventDefault();
 
             if (
-              selected.verseID <
-              song.sections.find(
-                (s) => s.name === lyricSectionOrder[selected.sectionID].name,
+              selectedState.value.verseID <
+              openSong.song.sections.find(
+                (s) =>
+                  s.name ===
+                  lyricSectionOrder[selectedState.value.sectionID].name,
               )!.verses.length -
-              1
+                1
             ) {
-              setSelected({ ...selected, verseID: selected.verseID + 1 });
-            } else if (selected.sectionID < lyricSectionOrder.length - 1) {
-              setSelected({
-                ...selected,
-                sectionID: selected.sectionID + 1,
+              selectedState.set({
+                ...selectedState.value,
+                verseID: selectedState.value.verseID + 1,
+              });
+            } else if (
+              selectedState.value.sectionID <
+              lyricSectionOrder.length - 1
+            ) {
+              selectedState.set({
+                ...selectedState.value,
+                sectionID: selectedState.value.sectionID + 1,
                 verseID: 0,
               });
             }
@@ -98,12 +122,12 @@ function SongControls({ song }: { song: Song }) {
     return () => {
       window.removeEventListener("keydown", keyHandler);
     };
-  }, [selected]);
+  }, [selectedState.value]);
 
   let buttonIDCounter: number = -1;
   let sIndex: number = -1;
   let sIndex2: number = -1; // same thing, used for song sections bit
-  console.log(song);
+  console.log(openSong);
   const updateState = () => {
     openElements.set([...openElements.value]);
   };
@@ -114,7 +138,7 @@ function SongControls({ song }: { song: Song }) {
         <button
           className="inverse-title-button"
           onClick={() => {
-            window.electron.invokeSaveSong(song).then(
+            window.electron.invokeSaveSong(openSong.song).then(
               () => {
                 console.log("wrote song");
               },
@@ -128,33 +152,33 @@ function SongControls({ song }: { song: Song }) {
           Save Song
         </button>
       </div>
-      {song.sectionOrder.map((sei, seiIndex) => {
+      {openSong.song.sectionOrder.map((sei, seiIndex) => {
         return (
           <div key={`sc${seiIndex}`} className="section-controls-row">
             <div className="section-row-text">
               {sei.type === "section" || sei.type === "repeat"
                 ? sei.name
                 : makeNoteTitle(
-                  song.notes.find((n) => n.name === sei.name)!.text,
-                )}
+                    openSong.song.notes.find((n) => n.name === sei.name)!.text,
+                  )}
             </div>
             {sei.type !== "note" ? (
               <button
                 className="general-icon-button"
                 onClick={() => {
-                  song.sectionOrder.splice(seiIndex + 1, 0, {
+                  openSong.song.sectionOrder.splice(seiIndex + 1, 0, {
                     type: "repeat",
                     name: sei.name,
                   });
-                  if (selected.sectionID > seiIndex) {
-                    setSelected({
-                      ...selected,
-                      sectionID: selected.sectionID + 1,
+                  if (selectedState.value.sectionID > seiIndex) {
+                    selectedState.set({
+                      ...selectedState.value,
+                      sectionID: selectedState.value.sectionID + 1,
                     });
                   }
                   liveElements.map((le, _i) => {
                     if (le.type !== "text") return le;
-                    if (le.reference.object != song) return le;
+                    if (le.reference.object != openSong.song) return le;
                     if (le.reference.sectionID > seiIndex) {
                       return {
                         ...le,
@@ -179,18 +203,20 @@ function SongControls({ song }: { song: Song }) {
               callback={() => {
                 if (sei.type === "section" || sei.type === "repeat") {
                   const lyricSectionIndex = lyricSectionOrder.indexOf(sei);
-                  if (selected.sectionID > lyricSectionIndex) {
-                    setSelected({
-                      ...selected,
-                      sectionID: selected.sectionID - 1,
+                  if (selectedState.value.sectionID > lyricSectionIndex) {
+                    selectedState.set({
+                      ...selectedState.value,
+                      sectionID: selectedState.value.sectionID - 1,
                     });
-                  } else if (selected.sectionID == lyricSectionIndex) {
+                  } else if (
+                    selectedState.value.sectionID == lyricSectionIndex
+                  ) {
                     if (lyricSectionIndex == 0) {
-                      setSelected({ ...selected, verseID: 0 });
+                      selectedState.set({ ...selectedState.value, verseID: 0 });
                     } else {
-                      setSelected({
-                        ...selected,
-                        sectionID: selected.sectionID - 1,
+                      selectedState.set({
+                        ...selectedState.value,
+                        sectionID: selectedState.value.sectionID - 1,
                         verseID: 0,
                       });
                     }
@@ -202,7 +228,7 @@ function SongControls({ song }: { song: Song }) {
                         ...le,
                         reference: {
                           ...le.reference,
-                          sectionID: selected.sectionID - 1,
+                          sectionID: selectedState.value.sectionID - 1,
                         },
                       };
                     } else if (le.reference.sectionID == lyricSectionIndex) {
@@ -230,33 +256,35 @@ function SongControls({ song }: { song: Song }) {
                 }
 
                 if (sei.type === "repeat") {
-                  song.sectionOrder.splice(seiIndex, 1);
+                  openSong.song.sectionOrder.splice(seiIndex, 1);
                 } else if (sei.type === "section") {
                   if (
-                    song.sectionOrder.filter(
+                    openSong.song.sectionOrder.filter(
                       (sei2) =>
                         sei2.name === sei.name && sei2.type === "repeat",
                     ).length != 0
                   ) {
-                    song.sectionOrder.find(
+                    openSong.song.sectionOrder.find(
                       (sei2) =>
                         sei2.name === sei.name && sei2.type === "repeat",
                     )!.type = "section";
-                    song.sectionOrder.splice(seiIndex, 1);
+                    openSong.song.sectionOrder.splice(seiIndex, 1);
                   } else {
-                    song.sectionOrder.splice(seiIndex, 1);
-                    song.sections.splice(
-                      song.sections.indexOf(
-                        song.sections.find((s) => s.name === sei.name)!,
+                    openSong.song.sectionOrder.splice(seiIndex, 1);
+                    openSong.song.sections.splice(
+                      openSong.song.sections.indexOf(
+                        openSong.song.sections.find(
+                          (s) => s.name === sei.name,
+                        )!,
                       ),
                       1,
                     );
                   }
                 } else if (sei.type === "note") {
-                  song.sectionOrder.splice(seiIndex, 1);
-                  song.notes.splice(
-                    song.notes.indexOf(
-                      song.notes.find((n) => n.name === sei.name)!,
+                  openSong.song.sectionOrder.splice(seiIndex, 1);
+                  openSong.song.notes.splice(
+                    openSong.song.notes.indexOf(
+                      openSong.song.notes.find((n) => n.name === sei.name)!,
                     ),
                     1,
                   );
@@ -269,49 +297,52 @@ function SongControls({ song }: { song: Song }) {
               onClick={() => {
                 if (seiIndex > 0) {
                   [
-                    song.sectionOrder[seiIndex - 1],
-                    song.sectionOrder[seiIndex],
+                    openSong.song.sectionOrder[seiIndex - 1],
+                    openSong.song.sectionOrder[seiIndex],
                   ] = [
-                      song.sectionOrder[seiIndex],
-                      song.sectionOrder[seiIndex - 1],
-                    ];
+                    openSong.song.sectionOrder[seiIndex],
+                    openSong.song.sectionOrder[seiIndex - 1],
+                  ];
                   if (
-                    (song.sectionOrder[seiIndex - 1].type === "section" ||
-                    song.sectionOrder[seiIndex - 1].type === "repeat") &&
-                    (song.sectionOrder[seiIndex ].type === "section" ||
-                    song.sectionOrder[seiIndex ].type === "repeat")
+                    (openSong.song.sectionOrder[seiIndex - 1].type ===
+                      "section" ||
+                      openSong.song.sectionOrder[seiIndex - 1].type ===
+                        "repeat") &&
+                    (openSong.song.sectionOrder[seiIndex].type === "section" ||
+                      openSong.song.sectionOrder[seiIndex].type === "repeat")
                   ) {
                     // swapping selected
-                    if (selected.sectionID == seiIndex) {
-                      setSelected({
-                        ...selected,
-                        sectionID: selected.sectionID - 1,
+                    if (selectedState.value.sectionID == seiIndex) {
+                      selectedState.set({
+                        ...selectedState.value,
+                        sectionID: selectedState.value.sectionID - 1,
                       });
-                    } else if (selected.sectionID == seiIndex - 1) {
-                      setSelected({
-                        ...selected,
-                        sectionID: selected.sectionID + 1,
+                    } else if (selectedState.value.sectionID == seiIndex - 1) {
+                      selectedState.set({
+                        ...selectedState.value,
+                        sectionID: selectedState.value.sectionID + 1,
                       });
                     }
                     // swapping liveElements
                     liveElements.map((le, i) =>
-                      le.type === "text" && le.reference.object === song
+                      le.type === "text" &&
+                      le.reference.object === openSong.song
                         ? le.reference.sectionID == seiIndex
                           ? {
-                            ...le,
-                            reference: {
-                              ...le.reference,
-                              sectionID: le.reference.sectionID - 1,
-                            },
-                          }
-                          : le.reference.sectionID == seiIndex - 1
-                            ? {
                               ...le,
                               reference: {
                                 ...le.reference,
-                                sectionID: le.reference.sectionID + 1,
+                                sectionID: le.reference.sectionID - 1,
                               },
                             }
+                          : le.reference.sectionID == seiIndex - 1
+                            ? {
+                                ...le,
+                                reference: {
+                                  ...le.reference,
+                                  sectionID: le.reference.sectionID + 1,
+                                },
+                              }
                             : le
                         : le,
                     );
@@ -325,51 +356,53 @@ function SongControls({ song }: { song: Song }) {
             <button
               className="general-icon-button"
               onClick={() => {
-                if (seiIndex < song.sectionOrder.length - 1) {
+                if (seiIndex < openSong.song.sectionOrder.length - 1) {
                   [
-                    song.sectionOrder[seiIndex + 1],
-                    song.sectionOrder[seiIndex],
+                    openSong.song.sectionOrder[seiIndex + 1],
+                    openSong.song.sectionOrder[seiIndex],
                   ] = [
-                      song.sectionOrder[seiIndex],
-                      song.sectionOrder[seiIndex + 1],
-                    ];
+                    openSong.song.sectionOrder[seiIndex],
+                    openSong.song.sectionOrder[seiIndex + 1],
+                  ];
                   if (
-                    (song.sectionOrder[seiIndex + 1].type === "section" ||
-                    song.sectionOrder[seiIndex + 1].type === "repeat") &&
-                    (song.sectionOrder[seiIndex ].type === "section" ||
-                    song.sectionOrder[seiIndex ].type === "repeat")
+                    (openSong.song.sectionOrder[seiIndex + 1].type ===
+                      "section" ||
+                      openSong.song.sectionOrder[seiIndex + 1].type ===
+                        "repeat") &&
+                    (openSong.song.sectionOrder[seiIndex].type === "section" ||
+                      openSong.song.sectionOrder[seiIndex].type === "repeat")
                   ) {
                     // swapping selected
-                    if (selected.sectionID == seiIndex) {
-                      setSelected({
-                        ...selected,
-                        sectionID: selected.sectionID + 1,
+                    if (selectedState.value.sectionID == seiIndex) {
+                      selectedState.set({
+                        ...selectedState.value,
+                        sectionID: selectedState.value.sectionID + 1,
                       });
-                    } else if (selected.sectionID == seiIndex + 1) {
-                      setSelected({
-                        ...selected,
-                        sectionID: selected.sectionID - 1,
+                    } else if (selectedState.value.sectionID == seiIndex + 1) {
+                      selectedState.set({
+                        ...selectedState.value,
+                        sectionID: selectedState.value.sectionID - 1,
                       });
                     }
                     // swapping liveElements
                     liveElements.map((le, i) =>
-                      le.type === "text" && le.reference.object == song
+                      le.type === "text" && le.reference.object == openSong.song
                         ? le.reference.sectionID == seiIndex
                           ? {
-                            ...le,
-                            reference: {
-                              ...le.reference,
-                              sectionID: le.reference.sectionID + 1,
-                            },
-                          }
-                          : le.reference.sectionID == seiIndex + 1
-                            ? {
                               ...le,
                               reference: {
                                 ...le.reference,
-                                sectionID: le.reference.sectionID - 1,
+                                sectionID: le.reference.sectionID + 1,
                               },
                             }
+                          : le.reference.sectionID == seiIndex + 1
+                            ? {
+                                ...le,
+                                reference: {
+                                  ...le.reference,
+                                  sectionID: le.reference.sectionID - 1,
+                                },
+                              }
                             : le
                         : le,
                     );
@@ -399,19 +432,24 @@ function SongControls({ song }: { song: Song }) {
             }
 
             let noteID: number = 0;
-            while (song.notes.find((n) => n.name === `note${noteID}`)) {
+            while (
+              openSong.song.notes.find((n) => n.name === `note${noteID}`)
+            ) {
               noteID++;
               if (noteID >= Number.MAX_SAFE_INTEGER) {
                 return;
               }
             }
             const newNoteName = `note${noteID}`;
-            song.notes.push({
+            openSong.song.notes.push({
               name: newNoteName,
               text: newElementText.current,
             });
 
-            song.sectionOrder.push({ name: newNoteName, type: "note" });
+            openSong.song.sectionOrder.push({
+              name: newNoteName,
+              type: "note",
+            });
 
             updateState();
           }}
@@ -422,11 +460,16 @@ function SongControls({ song }: { song: Song }) {
           className="new-element-button"
           onClick={() => {
             if (
-              !song.sections.find((s) => s.name === newElementText.current) &&
+              !openSong.song.sections.find(
+                (s) => s.name === newElementText.current,
+              ) &&
               newElementText.current
             ) {
-              song.sections.push({ name: newElementText.current, verses: [] });
-              song.sectionOrder.push({
+              openSong.song.sections.push({
+                name: newElementText.current,
+                verses: [],
+              });
+              openSong.song.sectionOrder.push({
                 name: newElementText.current,
                 type: "section",
               });
@@ -439,9 +482,11 @@ function SongControls({ song }: { song: Song }) {
         </button>
       </div>
     </div>,
-    ...song.sectionOrder.flatMap((sei, seiIndex) => {
+    ...openSong.song.sectionOrder.flatMap((sei, seiIndex) => {
       if (sei.type === "section" || sei.type === "repeat") {
-        const currentSection = song.sections.find((s) => s.name == sei.name)!;
+        const currentSection = openSong.song.sections.find(
+          (s) => s.name == sei.name,
+        )!;
         sIndex++;
         return [
           <h3
@@ -458,23 +503,25 @@ function SongControls({ song }: { song: Song }) {
                 key={`s${seiIndex}v${vIndex}`}
                 section={currentSection}
                 reference={{
-                  object: song,
+                  object: openSong.song,
                   verseID: vIndex,
                   sectionID: sIndex,
                 }}
-                selectedState={{ value: selected, set: setSelected }}
+                selectedState={selectedState}
                 updateState={updateState}
-                ref={setVerseButtonRef((() => {
-                  const x = ++buttonIDCounter
-                  console.log(x)
-                  return x
-                })())}
+                ref={setVerseButtonRef(
+                  (() => {
+                    const x = ++buttonIDCounter;
+                    console.log(x);
+                    return x;
+                  })(),
+                )}
               ></VerseButton>
             );
           }),
 
           <AddButtons
-            song={song}
+            song={openSong.song}
             key={`ab${seiIndex}`}
             section={currentSection}
             sectionOrderIndex={seiIndex}
@@ -484,21 +531,12 @@ function SongControls({ song }: { song: Song }) {
         return (
           <div key={sei.name} className="note">
             <b>Note: </b>
-            {song.notes.find((n) => n.name === sei.name)!.text}{" "}
+            {openSong.song.notes.find((n) => n.name === sei.name)!.text}{" "}
           </div>
         );
       }
     }),
   ];
-  //} catch (err) {
-  //  // NOTE: this is here because of the song.sections.find type assertion. could be undefined.
-  //  //       if the song file was genereated remotely right, this should never happen.
-  //  const e = err as Error;
-  //  // TODO: handle this properly
-  //  window.alert(
-  //    `Error: ${e.message}.\nAn element of sectionOrder likely doesnt exist.`,
-  //  );
-  //}
 }
 
 export default SongControls;

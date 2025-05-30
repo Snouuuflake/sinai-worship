@@ -144,15 +144,19 @@ type Image = {
  * type: "none" | "song"
  */
 
-type OpenElementType = {
+type OpenNoneType = {
   type: "none"
-} | {
+}
+type OpenSongType = {
   type: "song";
   song: Song
-} | {
+  selected: LiveSongReference;
+}
+type OpenImageType = {
   type: "image";
   image: Image;
 }
+type OpenElementType = OpenNoneType | OpenSongType | OpenImageType;
 
 type OpenElementState = StateObject<OpenElementType>;
 type OpenElementsState = StateObject<OpenElementType[]>;
@@ -164,7 +168,7 @@ type OpenElementsState = StateObject<OpenElementType[]>;
  * object: literal reference to the song or whatever object in react
  */
 type LiveSongReference = {
-  object: object;
+  object: any;
   sectionID: number;
   verseID: number;
 }

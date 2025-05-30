@@ -499,7 +499,7 @@ ipcMain.on("alert", (_event, message: string) => {
 });
 
 ipcMain.handle("read-element", (_event) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve: (arg0: OpenElementType) => any, reject) => {
     dialog.showOpenDialog({ properties: ["openFile"] }).then((result) => {
       if (!result.canceled) {
         const fp = result.filePaths[0];
@@ -507,7 +507,7 @@ ipcMain.handle("read-element", (_event) => {
         if (bn.match(/\.(txt|mss)$/)) {
           readMSSFile(fp).then(
             (s) => {
-              resolve({ type: "song", song: s });
+              resolve({ type: "song", song: s, selected: {object: null, verseID: 0, sectionID: 0} });
             },
             (e) => {
               dialog.showErrorBox(`Error reading song ${bn}.`, e.message);

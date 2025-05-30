@@ -8,7 +8,10 @@ function OpenFileButton() {
     <button className="top-section-button"
       onClick={() => {
         window.electron.invokeReadElement((newElement: OpenElementType) => {
-          console.log(newElement.song);
+          if (newElement.type === "song") {
+            // INFO: super important because ipc doesnt preserve references
+            newElement.selected.object = newElement.song; 
+          }
           openElements.set([...openElements.value, newElement]);
         });
       }}

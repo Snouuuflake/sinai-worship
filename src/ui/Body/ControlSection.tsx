@@ -10,7 +10,7 @@ function ControlsSection() {
   return (
     <div className="control-section">
       {viewElement.value.type === "song" && viewElement.value.song ? (
-        <SongControls song={viewElement.value.song} />
+        <SongControls openSong={viewElement.value} />
       ) : viewElement.value.type === "image" && viewElement.value.image ? (
         <ImageControls image={viewElement.value.image} />
       ) : (

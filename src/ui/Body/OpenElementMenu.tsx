@@ -29,15 +29,21 @@ function OpenElementMenu() {
           className="inverse-title-button"
           onClick={() => {
             if (newSongNameRef.current) {
+              const newSong = {
+                properties: { title: newSongNameRef.current, author: "" },
+                sections: [],
+                sectionOrder: [],
+                notes: [],
+              };
               openElements.set([
                 ...openElements.value,
                 {
                   type: "song",
-                  song: {
-                    properties: { title: newSongNameRef.current, author: "" },
-                    sections: [],
-                    sectionOrder: [],
-                    notes: [],
+                  song: newSong,
+                  selected: {
+                    object: newSong,
+                    verseID: 0,
+                    sectionID: 0,
                   },
                 },
               ]);
@@ -62,9 +68,10 @@ function OpenElementMenu() {
                   className="open-element-item-name"
                   style={{
                     color:
-                      oe.type !== "none" &&
-                      oe.type === viewElement.value.type &&
-                      oe[oe.type] === viewElement.value[oe.type]
+                      //oe.type !== "none" &&
+                      //oe.type === viewElement.value.type &&
+                      //oe[oe.type] === viewElement.value[oe.type]
+                      oe == viewElement.value
                         ? "var(--hi1)"
                         : "",
                   }}
@@ -81,9 +88,7 @@ function OpenElementMenu() {
                   className="open-element-delete general-icon-button"
                   onClick={() => {
                     if (
-                      oe.type !== "none" &&
-                      oe.type === viewElement.value.type &&
-                      oe[oe.type] === viewElement.value[oe.type]
+                      oe == viewElement.value
                     ) {
                       viewElement.set({ type: "none" });
                     }
