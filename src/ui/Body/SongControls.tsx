@@ -96,6 +96,7 @@ function SongControls({ song }: { song: Song }) {
 
   let buttonIDCounter: number = -1;
   let sIndex: number = -1;
+  let sIndex2: number = -1; // same thing, used for song sections bit
   console.log(song);
   const updateState = () => {
     openElements.set([...openElements.value]);
@@ -153,6 +154,57 @@ function SongControls({ song }: { song: Song }) {
             )}
             <ConfirmKillButton
               callback={() => {
+                if (sei.type === "section" || sei.type === "repeat") {
+                  const lyricSectionIndex = lyricSectionOrder.indexOf(sei);
+                  if (selected.sectionID > lyricSectionIndex) {
+                    setSelected({
+                      ...selected,
+                      sectionID: selected.sectionID - 1,
+                    });
+                  } else if (selected.sectionID == lyricSectionIndex) {
+                    if (lyricSectionIndex == 0) {
+                      setSelected({ ...selected, verseID: 0 });
+                    } else {
+                      setSelected({
+                        ...selected,
+                        sectionID: selected.sectionID - 1,
+                        verseID: 0,
+                      });
+                    }
+                  }
+                  liveElements.map((le, i) => {
+                    if (le.type !== "text") return le;
+                    if (le.reference.sectionID > lyricSectionIndex) {
+                      return {
+                        ...le,
+                        reference: {
+                          ...le.reference,
+                          sectionID: selected.sectionID - 1,
+                        },
+                      };
+                    } else if (le.reference.sectionID == lyricSectionIndex) {
+                      if (lyricSectionIndex == 0) {
+                        return {
+                          type: "none",
+                          value: "",
+                          reference: {
+                            object: null,
+                          },
+                        };
+                      } else {
+                        return {
+                          ...le,
+                          reference: {
+                            ...le.reference,
+                            verseID: 0,
+                            sectionID: le.reference.sectionID - 1,
+                          },
+                        };
+                      }
+                    } 
+                    return le;
+                  });
+                }
                 if (sei.type === "repeat") {
                   song.sectionOrder.splice(seiIndex, 1);
                 } else if (sei.type === "section") {
@@ -217,7 +269,7 @@ function SongControls({ song }: { song: Song }) {
                     }
                     // swapping liveElements
                     liveElements.map((le, i) =>
-                      le.type === "text"
+                      le.type === "text" && le.reference.object === song
                         ? le.reference.sectionID == seiIndex
                           ? {
                               ...le,
@@ -273,7 +325,7 @@ function SongControls({ song }: { song: Song }) {
                     }
                     // swapping liveElements
                     liveElements.map((le, i) =>
-                      le.type === "text"
+                      le.type === "text" && le.reference.object == song
                         ? le.reference.sectionID == seiIndex
                           ? {
                               ...le,
