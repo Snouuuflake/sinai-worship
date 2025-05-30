@@ -38,7 +38,7 @@ function VerseButton({
   const allMatching = matchingLiveIndexes.length == MAX_LIVE_ELEMENTS;
 
   const thisRef = useRef<HTMLDivElement | null>(null);
-  const selected = compareReferences(selectedState.value, reference)
+  const selected = compareReferences(selectedState.value, reference);
 
   useEffect(() => {
     if (selected && thisRef.current) {
@@ -102,7 +102,18 @@ function VerseButton({
                         .replace(/\s*$(\n\s*$){2,}/gm, "")
                         .split("\n")
                         .map((l) => l.trim());
+                    updateState();
                   } else {
+                    // keeps selected in section
+                    if (
+                      section.verses.length - 1 == reference.verseID &&
+                      compareReferences(reference, selectedState.value)
+                    ) {
+                      selectedState.set({
+                        ...selectedState.value,
+                        verseID: selectedState.value.verseID - 1,
+                      });
+                    }
                     // deleting verse from section
                     section.verses.splice(reference.verseID, 1);
                     // stops projecting this button
@@ -118,13 +129,8 @@ function VerseButton({
                         },
                       })),
                     );
-                    // keeps selected in section
-                    if (section.verses.length - 1 == reference.verseID && compareReferences(reference, selectedState.value)) {
-                      selectedState.set({...selectedState.value, verseID: selectedState.value.verseID - 1 });
-                    }
                   }
                   setEditorOpen(false);
-                  updateState();
                 }
               }}
             >
@@ -153,7 +159,6 @@ function VerseButton({
       </div>
       <div className="verse-button-container-col">
         <div className="display-indexes-container">
-        <div>s: {reference.sectionID}</div>
           {liveIndexesRange.map((i) => (
             <button
               tabIndex={-1}
@@ -302,7 +307,8 @@ function VerseButton({
           <textarea
             className="inline-verse-editor text-input"
             defaultValue={section.verses[reference.verseID].lines
-              .reduce((p, c) => p + "\n" + c, "").trim()
+              .reduce((p, c) => p + "\n" + c, "")
+              .trim()
               .slice(1)}
             style={{}}
             onChange={(event) => {
@@ -326,7 +332,7 @@ function VerseButton({
                       value: section.verses[reference.verseID].lines
                         .reduce((p, c) => p + "\n" + c, "")
                         .trim(),
-                        reference: reference,
+                      reference: reference,
                     },
                   };
                 }),
