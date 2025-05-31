@@ -38,8 +38,8 @@ body {
   z-index: 100;
   background-position: center;
   background-repeat: no-repeat;
-  background-image: var(--logo-image);
-  background-size: var(--logo-scale);
+  /*background-image: var(--logo-image);*/
+  /*background-size: var(--logo-scale);*/
 }
 
 .text-container {

@@ -137,128 +137,150 @@ const updateDisplay = (og: DisplayConfigType, updater: DisplayConfigType) => {
       }
     }
   };
-  console.log(updater);
-  updateDisplayField(og.global, updater.global);
-  updateDisplayField(og.text, updater.text);
+  og.forEach((dcs, i) => {
+    updateDisplayField(dcs.entries, updater[i].entries);
+  });
 };
 
 const readFullConfig = () => {
   const makeDefaultFullConfig = (): FullDisplayConfigType => {
-    const makeDefaultConfig = (): DisplayConfigType => ({
-      global: [
-        {
-          key: "Logo Image",
-          css: "--logo-image",
-          special: true,
-          type: "path",
-          default: null,
-          value: null,
-        },
-        {
-          key: "Logo Scale",
-          css: "--logo-scale",
-          special: false,
-          type: "number",
-          default: 50,
-          unit: "%",
-          value: null,
-        },
-        {
-          key: "Background Color",
-          css: "background-color",
-          type: "csscolor",
-          default: "black",
-          value: null,
-        },
-        {
-          key: "Background Image",
-          css: "background-image",
-          special: true,
-          type: "path",
-          default: null,
-          value: null,
-        },
-        {
-          key: "Transition length (ms)",
-          css: "--default-animation-length",
-          type: "number",
-          default: 0,
-          value: null,
-        },
-      ],
-      text: [
-        {
-          key: "Margin Left",
-          css: "margin-left",
-          type: "number",
-          unit: "vw",
-          default: 0,
-          value: null,
-        },
-
-        {
-          key: "Margin Right",
-          css: "margin-right",
-          type: "number",
-          unit: "vw",
-          default: 0,
-          value: null,
-        },
-
-        {
-          key: "Margin Top",
-          css: "margin-top",
-          type: "number",
-          unit: "vh",
-          default: 0,
-          value: null,
-        },
-
-        {
-          key: "Margin Bottom",
-          css: "margin-bottom",
-          type: "number",
-          unit: "vh",
-          default: 0,
-          value: null,
-        },
-
-        {
-          key: "Font Size",
-          css: "font-size",
-          type: "number",
-          unit: "px",
-          default: 20,
-          value: null,
-        },
-
-        // TODO: proper font selector
-        {
-          key: "Font Family",
-          css: "font-family",
-          type: "font",
-          default: "Helvetica",
-          value: null,
-        },
-
-        {
-          key: "Color",
-          css: "color",
-          type: "csscolor",
-          default: "White",
-          value: null,
-        },
-
-        {
-          key: "Bold",
-          special: true,
-          css: "",
-          type: "boolean",
-          default: false,
-          value: null,
-        },
-      ],
-    });
+    const makeDefaultConfig = (): DisplayConfigType => [
+      {
+        name: "Global",
+        entries: [
+          {
+            key: "Logo Image",
+            css: "background-image",
+            special: "",
+            type: "path",
+            default: "",
+            value: null,
+            target: [".logo"],
+          },
+          {
+            key: "Logo Scale",
+            css: "background-size",
+            special: "",
+            type: "number",
+            default: 50,
+            unit: "%",
+            value: null,
+            target: [".logo"],
+          },
+          {
+            key: "Background Color",
+            css: "background-color",
+            special: "",
+            type: "csscolor",
+            default: "black",
+            value: null,
+            target: [".global", ".logo"],
+          },
+          {
+            key: "Background Image",
+            css: "background-image",
+            special: "",
+            type: "path",
+            default: "",
+            value: null,
+            target: [".global"],
+          },
+          {
+            key: "Transition length (ms)",
+            css: "--default-animation-length",
+            type: "number",
+            special: "",
+            default: 0,
+            value: null,
+            unit: "",
+            target: [":root"],
+          },
+        ],
+      },
+      {
+        name: "Text",
+        entries: [
+          {
+            key: "Margin Left",
+            css: "margin-left",
+            type: "number",
+            unit: "vw",
+            default: 0,
+            value: null,
+            target: [".text"],
+            special: "",
+          },
+          {
+            key: "Margin Right",
+            css: "margin-right",
+            type: "number",
+            unit: "vw",
+            default: 0,
+            value: null,
+            target: [".text"],
+            special: "",
+          },
+          {
+            key: "Margin Top",
+            css: "margin-top",
+            type: "number",
+            unit: "vh",
+            default: 0,
+            value: null,
+            target: [".text"],
+            special: "",
+          },
+          {
+            key: "Margin Bottom",
+            css: "margin-bottom",
+            type: "number",
+            unit: "vh",
+            default: 0,
+            value: null,
+            target: [".text"],
+            special: "",
+          },
+          {
+            key: "Font Size",
+            css: "font-size",
+            type: "number",
+            unit: "px",
+            default: 20,
+            value: null,
+            target: [".text"],
+            special: "",
+          },
+          // TODO: proper font selector
+          {
+            key: "Font Family",
+            css: "font-family",
+            type: "font",
+            default: "Helvetica",
+            value: null,
+            target: [".text"],
+            special: "",
+          },
+          {
+            key: "Color",
+            css: "color",
+            type: "csscolor",
+            default: "White",
+            value: null,
+            target: [".text"],
+            special: "",
+          },
+          {
+            key: "Bold",
+            special: "bold",
+            css: "",
+            type: "boolean",
+            default: false,
+            value: null,
+            target: [".text"],
+          },
+        ],
+      },
+    ];
 
     return {
       globalDisplay: makeDefaultConfig(),
@@ -275,17 +297,16 @@ const readFullConfig = () => {
 
     const curConfig = makeDefaultFullConfig();
 
-    updateDisplay(curConfig.globalDisplay, fConfig.globalDisplay);
+    // FIXME: does nothing?
+    // updateDisplay(curConfig.globalDisplay, fConfig.globalDisplay);
     for (let i = 0; i < MAX_LIVE_ELEMENTS; i++) {
+      // FIXME: does nothing?
       updateDisplay(curConfig.specificDisplays[i], fConfig.specificDisplays[i]);
     }
 
     return curConfig;
   } catch (err) {
-    fs.writeFileSync(
-      getConfigPath(),
-      JSON.stringify(makeDefaultFullConfig()),
-    );
+    fs.writeFileSync(getConfigPath(), JSON.stringify(makeDefaultFullConfig()));
     return makeDefaultFullConfig();
   }
 };
@@ -341,30 +362,49 @@ app.on("ready", () => {
       JSON.stringify(activeConfig!.globalDisplay),
     ) as DisplayConfigType;
     // for all keys (global, text)
-    (Object.keys(resConfig) as (keyof DisplayConfigType)[]).forEach((key) => {
-      resConfig[key].forEach((entry) => {
+    //(Object.keys(resConfig) as (keyof DisplayConfigType)[]).forEach((key) => {
+    resConfig.forEach((dsc, i) => {
+      dsc.entries.forEach((entry) => {
         entry.default = entry.value !== null ? entry.value : entry.default;
         const activeSpecificFoundEntry = activeConfig!.specificDisplays[index][
-          key
-        ].find((x) => x.key === entry.key)!;
+          i
+        ].entries.find((x) => x.key === entry.key)!;
+        console.log(
+          "!!!!!!!",
+          activeConfig!.specificDisplays[index][i].name,
+          dsc.name,
+        );
         entry.value = activeSpecificFoundEntry.value;
       });
     });
 
-    (Object.keys(resConfig) as (keyof DisplayConfigType)[]).forEach((key) => {
-      resConfig[key].forEach((entry) => {
-        if (entry.key === "Background") {
-          console.log(entry.value, entry.default);
-        }
-      });
-    });
+    //resConfig.forEach((dsc) => {
+    //  dsc.entries.forEach((entry) => {
+    //    if (entry.key === "Background") {
+    //      console.log(entry.value, entry.default);
+    //    }
+    //  });
+    //});
 
     const getEntryCss = (entry: DisplayConfigEntryType) => {
-      if (entry.special) {
-        console.log(entry);
-        let value: any;
+      let value: any;
+      if (!entry.special) {
+        if (entry.type === "path") {
+          value = entry.value !== null ? entry.value : entry.default;
+          value = value !== null ? value : "";
+          value = (value as string).replace(/\\/g, "/");
+          value = "file:///" + value;
+          return `${entry.css}: url("${value}");`;
+        }
+        if (entry.type === "number") {
+          const suffix = entry.unit ? entry.unit : "";
+          const value = entry.value !== null ? entry.value : entry.default;
+          return `${entry.css}: ${value}${suffix};`;
+        }
+      } else {
         switch (entry.key) {
-          case "Bold":
+          case "bold":
+            console.log(entry)
             value = entry.value !== null ? entry.value : entry.default;
             if (value) {
               return "font-weight: bold;";
@@ -372,48 +412,29 @@ app.on("ready", () => {
               return "";
             }
             break;
-
-          case "Background Image":
-            value = entry.value !== null ? entry.value : entry.default;
-            value = value !== null ? value : "";
-            value = (value as string).replace(/\\/g, "/");
-            value = "file:///" + value;
-            console.log("value:", entry.value, value);
-            return `${entry.css}: url("${value}");`;
-            break;
-
-          case "Logo Image":
-            value = entry.value !== null ? entry.value : entry.default;
-            value = value !== null ? value : "";
-            value = (value as string).replace(/\\/g, "/");
-            value = "file:///" + value;
-            console.log("value:", entry.value, value);
-            return `${entry.css}: url("${value}");`;
-            break;
-          default:
-            return "";
-            break;
         }
-        return "";
-      } else {
-        const suffix = entry.unit ? entry.unit : "";
-        const value = entry.value !== null ? entry.value : entry.default;
-        return `${entry.css}: ${value}${suffix};`;
       }
+      value = entry.value !== null ? entry.value : entry.default;
+      return `${entry.css}: ${value};`;
     };
 
-    const newCss = (Object.keys(resConfig) as (keyof DisplayConfigType)[])
-      .map((key) => {
+    const newCss = resConfig
+      .flatMap((dsc) => {
         //return `${key === "root" ? ":root" : `.d-${index}-${key}`} {
-        return `.d-${index}-${key} {
-        ${resConfig[key]
-          .map((entry) => {
-            return getEntryCss(entry);
-          })
-          .reduce((p, c) => p + "\n" + c)}
-      }`;
+        return dsc.entries.flatMap((dse) => {
+          return dse.target.map((t) => {
+            return `${t} { ${getEntryCss(dse)} }`;
+          });
+        });
+        //  `.d-${index}-${key} {
+        //  ${resConfig[key]
+        //      .map((entry) => {
+        //        return getEntryCss(entry);
+        //      })
+        //      .reduce((p, c) => p + "\n" + c)}
+        //}`;
       })
-      .reduce((p, c) => p + "\n" + c);
+      .reduce((p, c) => p + " " + c);
     return newCss;
   };
 
@@ -432,25 +453,21 @@ app.on("ready", () => {
     (
       _event,
       index: number,
-      arrayName: DisplayConfigArrayName,
+      arrayName: string,
       entry: DisplayConfigEntryType,
     ) => {
       const updateeArray = (
         index == -1
           ? activeConfig!.globalDisplay
           : activeConfig!.specificDisplays[index]
-      )[arrayName];
+      ).find((dcs) => dcs.name === arrayName)!.entries;
 
       updateeArray.find((x) => x.key === entry.key)!.value = entry.value;
       console.log("updated activeConfig", "wrote:", entry.key, entry.value);
 
-      fs.writeFile(
-        getConfigPath(),
-        JSON.stringify(activeConfig),
-        (err) => {
-          console.log("wrote config.json", err);
-        },
-      );
+      fs.writeFile(getConfigPath(), JSON.stringify(activeConfig), (err) => {
+        console.log("wrote config.json", err);
+      });
 
       Array(MAX_LIVE_ELEMENTS)
         .fill(0)
@@ -507,7 +524,11 @@ ipcMain.handle("read-element", (_event) => {
         if (bn.match(/\.(txt|mss)$/)) {
           readMSSFile(fp).then(
             (s) => {
-              resolve({ type: "song", song: s, selected: {object: null, verseID: 0, sectionID: 0} });
+              resolve({
+                type: "song",
+                song: s,
+                selected: { object: null, verseID: 0, sectionID: 0 },
+              });
             },
             (e) => {
               dialog.showErrorBox(`Error reading song ${bn}.`, e.message);

@@ -91,7 +91,7 @@ electron.contextBridge.exposeInMainWorld("electron", {
   },
   sendUpdateCss: (
     index: number,
-    arrayName: DisplayConfigArrayName,
+    arrayName: string,
     entry: DisplayConfigEntryType,
   ) => {
     electron.ipcRenderer.send("update-css", index, arrayName, entry);

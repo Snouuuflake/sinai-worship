@@ -166,7 +166,7 @@ window.addEventListener("load", () => {
           if (!document.getElementById("logo-container")) {
             const logoContainer = document.createElement("div");
             logoContainer.id = "logo-container";
-            logoContainer.classList.add(`d-${index}-global`);
+            logoContainer.classList.add(`logo`);
             AnimationFunctions.startFadeIn(logoContainer);
             document.body.appendChild(logoContainer);
           }

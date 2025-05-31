@@ -3,42 +3,6 @@ import { useState, useEffect, useContext } from "react";
 import FormInput from "./FormInput";
 import "./DisplayControls.css";
 function DisplayControls() {
-  //class Settings {
-  //  window: BrowserWindow;
-  //  global: ConfigEntryType[];
-  //  text: ConfigEntryType[];
-  //  constructor(mainWindow: BrowserWindow) {
-  //    this.window = mainWindow;
-  //    this.global = [{ key: "background", type: "csscolor", default: "black" }];
-  //    this.text = [
-  //      { key: "Margin Left", type: "pnumber", default: 0 },
-  //      { key: "Margin Right", type: "pnumber", default: 0 },
-  //      { key: "Margin Top", type: "pnumber", default: 0 },
-  //      { key: "Margin Bottom", type: "pnumber", default: 0 },
-  //      { key: "Font Size", type: "pnumber", default: 20 },
-  //      { key: "Font Family", type: "string", default: "Helvetica" },
-  //      { key: "Color", type: "csscolor", default: "White" },
-  //      { key: "Bold", type: "boolean", default: false },
-  //    ];
-  //  }
-  //}
-
-  // any change, including "set default" goes through this same function that ends to main and main updates file
-  // the initial default settings are never automatically written, only when manually reset, for my sanity's sake
-  //
-  // // when loading, globalDisplay is loaded for all displays in MAX_DISPLAY_? and then each index of specificDisplays gets loaded acoordingly
-  // // there should exist some function (in main) like
-  //
-  // config.json file schema
-  // {
-  //  globalDisplay: DisplaySettingType; // default, global settings
-  //  specificDisplays: DisplaySettingType[]; // index corresponds to settings for a display index
-  // }
-
-  // !! the below is good i think
-  // ok what if we ignore all of the above, and make this settings page completely dynamic, such that it just recieves settings, not caring if theyre default or not from main (main sends *eveything*, all fields, types, names, id, all that) and just send all changes back and then main figures it out
-  // this also means that this component is loaded from something stored in GlobalContext
-
   const { MAX_LIVE_ELEMENTS, displayConfig } = useContext(
     GlobalContext,
   ) as GlobalContextType;
@@ -58,7 +22,7 @@ function DisplayControls() {
 
   const sendConfigUpdateToMain = (
     index: number,
-    arrayName: DisplayConfigArrayName,
+    arrayName: string,
     newEntry: DisplayConfigEntryType,
   ) => {
     console.log(newEntry);
@@ -69,20 +33,22 @@ function DisplayControls() {
   const makeFormInput = (
     index: number,
     entry: DisplayConfigEntryType,
-    configArray: DisplayConfigEntryType[],
-    arrayName: DisplayConfigArrayName,
+    configArray: DisplayConfigSectionType,
   ) => (
     <FormInput
       key={`${entry.key}${index}`}
       configEntry={entry}
-      configArray={configArray}
+      configArray={configArray.entries}
       updateConfig={(newValue) => {
-        sendConfigUpdateToMain(index, arrayName, { ...entry, value: newValue });
+        sendConfigUpdateToMain(index, configArray.name, {
+          ...entry,
+          value: newValue,
+        });
       }}
     />
   );
 
-  const getConfigArrayTitle = (key: DisplayConfigArrayName) => {
+  const getConfigArrayTitle = (key: string) => {
     switch (key) {
       case "global":
         return "Global Settings";
@@ -99,20 +65,16 @@ function DisplayControls() {
   };
 
   const drawDefaultDisplayConfig = (defaultConfig: DisplayConfigType) => {
-    return (Object.keys(defaultConfig) as (keyof DisplayConfigType)[]).map(
-      (key) => (
-        <div className="display-controls-section" key={`si{-1}k${key}`}>
-          {[
-            <div className="display-config-header" key={`hi${-1}k${key}`}>
-              {getConfigArrayTitle(key)}
-            </div>,
-            defaultConfig[key].map((entry) =>
-              makeFormInput(-1, entry, defaultConfig[key], key),
-            ),
-          ]}
-        </div>
-      ),
-    );
+    return defaultConfig.map((dcs) => (
+      <div className="display-controls-section" key={`si-1k${dcs.name}`}>
+        {[
+          <div className="display-config-header" key={`hi-1k${dcs.name}`}>
+            {dcs.name}
+          </div>,
+          dcs.entries.map((entry) => makeFormInput(-1, entry, dcs)),
+        ]}
+      </div>
+    ));
   };
 
   const drawSpecificDisplayConfig = (
@@ -120,63 +82,58 @@ function DisplayControls() {
     specificConfig: DisplayConfigType,
     index: number,
   ) => {
-    return (Object.keys(specificConfig) as (keyof DisplayConfigType)[]).map(
-      (key) => (
-        <div className="display-controls-section" key={`si{-1}k${key}`}>
-          {[
-            <div className="display-config-header" key={`hi${index}k${key}`}>
-              {getConfigArrayTitle(key) + index}
-            </div>,
-            specificConfig[key].map((entry) => {
-              const defaultEntry = defaultConfig[key].find(
-                (x) => x.key === entry.key,
-              )!;
-              const newDefault =
-                defaultEntry.value === null
-                  ? defaultEntry.default
-                  : defaultEntry.value;
-              return makeFormInput(
-                index,
-                { ...entry, default: newDefault },
-                specificConfig[key],
-                key,
-              );
-            }),
-          ]}
-        </div>
-      ),
-    );
+    return specificConfig.map((dcs) => (
+      <div className="display-controls-section" key={`si${index}k${dcs.name}`}>
+        {[
+          <div className="display-config-header" key={`hi${index}k${dcs.name}`}>
+            {dcs.name}
+          </div>,
+          dcs.entries.map((entry) => {
+            const defaultEntry = defaultConfig.find(ddcs => ddcs.name === dcs.name)!.entries.find(
+              (x) => x.key === entry.key,
+            )!;
+            const newDefault =
+              defaultEntry.value === null
+                ? defaultEntry.default
+                : defaultEntry.value;
+            return makeFormInput(
+              index,
+              { ...entry, default: newDefault },
+              dcs,
+            );
+          }),
+        ]}
+      </div>
+    ));
   };
 
   return (
     <div className="display-controls">
       <div className="display-index-buttons-container">
-        {
-          Array(MAX_LIVE_ELEMENTS + 1)
-            .fill(0)
-            .map((_, i) => {
-              const index = i - 1;
-              const highlight = index == displayIndex;
-              return (
-                <button
-                  className={`display-index-button darken-hover ${highlight ? "display-index-button-active" : ""}`}
-                  onClick={() => setDisplayIndex(index)}
-                >
-                  {index >= 0 ? index + 1 : "D"}
-                </button>
-              );
-            })
-        }
+        {Array(MAX_LIVE_ELEMENTS + 1)
+          .fill(0)
+          .map((_, i) => {
+            const index = i - 1;
+            const highlight = index == displayIndex;
+            return (
+              <button
+                className={`display-index-button darken-hover ${highlight ? "display-index-button-active" : ""}`}
+                onClick={() => setDisplayIndex(index)}
+              >
+                {index >= 0 ? index + 1 : "D"}
+              </button>
+            );
+          })}
       </div>
       {displayConfig.value === null
         ? ""
         : displayIndex == -1
           ? drawDefaultDisplayConfig(displayConfig.value.globalDisplay)
           : drawSpecificDisplayConfig(
-              displayConfig.value.globalDisplay,
-              displayConfig.value.specificDisplays[displayIndex],
-              displayIndex,
-            )}
+            displayConfig.value.globalDisplay,
+            displayConfig.value.specificDisplays[displayIndex],
+            displayIndex,
+          )}
     </div>
   );
 }

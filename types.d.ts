@@ -96,29 +96,81 @@ interface Window {
   };
 }
 
-type DisplayConfigEntryValueType =
-  | "boolean"
-  | "csscolor"
-  | "font"
-  | "number"
-  | "path";
-
-type DisplayConfigEntryType = {
+type DisplayConfigBooleanEntry = {
+  type: "boolean";
   key: string;
-  special?: boolean;
+  special: string;
   css: string;
-  type: DisplayConfigEntryValueType;
   default: any;
-  value: any;
-  unit?: string;
+  value: boolean | null;
+  target: string[]; // .class or #id or :root
 };
 
-type DisplayConfigType = {
-  global: DisplayConfigEntryType[];
-  text: DisplayConfigEntryType[];
+type DisplayConfigCssColorEntry = {
+  type: "csscolor";
+  key: string;
+  special: string;
+  css: string;
+  default: string;
+  value: string | null;
+  target: string[];
 };
 
-type DisplayConfigArrayName = "global" | "text";
+type DisplayConfigFontEntry = {
+  type: "font";
+  key: string;
+  special: string;
+  css: string;
+  default: string;
+  value: string | null;
+  target: string[];
+};
+
+type DisplayConfigNumberEntry = {
+  type: "number";
+  key: string;
+  special: string;
+  css: string;
+  default: number;
+  value: number | null;
+  unit: string;
+  target: string[];
+};
+
+type DisplayConfigPathEntry = {
+  type: "path";
+  key: string;
+  special: string;
+  css: string;
+  default: string;
+  value: string | null;
+  target: string[];
+};
+
+//type DisplayConfigEntryValueType =
+//  | "boolean"
+//  | "csscolor"
+//  | "font"
+//  | "number"
+//  | "path";
+
+type DisplayConfigEntryType =
+  | DisplayConfigBooleanEntry
+  | DisplayConfigCssColorEntry
+  | DisplayConfigFontEntry
+  | DisplayConfigNumberEntry
+  | DisplayConfigPathEntry;
+
+type DisplayConfigSectionType = {
+  name: string;
+  entries: DisplayConfigEntryType[];
+};
+
+type DisplayConfigType = DisplayConfigSectionType[];
+//  {
+//  global: DisplayConfigEntryType[];
+//  text: DisplayConfigEntryType[];
+//};
 
 type FullDisplayConfigType = {
   globalDisplay: DisplayConfigType;
@@ -228,5 +280,3 @@ type GlobalContextType = {
   };
   displayConfig: NullFullDisplayConfigState;
 };
-
-//LATEST
