@@ -1,5 +1,4 @@
-import { app, protocol, net, BrowserWindow, ipcMain, dialog } from "electron";
-import url from "node:url";
+import { app, protocol, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
 import { isDev } from "./util.js";
 import { getConfigPath, getPreloadPath } from "./pathResolver.js";
@@ -45,7 +44,7 @@ class DisplayWindow {
       },
     });
 
-    this.window.webContents.on("before-input-event", (event, input) => {
+    this.window.webContents.on("before-input-event", (_event, input) => {
       if (input.key.toLowerCase() === "i") {
         this.window.webContents.openDevTools();
       }
@@ -103,7 +102,7 @@ ipcMain.on("set-logo", (_event, value) => {
   sendToAllDisplayWindows("display-logo", value);
 });
 
-ipcMain.handle("get-logo", (_event, index: number) => {
+ipcMain.handle("get-logo", (_event, _index: number) => {
   return logo;
 });
 
@@ -297,10 +296,8 @@ const readFullConfig = () => {
 
     const curConfig = makeDefaultFullConfig();
 
-    // FIXME: does nothing?
-    // updateDisplay(curConfig.globalDisplay, fConfig.globalDisplay);
+     updateDisplay(curConfig.globalDisplay, fConfig.globalDisplay);
     for (let i = 0; i < MAX_LIVE_ELEMENTS; i++) {
-      // FIXME: does nothing?
       updateDisplay(curConfig.specificDisplays[i], fConfig.specificDisplays[i]);
     }
 
@@ -361,30 +358,17 @@ app.on("ready", () => {
     const resConfig = JSON.parse(
       JSON.stringify(activeConfig!.globalDisplay),
     ) as DisplayConfigType;
-    // for all keys (global, text)
-    //(Object.keys(resConfig) as (keyof DisplayConfigType)[]).forEach((key) => {
+
     resConfig.forEach((dsc, i) => {
       dsc.entries.forEach((entry) => {
         entry.default = entry.value !== null ? entry.value : entry.default;
         const activeSpecificFoundEntry = activeConfig!.specificDisplays[index][
           i
         ].entries.find((x) => x.key === entry.key)!;
-        console.log(
-          "!!!!!!!",
-          activeConfig!.specificDisplays[index][i].name,
-          dsc.name,
-        );
         entry.value = activeSpecificFoundEntry.value;
       });
     });
 
-    //resConfig.forEach((dsc) => {
-    //  dsc.entries.forEach((entry) => {
-    //    if (entry.key === "Background") {
-    //      console.log(entry.value, entry.default);
-    //    }
-    //  });
-    //});
 
     const getEntryCss = (entry: DisplayConfigEntryType) => {
       let value: any;
