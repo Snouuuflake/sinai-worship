@@ -2,7 +2,6 @@
     Elements that require display window-index-independent styles must have classes with an # in their name; when the window is loaded, all #'s will be replaced by the appropriate window index.'
 */
 
-
 /** main code: */
 window.addEventListener("load", () => {
   const AnimationFunctions = {
@@ -127,7 +126,8 @@ window.addEventListener("load", () => {
 
     // INFO: iteration limit because i fear "recursion"
     //       (also for debugging)
-    let i = 0 /** @type {number}*/
+    let i = 0;
+    /** @type {number}*/
     const MAX_ITERATIONS = 500;
 
     while (size >= 1) {
@@ -145,12 +145,11 @@ window.addEventListener("load", () => {
       setFontSize(size);
       console.log(size, lastOverflowSize, dsize, overflows());
       if (i >= MAX_ITERATIONS) {
-        console.error("fitText(): MAX_ITERATIONS reached")
+        console.error("fitText(): MAX_ITERATIONS reached");
         return;
       }
       i++;
     }
-
   }
 
   window.electron
@@ -189,11 +188,12 @@ window.addEventListener("load", () => {
         updateStyleTag(css);
         window.electron.invokeGetLogo(logoHandler);
       });
-      window.electron.sendReqCss(index);
-      window.electron.onUpdateCss(index, (css) => {
+      const cssHandler = (css) => {
         updateStyleTag(css);
         document.dispatchEvent(updateCssEvent);
-      });
+      };
+      window.electron.invokeReqCss(index, cssHandler);
+      window.electron.onUpdateCss(index, cssHandler);
 
       // INFO: projection element event listeners
       window.electron.onDisplayText(index, (text) => {

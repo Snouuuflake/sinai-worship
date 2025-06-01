@@ -424,12 +424,8 @@ app.on("ready", () => {
 
   handleJSONAsync("read-display-settings", async (_) => activeConfig);
 
-  ipcMain.on("req-css", (_event, index) => {
-    Array(MAX_LIVE_ELEMENTS)
-      .fill(0)
-      .map((_, i) => {
-        sendToAllDisplayWindows(`res-${i}-css`, getSpecificDisplayCss(i));
-      });
+  ipcMain.handle("req-css", (_event, index) => {
+      return getSpecificDisplayCss(index)
   });
 
   ipcMain.on(

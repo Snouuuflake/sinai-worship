@@ -86,8 +86,8 @@ electron.contextBridge.exposeInMainWorld("electron", {
   sendGetLiveElement: (index: number) => {
     electron.ipcRenderer.send("get-live-element", index);
   },
-  sendReqCss: (index: number) => {
-    electron.ipcRenderer.send("req-css", index);
+  invokeReqCss: (index: number, callback: (css: string) => void) => {
+    electron.ipcRenderer.invoke("req-css", index).then(css => callback(css));
   },
   sendUpdateCss: (
     index: number,
