@@ -1,5 +1,5 @@
 import { GlobalContext } from "../../GlobalContext";
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import FormInput from "./FormInput";
 import "./DisplayControls.css";
 function DisplayControls() {
@@ -10,15 +10,15 @@ function DisplayControls() {
   // INFO: -1 means *
   const [displayIndex, setDisplayIndex] = useState<number>(-1);
 
-  const TMP_drawEntries = (field: DisplayConfigEntryType[]) => {
-    return field.map((entry) => {
-      return (
-        <div>
-          {entry.key}: {entry.value ? entry.value : entry.default}
-        </div>
-      );
-    });
-  };
+  //const TMP_drawEntries = (field: DisplayConfigEntryType[]) => {
+  //  return field.map((entry) => {
+  //    return (
+  //      <div>
+  //        {entry.key}: {entry.value ? entry.value : entry.default}
+  //      </div>
+  //    );
+  //  });
+  //};
 
   const sendConfigUpdateToMain = (
     index: number,
@@ -48,21 +48,21 @@ function DisplayControls() {
     />
   );
 
-  const getConfigArrayTitle = (key: string) => {
-    switch (key) {
-      case "global":
-        return "Global Settings";
-        break;
-
-      case "text":
-        return "Text Settings";
-        break;
-
-      default:
-        return "how did this happen?";
-        break;
-    }
-  };
+  //const getConfigArrayTitle = (key: string) => {
+  //  switch (key) {
+  //    case "global":
+  //      return "Global Settings";
+  //      break;
+  //
+  //    case "text":
+  //      return "Text Settings";
+  //      break;
+  //
+  //    default:
+  //      return "how did this happen?";
+  //      break;
+  //  }
+  //};
 
   const drawDefaultDisplayConfig = (defaultConfig: DisplayConfigType) => {
     return defaultConfig.map((dcs) => (

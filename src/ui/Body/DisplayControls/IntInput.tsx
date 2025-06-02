@@ -6,7 +6,7 @@ function IntInput({
   configEntry,
   updateConfig,
 }: {
-  configEntry: DisplayConfigEntryType;
+  configEntry: DisplayConfigNumberEntry;
   updateConfig: (configEntry: DisplayConfigEntryType, newValue: any) => void;
 }) {
   const getDisplayValue = (x: number | null) => {

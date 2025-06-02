@@ -19,7 +19,6 @@ function FormInput({
   configArray: DisplayConfigEntryType[];
   updateConfig: (newValue: any) => void;
 }) {
-  let a: DisplayConfigEntryValueType;
 
   const { displayConfig } = useContext(
     GlobalContext,
