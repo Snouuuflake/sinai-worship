@@ -1,5 +1,6 @@
 /** INFO:
     Elements that require display window-index-independent styles must have classes with an # in their name; when the window is loaded, all #'s will be replaced by the appropriate window index.'
+    ** this is no longer true **
 */
 
 /** main code: */
