@@ -386,9 +386,8 @@ app.on("ready", () => {
           return `${entry.css}: ${value}${suffix};`;
         }
       } else {
-        switch (entry.key) {
+        switch (entry.special) {
           case "bold":
-            //console.log(entry)
             value = entry.value !== null ? entry.value : entry.default;
             if (value) {
               return "font-weight: bold;";
