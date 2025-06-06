@@ -1,4 +1,4 @@
-import Icon from "../../Icon";
+import ResetButton from "./ResetButton";
 import "./FormInput.css";
 
 function PathInput({
@@ -26,15 +26,10 @@ function PathInput({
               () => {},
             );
           }}
-        >{initValue}</button>
-        <button
-          className="text-input-reset-button darken-hover"
-          onClick={() => {
-            updateConfig(configEntry, null);
-          }}
         >
-          <Icon code="X" />
+          {initValue}
         </button>
+        <ResetButton configEntry={configEntry} updateConfig={updateConfig} />
       </div>
     </div>
   );

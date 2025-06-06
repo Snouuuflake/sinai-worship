@@ -54,6 +54,7 @@ function IntInput({
         </button>
         <button
           className="text-input-reset-button darken-hover"
+      style={{ backgroundColor: configEntry.value === null ? "var(--gray-3)" : "" }}
           onClick={() => {
             setValue(null);
           }}

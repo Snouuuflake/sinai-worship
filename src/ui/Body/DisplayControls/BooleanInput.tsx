@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ResetButton from "./ResetButton";
 import "./FormInput.css";
 
 function BooleanInput({
@@ -14,17 +15,20 @@ function BooleanInput({
       : configEntry.value) as boolean,
   );
   return (
-    <button
-      className={`form-input-component boolean-input-button darken-hover ${active ? "boolean-input-active" : "boolean-input-inactive"}`}
-      onClick={()=>{
-        const newValue = !active;
-        updateConfig(configEntry, newValue);
-        setActive(newValue);
-        updateConfig(configEntry, newValue);
-      }}
-    >
-      {configEntry.key}
-    </button>
+    <div className="text-input-h-container">
+      <button
+        className={`form-input-component boolean-input-button darken-hover ${active ? "boolean-input-active" : "boolean-input-inactive"}`}
+        onClick={() => {
+          const newValue = !active;
+          updateConfig(configEntry, newValue);
+          setActive(newValue);
+          updateConfig(configEntry, newValue);
+        }}
+      >
+        {configEntry.key}
+      </button>
+      <ResetButton configEntry={configEntry} updateConfig={updateConfig} />
+    </div>
   );
 }
 

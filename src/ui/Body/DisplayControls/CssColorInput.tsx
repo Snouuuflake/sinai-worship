@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Icon from "../../Icon";
 import "./FormInput.css";
 
@@ -15,11 +15,15 @@ function CssColorInput({
   configEntry: DisplayConfigEntryType;
   updateConfig: (configEntry: DisplayConfigEntryType, newValue: any) => void;
 }) {
-  const initValue =
+  let initValue =
     configEntry.value === null ? configEntry.default : configEntry.value;
 
   const [valid, setValid] = useState<boolean>(isColor(initValue));
   const inputRef = useRef<any>(null);
+
+  useEffect(() => {
+    setValid(isColor(initValue));
+  }, [initValue]);
 
   return (
     <div className="text-input-v-container">
@@ -41,8 +45,10 @@ function CssColorInput({
         <button
           className="text-input-reset-button darken-hover"
           onClick={() => {
-            setValid(isColor(inputRef.current.value));
             updateConfig(configEntry, null);
+          }}
+          style={{
+            backgroundColor: configEntry.value === null ? "var(--gray-3)" : "",
           }}
         >
           <Icon code="X" />

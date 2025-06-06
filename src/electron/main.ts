@@ -388,12 +388,12 @@ app.on("ready", () => {
       } else {
         switch (entry.key) {
           case "bold":
-            console.log(entry)
+            //console.log(entry)
             value = entry.value !== null ? entry.value : entry.default;
             if (value) {
               return "font-weight: bold;";
             } else {
-              return "";
+              return "font-weight: normal;";
             }
             break;
         }
@@ -442,8 +442,9 @@ app.on("ready", () => {
           : activeConfig!.specificDisplays[index]
       ).find((dcs) => dcs.name === arrayName)!.entries;
 
+
       updateeArray.find((x) => x.key === entry.key)!.value = entry.value;
-      console.log("updated activeConfig", "wrote:", entry.key, entry.value);
+      console.log(`updated activeConfig. wrote index: ${index}, key: ${entry.key}, value: ${entry.value}`);
 
       fs.writeFile(getConfigPath(), JSON.stringify(activeConfig), (err) => {
         console.log("wrote config.json", err);
