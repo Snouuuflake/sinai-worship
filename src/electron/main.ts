@@ -1,4 +1,4 @@
-import { app, protocol, BrowserWindow, ipcMain, dialog } from "electron";
+import { app, protocol, BrowserWindow, ipcMain, dialog, Menu } from "electron";
 import path from "path";
 import { isDev } from "./util.js";
 import { getConfigPath, getPreloadPath } from "./pathResolver.js";
@@ -44,12 +44,13 @@ class DisplayWindow {
       },
     });
 
-    this.window.webContents.on("before-input-event", (_event, input) => {
-      if (input.key.toLowerCase() === "i") {
-        this.window.webContents.openDevTools();
-      }
-    });
-    this.window.setMenu(null);
+    //this.window.webContents.on("before-input-event", (_event, input) => {
+    //  if (input.key.toLowerCase() === "i") {
+    //    this.window.webContents.openDevTools();
+    //  }
+    //});
+
+    this.window.setMenuBarVisibility(false);
 
     this.window.on("close", () => {
       windowArray.splice(windowArray.indexOf(this), 1);
