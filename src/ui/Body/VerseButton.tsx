@@ -97,7 +97,6 @@ const VerseButton = forwardRef<
           className="icon-container icon-button"
           style={{
             backgroundColor: editorOpen ? "var(--hi2)" : "",
-            color: editorOpen ? "var(--icon-container-bg)" : "",
           }}
         >
           <span
@@ -110,12 +109,6 @@ const VerseButton = forwardRef<
               }
             }}
           >
-            {/* TODO: make state for editor?
-             * -> state for text input & text icon save/cancel buttons
-             * that alwas save text input state value but are hidden
-             * it may fail spectacularly, but we edit the song object,
-             * and then set the state to its value?? and cause a re-render??
-             */}
             {editorOpen ? "X" : "E"}
           </span>
         </div>

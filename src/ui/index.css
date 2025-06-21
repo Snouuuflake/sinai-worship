@@ -4,27 +4,42 @@
   font-weight: 400;
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 1);
-  background-color: var(--gray-0);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* variables */
-  --gray-0: #101010ff;
-  --gray-1: #282828ff;
-  --gray-2: #303030ff;
-  --gray-3: #383838ff;
-  --gray-4: #404040ff;
-  --gray-5: #484848ff;
-  --gray-6: #505050ff;
+ --black:	    #100F0FFF;
+ --base-950:	#1C1B1AFF;
+ --base-900:	#282726FF;
+ --base-850:	#343331FF;
+ --base-800:	#403E3CFF;
+ --base-700:	#575653FF;
+ --base-600:	#6F6E69FF;
+ --base-500:	#878580FF;
+ --base-300:	#B7B5ACFF;
+ --base-200:	#CECDC3FF;
+ --base-150:	#DAD8CEFF;
+ --base-100:	#E6E4D9FF;
+ --paper:	    #FFFCF0;
 
-  --hi1: rgb(255, 30, 60);
-  --hi2: rgb(120, 200, 255);
+  /* variables */
+  --gray-0: var(--black);
+  --gray-1: var(--base-950);
+  --gray-2: var(--base-900);
+  --gray-3: var(--base-850);
+  --gray-4: var(--base-800);
+  --gray-5: var(--base-700);
+  --gray-6: var(--base-600);
+
+  --hi1: #d71f16ff;
+  --hi2: var(--hi1);
 
   --br-small: 3px;
+
+  color: var(paper);
+  background-color: var(--gray-0);
 }
 
 body {

@@ -16,6 +16,7 @@
 
 .text-icon {
   width: 100%;
+  max-width: 100%;
   text-align: center;
   display: inline-block;
 }
@@ -32,6 +33,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
+  max-width: 100%;
   background-color: var(--icon-container-bg);
 }
 
@@ -100,6 +102,8 @@
   margin: 10px 0;
   display: flex;
   overflow: clip;
+  border-radius: var(--br-small);
+  overflow: hidden;
 }
 
 .verse-up-down-button {

@@ -31,7 +31,7 @@
 
 .new-element-button {
   all: unset;
-  border-radius: 3px;
+  border-radius: var(--br-small);
   background-color: var(--gray-2);
   min-width: 28px;
   height: 28px;
