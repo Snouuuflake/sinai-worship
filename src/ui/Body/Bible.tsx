@@ -222,6 +222,8 @@ const ChapterSearch: React.FC<{
     }
   }, [open]);
 
+  console.log("BOOK", book);
+
   useEffect(() => {
     if (book !== null) {
       setCandidates(
@@ -233,7 +235,7 @@ const ChapterSearch: React.FC<{
       setLoading(false);
       setSelectedValue(init !== null && init <= book.chapters ? init : 1);
     }
-  }, [book?.id ?? null]);
+  }, [book?.bookid ?? null]);
 
   return (
     <div className="bible-input-container">
@@ -298,7 +300,7 @@ const ChapterSearch: React.FC<{
 
 const BibleBody: React.FC<{
   init: number | null;
-  onSet: (selected: any) => void;
+  onSet: (selected: string[]) => void;
   bookid: number | null;
   translation: any | null;
   chapter: any | null;
@@ -316,7 +318,7 @@ const BibleBody: React.FC<{
         selection[0] == selection[1]
           ? newValue > selection[0]
             ? 1
-            : 0 
+            : 0
           : (lastSelectedIndex.current + 1) % 2;
       setSelection(selection.toSorted((a, b) => a - b) as [number, number]);
     } else {
@@ -336,7 +338,8 @@ const BibleBody: React.FC<{
         `https://bolls.life/get-text/${translation.short_name}/${bookid}/${chapter}/`,
       )
         .then((res) => res.json())
-        .then((res) => {
+        .then((r) => {
+          const res = r.map((x: any) => ({ ...x, text: x.text.trim() }));
           console.log(res);
           setVerses(res);
           setLoading(false);
@@ -360,8 +363,7 @@ const BibleBody: React.FC<{
       onSet(
         verses
           .slice(selection[0] - 1, selection[1])
-          .map((v) => `${v.verse}. ${v.text.replace(/<\/?[^>]+(>|$)/g, "")}`)
-          .reduce((p, c) => p + "\n\n" + c),
+          .map((v) => `${v.verse}. ${v.text.replace(/<\/?[^>]+(>|$)/g, "")}`),
       );
     }
   });
@@ -423,17 +425,17 @@ const BibleBody: React.FC<{
   );
 };
 
-const Bible: FC<{ onSubmit: (value: string) => void; onExit: () => void }> = ({
-  onSubmit,
-  onExit,
-}) => {
+const Bible: FC<{
+  onSubmit: (value: string[], event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onExit: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+}> = ({ onSubmit, onExit }) => {
   const { canType } = useContext(GlobalContext) as GlobalContextType;
   canType.current = true; // FIXME: !!
   const [translation, setTranslation] = useState<any | null>(null);
   const [book, setBook] = useState<any | null>(null);
   const [chapter, setChapter] = useState<number | null>(null);
   const verseRefs = useRef<HTMLElement[]>([]);
-  const finalTextRef = useRef("");
+  const finalTextRef = useRef<string[]>([]);
   return false ? (
     ""
   ) : (
@@ -451,7 +453,7 @@ const Bible: FC<{ onSubmit: (value: string) => void; onExit: () => void }> = ({
       }}
       onClick={(event) => {
         if (event.target === event.currentTarget) {
-          onExit();
+          onExit(event);
         }
       }}
     >
@@ -480,8 +482,8 @@ const Bible: FC<{ onSubmit: (value: string) => void; onExit: () => void }> = ({
           </div>
           <button
             className="bible-form-submit-button"
-            onClick={() => {
-              console.log(finalTextRef.current);
+            onClick={(event) => {
+              onSubmit(finalTextRef.current, event);
             }}
           >
             <BibleCheckIcon />

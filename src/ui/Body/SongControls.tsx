@@ -2,6 +2,7 @@ import VerseButton from "./VerseButton";
 import AddButtons from "./AddButtons";
 import Icon from "../Icon";
 import ConfirmKillButton from "../ConfirmKillButton";
+import BibleButton from "./BibleButton";
 import "./general-icon-button.css";
 import { GlobalContext } from "../GlobalContext";
 import "./SongControls.css";
@@ -422,8 +423,12 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
         <input
           className="dark-material-input text-input"
           type="text"
-          onFocus={() => { canType.current = true; }}
-          onBlur={() => { canType.current = false; }}
+          onFocus={() => {
+            canType.current = true;
+          }}
+          onBlur={() => {
+            canType.current = false;
+          }}
           onChange={(event) => {
             newElementText.current = event.target.value.trim();
           }}
@@ -529,6 +534,27 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
             key={`ab${seiIndex}`}
             section={currentSection}
             sectionOrderIndex={seiIndex}
+          />,
+          <BibleButton
+            onSubmit={(value, shiftKey) => {
+              if ((value.length == 0)) {
+                return;
+              }
+
+              if (shiftKey) {
+                currentSection.verses.splice(
+                  currentSection.verses.length - 0,
+                  0,
+                  ...value.map((v) => ({ lines: v.split("\n") })),
+                );
+                  
+              } else {
+                currentSection.verses.push({
+                  lines: value,
+                });
+              }
+              updateState();
+            }}
           />,
         ];
       } else if (sei.type === "note") {

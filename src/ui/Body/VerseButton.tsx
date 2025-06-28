@@ -162,12 +162,22 @@ const VerseButton = forwardRef<
                     } else {
                       section.verses[reference.verseID].lines =
                         editorContentRef.current
+                          .trim()
                           .replace(/[\n\r]/, "\n")
                           .split("\n")
                           .map((s) => s.trim())
                           .reduce((p, c) => p + "\n" + c)
                           .replace(/$\n(^\s*$\n)*/gm, "\n")
                           .split("\n");
+
+                          console.log(
+                        editorContentRef.current
+                          .replace(/[\n\r]/, "\n")
+                          .split("\n")
+                          .map((s) => s.trim())
+                          .reduce((p, c) => p + "\n" + c)
+                          .replace(/$\n(^\s*$\n)*/gm, "\n")
+                          .split("\n"))
                     }
                     updateState();
                   } else {
@@ -374,9 +384,11 @@ const VerseButton = forwardRef<
           <textarea
             className="inline-verse-editor text-input"
             defaultValue={section.verses[reference.verseID].lines
-              .reduce((p, c) => p + "\n" + c, "")
+              .reduce((p, c) => p + "\n" + c)
               .trim()}
-            style={{}}
+            style={{
+              minHeight: `${section.verses[reference.verseID].lines.length}em`
+            }}
             onFocus={() => {
               canType.current = true;
             }}
