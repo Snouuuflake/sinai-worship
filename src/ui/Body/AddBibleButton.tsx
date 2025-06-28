@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Bible from "./Bible";
 
-const BibleButton: React.FC<{
+const AddBibleButton: React.FC<{
   onSubmit: (value: string[], shiftKey: boolean) => void
 }> = (props) => {
   const [open, setOpen] = useState(false);
@@ -20,9 +20,9 @@ const BibleButton: React.FC<{
       ) : (
         ""
       )}
-      <button onClick={()=>{setOpen(true)}}>+ Bible</button>
+      <button className="section-controls-add-button" onClick={()=>{setOpen(true)}}>+ Bible</button>
     </>
   );
 };
 
-export default BibleButton;
+export default AddBibleButton;

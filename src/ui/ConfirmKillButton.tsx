@@ -1,17 +1,17 @@
 import Icon from "./Icon";
 import { useState, useRef, useEffect } from "react";
 
-function ConfirmKillButton({ callback }: { callback: () => void }) {
+/**
+ * @param props.className already has "general-icon-button"
+ */
+function ConfirmKillButton({ callback, className }: { callback: () => void; className: string }) {
   const [gonnaKill, setGonnaKill] = useState<boolean>(false);
   const thisRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const callback = (event: MouseEvent) => {
       if (thisRef.current && !thisRef.current.contains(event.target as Node)) {
-      //  console.log(event.target, thisRef.current)
-      //console.log("condition")
         setGonnaKill(false);
       }
-      //console.log("happened")
     };
 
     document.body.addEventListener("click", callback);
@@ -24,7 +24,7 @@ function ConfirmKillButton({ callback }: { callback: () => void }) {
     <button
       ref={thisRef}
       style={{ color: gonnaKill ? "red" : "" }}
-      className="general-icon-button"
+      className={"general-icon-button" + " " + className}
       onClick={(event) => {
         if (!gonnaKill) {
           setGonnaKill(true);

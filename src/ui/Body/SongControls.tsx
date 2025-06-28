@@ -1,16 +1,12 @@
+import { useContext, useEffect, useState, useRef, useCallback } from "react";
+import { GlobalContext } from "../GlobalContext";
 import VerseButton from "./VerseButton";
-import AddButtons from "./AddButtons";
 import Icon from "../Icon";
 import ConfirmKillButton from "../ConfirmKillButton";
-import BibleButton from "./BibleButton";
+import AddVerseButton from "./AddVerseButton";
+import AddBibleButton from "./AddBibleButton";
 import "./general-icon-button.css";
-import { GlobalContext } from "../GlobalContext";
 import "./SongControls.css";
-import "./VerseButton.css";
-
-import { useContext, useEffect, useState, useRef, useCallback } from "react";
-
-import Bible from "./Bible";
 
 function makeNoteTitle(text: string) {
   return (
@@ -111,7 +107,7 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
           case " ":
           case "Enter":
             event.preventDefault();
-            verseButtonRefs.current.forEach((vb, i) => {
+            verseButtonRefs.current.forEach((vb, _i) => {
               //console.log(i,vb.reference.sectionID, vb.reference.verseID, vb.enterHandler)
               vb.enterHandler();
             });
@@ -129,7 +125,6 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
 
   let buttonIDCounter: number = -1;
   let sIndex: number = -1;
-  let sIndex2: number = -1; // same thing, used for song sections bit
   console.log(openSong);
   const updateState = () => {
     openElements.set([...openElements.value]);
@@ -224,7 +219,7 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
                       });
                     }
                   }
-                  liveElements.map((le, i) => {
+                  liveElements.map((le, _i) => {
                     if (le.type !== "text") return le;
                     if (le.reference.sectionID > lyricSectionIndex) {
                       return {
@@ -327,7 +322,7 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
                       });
                     }
                     // swapping liveElements
-                    liveElements.map((le, i) =>
+                    liveElements.map((le, _i) =>
                       le.type === "text" &&
                       le.reference.object === openSong.song
                         ? le.reference.sectionID == seiIndex
@@ -388,7 +383,7 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
                       });
                     }
                     // swapping liveElements
-                    liveElements.map((le, i) =>
+                    liveElements.map((le, _i) =>
                       le.type === "text" && le.reference.object == openSong.song
                         ? le.reference.sectionID == seiIndex
                           ? {
@@ -528,34 +523,34 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
               ></VerseButton>
             );
           }),
+          <div className="section-controls-add-buttons-container">
+            <AddVerseButton
+              song={openSong.song}
+              key={`ab${seiIndex}`}
+              section={currentSection}
+              sectionOrderIndex={seiIndex}
+            />
+            <AddBibleButton
+              onSubmit={(value, shiftKey) => {
+                if (value.length == 0) {
+                  return;
+                }
 
-          <AddButtons
-            song={openSong.song}
-            key={`ab${seiIndex}`}
-            section={currentSection}
-            sectionOrderIndex={seiIndex}
-          />,
-          <BibleButton
-            onSubmit={(value, shiftKey) => {
-              if ((value.length == 0)) {
-                return;
-              }
-
-              if (shiftKey) {
-                currentSection.verses.splice(
-                  currentSection.verses.length - 0,
-                  0,
-                  ...value.map((v) => ({ lines: v.split("\n") })),
-                );
-                  
-              } else {
-                currentSection.verses.push({
-                  lines: value,
-                });
-              }
-              updateState();
-            }}
-          />,
+                if (shiftKey) {
+                  currentSection.verses.splice(
+                    currentSection.verses.length - 0,
+                    0,
+                    ...value.map((v) => ({ lines: v.split("\n") })),
+                  );
+                } else {
+                  currentSection.verses.push({
+                    lines: value,
+                  });
+                }
+                updateState();
+              }}
+            />
+          </div>,
         ];
       } else if (sei.type === "note") {
         return (

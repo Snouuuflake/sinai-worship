@@ -1,9 +1,11 @@
-import "./OpenElementMenu.css";
-import "./general-icon-button.css";
-import Icon from "../Icon";
 import { useContext, useEffect, useRef } from "react";
 import { GlobalContext } from "../GlobalContext";
+import Icon from "../Icon";
 import OpenElementIcon from "./OpenElementIcon";
+import ConfirmKillButton from "../ConfirmKillButton";
+import "./OpenElementMenu.css";
+import "./general-icon-button.css";
+
 function OpenElementMenu() {
   const { openElements, viewElement } = useContext(
     GlobalContext,
@@ -84,9 +86,9 @@ function OpenElementMenu() {
                 </div>
               </button>
               <div className="open-element-action-button-container">
-                <button
+                <ConfirmKillButton
                   className="open-element-delete general-icon-button"
-                  onClick={() => {
+                  callback={() => {
                     if (
                       oe == viewElement.value
                     ) {
@@ -99,9 +101,7 @@ function OpenElementMenu() {
                       ),
                     );
                   }}
-                >
-                  <Icon code="X" />
-                </button>
+                />
                 <button
                   className="open-element-up general-icon-button"
                   onClick={() => {

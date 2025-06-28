@@ -45,16 +45,16 @@
 }
 
 .icon-button {
+  background-color: var(--gray-3);
   tab-index: -1;
 }
 
 .icon-button:hover {
-  background-color: var(--gray-5);
+  background-color: var(--gray-4);
 }
 
 .icon-button:active {
-  background-color: var(--gray-5) !important;
-  color: var(--gray-5) !important;
+  background-color: var(--gray-2) !important;
 }
 
 .lights-container {
