@@ -1,4 +1,4 @@
-import "./ControlSection.css";
+import "../ControlSection.css";
 import "../general-icon-button.css";
 import Icon from "../../Icon";
 import {
