@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Bible from "./Bible";
+import Bible from "../Bible";
 
 const AddBibleButton: React.FC<{
   onSubmit: (value: string[], shiftKey: boolean) => void

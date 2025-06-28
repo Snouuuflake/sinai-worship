@@ -1,6 +1,6 @@
 import { GlobalContext } from "../GlobalContext";
 import { useContext, useEffect, useState } from "react";
-import SongControls from "./SongControls";
+import SongControls from "./SongControls/SongControls";
 import ImageControls from "./ImageControls";
 import "./ControlSection.css";
 

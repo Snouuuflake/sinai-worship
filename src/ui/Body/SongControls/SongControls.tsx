@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState, useRef, useCallback } from "react";
-import { GlobalContext } from "../GlobalContext";
+import { GlobalContext } from "../../GlobalContext";
 import VerseButton from "./VerseButton";
-import Icon from "../Icon";
-import ConfirmKillButton from "../ConfirmKillButton";
+import Icon from "../../Icon";
+import ConfirmKillButton from "../../ConfirmKillButton";
 import AddVerseButton from "./AddVerseButton";
 import AddBibleButton from "./AddBibleButton";
-import "./general-icon-button.css";
+import "../general-icon-button.css";
 import "./SongControls.css";
 
 function makeNoteTitle(text: string) {
@@ -198,6 +198,7 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
               ""
             )}
             <ConfirmKillButton
+            className=""
               callback={() => {
                 if (sei.type === "section" || sei.type === "repeat") {
                   const lyricSectionIndex = lyricSectionOrder.indexOf(sei);

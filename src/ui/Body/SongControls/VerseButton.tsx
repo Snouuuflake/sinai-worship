@@ -1,6 +1,6 @@
 import "./ControlSection.css";
-import "./general-icon-button.css";
-import Icon from "../Icon";
+import "../general-icon-button.css";
+import Icon from "../../Icon";
 import {
   forwardRef,
   useImperativeHandle,
@@ -9,7 +9,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { GlobalContext } from "../GlobalContext";
+import { GlobalContext } from "../../GlobalContext";
 
 const VerseButton = forwardRef<
   { enterHandler: () => void; reference: LiveSongReference },
