@@ -402,9 +402,7 @@ const BibleBody: React.FC<{
                   v.verse >= selection[0] &&
                   v.verse <= selection[1]
                     ? "red"
-                    : ""
-                      ? "red"
-                      : "",
+                    : "" ,
               }}
             >
               <div
