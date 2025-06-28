@@ -279,4 +279,5 @@ type GlobalContextType = {
     set: React.Dispatch<React.SetStateAction<"main" | "display">>;
   };
   displayConfig: NullFullDisplayConfigState;
+  canType: React.MutableRefObject<boolean>;
 };

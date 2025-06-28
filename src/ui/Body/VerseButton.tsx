@@ -20,7 +20,7 @@ const VerseButton = forwardRef<
     updateState: () => void;
   }
 >(({ section, reference, selectedState, updateState }, ref) => {
-  const { MAX_LIVE_ELEMENTS, liveElements } = useContext(
+  const { MAX_LIVE_ELEMENTS, liveElements, canType } = useContext(
     GlobalContext,
   ) as GlobalContextType;
 
@@ -79,7 +79,7 @@ const VerseButton = forwardRef<
 
   const [editorOpen, setEditorOpen] = useState<boolean>(false);
   const editorContentRef = useRef<string>(
-    section.verses[reference.verseID].lines.reduce((p, c) => p + "\n" + c, ""),
+    section.verses[reference.verseID].lines.reduce((p, c) => p + "\n" + c),
   );
 
   return (
@@ -116,16 +116,59 @@ const VerseButton = forwardRef<
           <div className="icon-container icon-button">
             <span
               className="text-icon no-select"
-              onClick={() => {
+              onClick={(event) => {
                 if (editorOpen) {
                   if (editorContentRef.current.trim() !== "") {
-                    section.verses[reference.verseID].lines =
-                      editorContentRef.current
+                    if (event.shiftKey) {
+                      const newVerses = editorContentRef.current
                         .trim()
                         .replace(/[\n\r]/, "\n")
-                        .replace(/\s*$(\n\s*$){2,}/gm, "")
                         .split("\n")
-                        .map((l) => l.trim());
+                        .map((s) => s.trim())
+                        .reduce((p, c) => p + "\n" + c)
+                        .split(/\n{2,}/m)
+                        .map((s) => ({
+                          lines: s.split("\n"),
+                        }));
+
+                      section.verses.splice(reference.verseID, 1, ...newVerses);
+
+                      if (selectedState.value.verseID > reference.verseID) {
+                        selectedState.set({
+                          ...selectedState.value,
+                          verseID:
+                            selectedState.value.sectionID +
+                            newVerses.length -
+                            1,
+                        });
+                      }
+                      liveElements.map((le, _i) => {
+                        if (le.type !== "text") return le;
+                        if (le.reference.object != reference.object) return le;
+                        if (le.reference.verseID > reference.verseID) {
+                          return {
+                            ...le,
+                            reference: {
+                              ...le.reference,
+                              verseID:
+                                le.reference.sectionID + newVerses.length - 1,
+                            },
+                          };
+                        }
+                        return le;
+                      });
+
+                      console.log(newVerses);
+                    } else {
+                      section.verses[reference.verseID].lines =
+                        editorContentRef.current
+                          .replace(/[\n\r]/, "\n")
+                          .split("\n")
+                          .map((s) => s.trim())
+                          .reduce((p, c) => p + "\n" + c)
+                          .replace(/$\n(^\s*$\n)*/gm, "\n")
+                          .split("\n");
+                    }
                     updateState();
                   } else {
                     // keeps selected in section
@@ -334,6 +377,12 @@ const VerseButton = forwardRef<
               .reduce((p, c) => p + "\n" + c, "")
               .trim()}
             style={{}}
+            onFocus={() => {
+              canType.current = true;
+            }}
+            onBlur={() => {
+              canType.current = false;
+            }}
             onChange={(event) => {
               editorContentRef.current = event.target.value;
             }}

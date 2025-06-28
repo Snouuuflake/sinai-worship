@@ -1,4 +1,4 @@
-import { createContext, useState, useLayoutEffect } from "react";
+import { createContext, useState, useLayoutEffect, useRef } from "react";
 
 export const GlobalContext = createContext<GlobalContextType | null>(null);
 const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -83,6 +83,8 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
       });
   }, []);
 
+  const canType = useRef(false);
+
   return (
     <GlobalContext.Provider
       value={{
@@ -93,6 +95,7 @@ const GlobalContextProvider: React.FC<{ children: React.ReactNode }> = ({
         logoState,
         bodyContent,
         displayConfig,
+        canType
       }}
     >
       {children}

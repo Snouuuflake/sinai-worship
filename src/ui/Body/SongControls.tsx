@@ -9,6 +9,8 @@ import "./VerseButton.css";
 
 import { useContext, useEffect, useState, useRef, useCallback } from "react";
 
+import Bible from "./Bible";
+
 function makeNoteTitle(text: string) {
   return (
     <>
@@ -28,12 +30,12 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
   const selectedState = { value: selected, set: superSetSelected };
 
   // useState is lazy somehow..
-  useEffect(()=>{
-    selectedState.set(openSong.selected)
-  },[openSong])
+  useEffect(() => {
+    selectedState.set(openSong.selected);
+  }, [openSong]);
 
   const newElementText = useRef<string>("");
-  const { openElements, liveElements } = useContext(
+  const { openElements, liveElements, canType } = useContext(
     GlobalContext,
   ) as GlobalContextType;
 
@@ -55,7 +57,7 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
   useEffect(() => {
     function keyHandler(event: KeyboardEvent) {
       const target = event.target as HTMLElement;
-      if (!target.classList.contains("text-input")) {
+      if (!target.classList.contains("text-input") && !canType.current) {
         switch (event.key) {
           case "ArrowUp":
             event.preventDefault();
@@ -420,6 +422,8 @@ function SongControls({ openSong }: { openSong: OpenSongType }) {
         <input
           className="dark-material-input text-input"
           type="text"
+          onFocus={() => { canType.current = true; }}
+          onBlur={() => { canType.current = false; }}
           onChange={(event) => {
             newElementText.current = event.target.value.trim();
           }}
