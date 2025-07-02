@@ -46,6 +46,15 @@
   background-color: var(--gray-0);
 }
 
+@font-face {
+  font-family: "myfont";
+  src: url("./assets/AtkinsonHyperlegibleNext-VariableFont_wght.ttf");
+  font-style: normal;
+}
+
+* {
+  font-family: "myfont", Arial;
+}
 
 *::-webkit-scrollbar {
   background-color: transparent;
