@@ -6,6 +6,7 @@ import {
   FC,
   useLayoutEffect,
 } from "react";
+
 import { search, Searcher } from "fast-fuzzy";
 
 import { TRANSLATIONS } from "../constants";
@@ -428,12 +429,17 @@ const Bible: FC<{
   onExit: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }> = ({ onSubmit, onExit }) => {
   const { canType } = useContext(GlobalContext) as GlobalContextType;
-  canType.current = true; // FIXME: !!
   const [translation, setTranslation] = useState<any | null>(null);
   const [book, setBook] = useState<any | null>(null);
   const [chapter, setChapter] = useState<number | null>(null);
   const verseRefs = useRef<HTMLElement[]>([]);
   const finalTextRef = useRef<string[]>([]);
+  useEffect(()=>{
+    canType.current = true;
+    return () => {
+      canType.current = false;
+    }
+  })
   return false ? (
     ""
   ) : (
