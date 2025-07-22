@@ -1,4 +1,4 @@
-import { app, protocol, BrowserWindow, ipcMain, dialog, Menu } from "electron";
+import { app, protocol, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
 import { isDev } from "./util.js";
 import { getConfigPath, getPreloadPath } from "./pathResolver.js";
@@ -8,16 +8,18 @@ import * as fs from "fs";
 
 // TODO: make this one variable for electron and react
 const MAX_LIVE_ELEMENTS = 4;
-const liveElements: any[] = [];
-let logo: boolean = false; // FIXME: hardcoded to start at false. how do i do this better?
+
+type CurrentLiveWindowValuesType = {
+  logo: boolean;
+  liveElements: LiveElementType[]
+}
+
+const currentLiveWindowValues: CurrentLiveWindowValuesType = {
+  logo: false,
+  liveElements: [],
+}
 
 let activeConfig: FullDisplayConfigType | null = null;
-
-function handleJSON(channel: string, callback: (obj: any) => any) {
-  ipcMain.handle(channel, (_event, data) => {
-    return JSON.stringify(callback(JSON.parse(data)));
-  });
-}
 
 function handleJSONAsync(
   channel: string,
@@ -43,12 +45,6 @@ class DisplayWindow {
         additionalArguments: [`${index}`],
       },
     });
-
-    //this.window.webContents.on("before-input-event", (_event, input) => {
-    //  if (input.key.toLowerCase() === "i") {
-    //    this.window.webContents.openDevTools();
-    //  }
-    //});
 
     this.window.setMenuBarVisibility(false);
 
@@ -86,41 +82,51 @@ function sendToAllDisplayWindows(channel: string, data: any) {
   });
 }
 
+// INFO: IPC live element handling
+
 const sendLiveElement = (index: number, liveElement: LiveElementType) => {
-  if (liveElement.type === "text") {
-    sendToAllDisplayWindows(`display-${index}-text`, liveElement.value);
-  }
-  if (liveElement.type === "image") {
-    sendToAllDisplayWindows(`display-${index}-image`, liveElement.value);
-  }
-  if (liveElement.type === "none") {
-    sendToAllDisplayWindows(`display-${index}-none`, undefined);
+  switch (liveElement.type) {
+    case "text":
+      sendToAllDisplayWindows(`display-${index}-text`, liveElement.value);
+      break;
+    case "image":
+      sendToAllDisplayWindows(`display-${index}-image`, liveElement.value);
+      break;
+    case "none":
+      sendToAllDisplayWindows(`display-${index}-none`, undefined);
+      break;
+    default:
+      break;
   }
 };
-
-ipcMain.on("set-logo", (_event, value) => {
-  logo = value;
-  sendToAllDisplayWindows("display-logo", value);
-});
-
-ipcMain.handle("get-logo", (_event, _index: number) => {
-  return logo;
-});
 
 ipcMain.on(
   "set-live-element",
   (_event, data: { index: number; liveElement: LiveElementType }) => {
     console.log(data);
-    liveElements[data.index] = data.liveElement;
+    currentLiveWindowValues.liveElements[data.index] = data.liveElement;
     sendLiveElement(data.index, data.liveElement);
   },
 );
 
 ipcMain.on("get-live-element", (_event, index: number) => {
-  if (liveElements[index]) {
-    sendLiveElement(index, liveElements[index]);
+  if (currentLiveWindowValues.liveElements[index]) {
+    sendLiveElement(index, currentLiveWindowValues.liveElements[index]);
   }
 });
+
+// INFO: IPC logo handling
+
+ipcMain.on("set-logo", (_event, value) => {
+  currentLiveWindowValues.logo = value;
+  sendToAllDisplayWindows("display-logo", value);
+});
+
+ipcMain.handle("get-logo", (_event, _index: number) => {
+  return currentLiveWindowValues.logo;
+});
+
+// INFO: horrible display settings
 
 const updateDisplay = (og: DisplayConfigType, updater: DisplayConfigType) => {
   const updateDisplayField = (
@@ -297,7 +303,7 @@ const readFullConfig = () => {
 
     const curConfig = makeDefaultFullConfig();
 
-     updateDisplay(curConfig.globalDisplay, fConfig.globalDisplay);
+    updateDisplay(curConfig.globalDisplay, fConfig.globalDisplay);
     for (let i = 0; i < MAX_LIVE_ELEMENTS; i++) {
       updateDisplay(curConfig.specificDisplays[i], fConfig.specificDisplays[i]);
     }
@@ -317,25 +323,26 @@ protocol.registerSchemesAsPrivileged([
   },
 ]);
 
-app.on("ready", () => {
-  /* FIXME: chatgpt code. beware */
-  protocol.handle("mssf", async (request) => {
-    const url = new URL(request.url);
-    const filePath = path.resolve(
-      path.normalize(decodeURIComponent(url.pathname)),
-    );
+// FIXME: chatgpt code. beware
+// NOTE: moved out of app.on("ready", ...
+protocol.handle("mssf", async (request) => {
+  const url = new URL(request.url);
+  const filePath = path.resolve(
+    path.normalize(decodeURIComponent(url.pathname)),
+  );
 
-    try {
-      await fs.promises.access(filePath, fs.constants.R_OK);
-      const fileBuffer = await fs.promises.readFile(filePath);
-      return new Response(fileBuffer, { status: 200 });
-    } catch {
-      return new Response("File Not Found", { status: 404 });
-    }
-  });
+  try {
+    await fs.promises.access(filePath, fs.constants.R_OK);
+    const fileBuffer = await fs.promises.readFile(filePath);
+    return new Response(fileBuffer, { status: 200 });
+  } catch {
+    return new Response("File Not Found", { status: 404 });
+  }
+});
+
+app.on("ready", () => {
 
   //loading settings **blocking**
-
   const mainWindow = new BrowserWindow({
     minWidth: 400,
     minHeight: 400,
@@ -352,6 +359,7 @@ app.on("ready", () => {
   }
 
   // INFO: display css managment horror
+
   activeConfig = readFullConfig();
 
   const getSpecificDisplayCss = (index: number) => {
@@ -369,7 +377,6 @@ app.on("ready", () => {
         entry.value = activeSpecificFoundEntry.value;
       });
     });
-
 
     const getEntryCss = (entry: DisplayConfigEntryType) => {
       let value: any;
@@ -404,28 +411,22 @@ app.on("ready", () => {
 
     const newCss = resConfig
       .flatMap((dsc) => {
-        //return `${key === "root" ? ":root" : `.d-${index}-${key}`} {
         return dsc.entries.flatMap((dse) => {
           return dse.target.map((t) => {
             return `${t} { ${getEntryCss(dse)} }`;
           });
         });
-        //  `.d-${index}-${key} {
-        //  ${resConfig[key]
-        //      .map((entry) => {
-        //        return getEntryCss(entry);
-        //      })
-        //      .reduce((p, c) => p + "\n" + c)}
-        //}`;
       })
       .reduce((p, c) => p + " " + c);
     return newCss;
   };
 
+  // INFO: IPC display settings handling
+
   handleJSONAsync("read-display-settings", async (_) => activeConfig);
 
   ipcMain.handle("req-css", (_event, index) => {
-      return getSpecificDisplayCss(index)
+    return getSpecificDisplayCss(index)
   });
 
   ipcMain.on(
@@ -457,6 +458,8 @@ app.on("ready", () => {
         });
     },
   );
+
+  // INFO: File writing handling (needs main window as parent window)
 
   ipcMain.handle("save-song", (_event, song) => {
     return new Promise<void>((resolve, reject) => {
@@ -495,6 +498,8 @@ ipcMain.on("new-display-window", (_event, index: number) => {
 ipcMain.on("alert", (_event, message: string) => {
   dialog.showMessageBox({ message: message });
 });
+
+// INFO: IPC reading files
 
 ipcMain.handle("read-element", (_event) => {
   return new Promise((resolve: (arg0: OpenElementType) => any, reject) => {
