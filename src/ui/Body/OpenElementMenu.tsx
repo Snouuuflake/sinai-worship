@@ -10,13 +10,13 @@ function OpenElementMenu() {
   const { openElements, viewElement } = useContext(
     GlobalContext,
   ) as GlobalContextType;
-  useEffect(() => {}, [openElements, viewElement]);
+  useEffect(() => { }, [openElements, viewElement]);
 
   const newSongNameRef = useRef<string>("");
 
   return (
     <div className="open-element-menu">
-      <div className="inverse-title-container">
+      <div className="inverse-title-container force-centered">
         <div className="inverse-title">Setlist</div>
       </div>
       <div className="inverse-title-container">
@@ -112,9 +112,9 @@ function OpenElementMenu() {
                         openElementsCopy[oeIndex],
                         openElementsCopy[oeIndex - 1],
                       ] = [
-                        openElementsCopy[oeIndex - 1],
-                        openElementsCopy[oeIndex],
-                      ];
+                          openElementsCopy[oeIndex - 1],
+                          openElementsCopy[oeIndex],
+                        ];
                       openElements.set(openElementsCopy);
                     }
                   }}
@@ -131,9 +131,9 @@ function OpenElementMenu() {
                         openElementsCopy[oeIndex],
                         openElementsCopy[oeIndex + 1],
                       ] = [
-                        openElementsCopy[oeIndex + 1],
-                        openElementsCopy[oeIndex],
-                      ];
+                          openElementsCopy[oeIndex + 1],
+                          openElementsCopy[oeIndex],
+                        ];
                       openElements.set(openElementsCopy);
                     }
                   }}

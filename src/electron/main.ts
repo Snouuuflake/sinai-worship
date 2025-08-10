@@ -324,23 +324,23 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 // FIXME: chatgpt code. beware
-// NOTE: moved out of app.on("ready", ...
-protocol.handle("mssf", async (request) => {
-  const url = new URL(request.url);
-  const filePath = path.resolve(
-    path.normalize(decodeURIComponent(url.pathname)),
-  );
-
-  try {
-    await fs.promises.access(filePath, fs.constants.R_OK);
-    const fileBuffer = await fs.promises.readFile(filePath);
-    return new Response(fileBuffer, { status: 200 });
-  } catch {
-    return new Response("File Not Found", { status: 404 });
-  }
-});
 
 app.on("ready", () => {
+  // NOTE: moved out of app.on("ready", ...
+  protocol.handle("mssf", async (request) => {
+    const url = new URL(request.url);
+    const filePath = path.resolve(
+      path.normalize(decodeURIComponent(url.pathname)),
+    );
+
+    try {
+      await fs.promises.access(filePath, fs.constants.R_OK);
+      const fileBuffer = await fs.promises.readFile(filePath);
+      return new Response(fileBuffer, { status: 200 });
+    } catch {
+      return new Response("File Not Found", { status: 404 });
+    }
+  });
 
   //loading settings **blocking**
   const mainWindow = new BrowserWindow({
